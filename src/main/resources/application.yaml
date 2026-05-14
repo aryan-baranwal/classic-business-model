@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/classicmodel
+    username: root
+    password: aryanb374
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+
+  thymeleaf:
+    cache: false

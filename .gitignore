@@ -1,0 +1,17 @@
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### IntelliJ ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+### Mac ###
+.DS_Store
+
+### Logs ###
+*.log
