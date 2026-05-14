@@ -2,12 +2,11 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/classicmodel
     username: root
-    password: root
-
+    password: root123
 
   jpa:
     hibernate:
-      ddl-auto: update   # Creates/updates tables automatically during development
+      ddl-auto: none   # Do not create or update tables
     show-sql: true
     properties:
       hibernate:
