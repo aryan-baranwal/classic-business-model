@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Offices</title>
+</head>
+<body>
+
+<h2>Office List</h2>
+
+<table border="1">
+
+    <tr>
+        <th>Office Code</th>
+        <th>City</th>
+        <th>Phone</th>
+        <th>Country</th>
+    </tr>
+
+    <tr th:each="office : ${offices}">
+        <td th:text="${office.officeCode}"></td>
+        <td th:text="${office.city}"></td>
+        <td th:text="${office.phone}"></td>
+        <td th:text="${office.country}"></td>
+    </tr>
+
+</table>
+
+</body>
+</html>
