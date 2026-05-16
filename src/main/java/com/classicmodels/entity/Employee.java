@@ -2,12 +2,17 @@ package com.classicmodels.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "employees")
@@ -17,31 +22,55 @@ public class Employee {
     @Id
     @Column(name = "employeeNumber")
     @NotNull(message = "Employee number is required")
+    @Positive(message = "Employee number must be positive")
     private Integer employeeNumber;
 
-    @Column(name = "lastName", nullable = false)
+    @Column(name = "lastName", nullable = false, length = 50)
     @NotBlank(message = "Last name is required")
+    @Size(
+            min = 2,
+            max = 50,
+            message = "Last name must be between 2 and 50 characters"
+    )
     private String lastName;
 
-    @Column(name = "firstName", nullable = false)
+    @Column(name = "firstName", nullable = false, length = 50)
     @NotBlank(message = "First name is required")
+    @Size(
+            min = 2,
+            max = 50,
+            message = "First name must be between 2 and 50 characters"
+    )
     private String firstName;
 
-    @Column(name = "extension", nullable = false)
+    @Column(name = "extension", nullable = false, length = 10)
     @NotBlank(message = "Extension is required")
+    @Size(
+            max = 10,
+            message = "Extension cannot exceed 10 characters"
+    )
     private String extension;
 
-    @Column(name = "email", nullable = false, unique = true)
-    @Email(message = "Invalid email")
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    @Size(
+            max = 100,
+            message = "Email cannot exceed 100 characters"
+    )
     private String email;
 
-    @Column(name = "jobTitle", nullable = false)
+    @Column(name = "jobTitle", nullable = false, length = 50)
     @NotBlank(message = "Job title is required")
+    @Size(
+            max = 50,
+            message = "Job title cannot exceed 50 characters"
+    )
     private String jobTitle;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "officeCode")
+    @JoinColumn(name = "officeCode", nullable = false)
+    @NotNull(message = "Office is required")
     private Office office;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -52,20 +81,24 @@ public class Employee {
     @JsonIgnore
     private List<Employee> subordinates;
 
-    // Default Constructor
+    // DEFAULT CONSTRUCTOR
+
     public Employee() {
     }
 
-    // Parameterized Constructor
-    public Employee(Integer employeeNumber,
-                    String lastName,
-                    String firstName,
-                    String extension,
-                    String email,
-                    String jobTitle,
-                    Office office,
-                    Employee manager,
-                    List<Employee> subordinates) {
+    // PARAMETERIZED CONSTRUCTOR
+
+    public Employee(
+            Integer employeeNumber,
+            String lastName,
+            String firstName,
+            String extension,
+            String email,
+            String jobTitle,
+            Office office,
+            Employee manager,
+            List<Employee> subordinates
+    ) {
 
         this.employeeNumber = employeeNumber;
         this.lastName = lastName;
@@ -78,7 +111,7 @@ public class Employee {
         this.subordinates = subordinates;
     }
 
-    // Getters and Setters
+    // GETTERS AND SETTERS
 
     public Integer getEmployeeNumber() {
         return employeeNumber;
@@ -152,12 +185,45 @@ public class Employee {
         this.subordinates = subordinates;
     }
 
+    // equals()
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Employee)) {
+            return false;
+        }
+
+        Employee employee = (Employee) o;
+
+        return Objects.equals(
+                employeeNumber,
+                employee.employeeNumber
+        );
+    }
+
+    // hashCode()
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(employeeNumber);
+    }
+
+    // toString()
+
     @Override
     public String toString() {
+
         return "Employee{" +
                 "employeeNumber=" + employeeNumber +
                 ", lastName='" + lastName + '\'' +
                 ", firstName='" + firstName + '\'' +
+                ", extension='" + extension + '\'' +
                 ", email='" + email + '\'' +
                 ", jobTitle='" + jobTitle + '\'' +
                 '}';
