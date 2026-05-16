@@ -4,6 +4,7 @@ package com.classicmodels.repository;
 import com.classicmodels.entity.Product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ProductRepositoryTest {
 
     @Autowired
@@ -27,14 +29,14 @@ public class ProductRepositoryTest {
     // Tests endpoint: GET /api/products/{productCode}
     @Test
     public void testFindProductById() {
-        // Get one existing product from the database
         List<Product> products = productRepository.findAll();
         assertNotNull(products);
 
         if (!products.isEmpty()) {
             String productCode = products.get(0).getProductCode();
 
-            Optional<Product> product = productRepository.findById(productCode);
+            Optional<Product> product =
+                    productRepository.findById(productCode);
 
             assertNotNull(product);
         }
@@ -43,18 +45,20 @@ public class ProductRepositoryTest {
     // Tests endpoint: GET /api/product-lines/{productLine}/products
     @Test
     public void testFindProductsByProductLine() {
-        // Get one existing product line from the database
         List<Product> products = productRepository.findAll();
         assertNotNull(products);
 
-        if (!products.isEmpty() &&
-                products.get(0).getProductLine() != null) {
+        if (!products.isEmpty()
+                && products.get(0).getProductLine() != null) {
 
             String productLine =
-                    products.get(0).getProductLine().getProductLine();
+                    products.get(0)
+                            .getProductLine()
+                            .getProductLine();
 
             List<Product> result =
-                    productRepository.findByProductLine_ProductLine(productLine);
+                    productRepository.findByProductLine_ProductLine(
+                            productLine);
 
             assertNotNull(result);
         }

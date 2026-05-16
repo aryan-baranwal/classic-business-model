@@ -4,6 +4,7 @@ package com.classicmodels.repository;
 import com.classicmodels.entity.ProductLine;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ProductLineRepositoryTest {
 
     @Autowired
@@ -20,18 +22,23 @@ public class ProductLineRepositoryTest {
     // Tests endpoint: GET /api/product-lines
     @Test
     public void testFindAllProductLines() {
-        List<ProductLine> productLines = productLineRepository.findAll();
+        List<ProductLine> productLines =
+                productLineRepository.findAll();
+
         assertNotNull(productLines);
     }
 
     // Tests repository findById()
     @Test
     public void testFindProductLineById() {
-        List<ProductLine> productLines = productLineRepository.findAll();
+        List<ProductLine> productLines =
+                productLineRepository.findAll();
+
         assertNotNull(productLines);
 
         if (!productLines.isEmpty()) {
-            String productLine = productLines.get(0).getProductLine();
+            String productLine =
+                    productLines.get(0).getProductLine();
 
             Optional<ProductLine> result =
                     productLineRepository.findById(productLine);
