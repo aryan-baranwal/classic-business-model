@@ -38,36 +38,133 @@ public class CustomerRequestDTO {
     public CustomerRequestDTO() {
     }
 
-    public String getCustomerName() { return customerName; }
-    public void setCustomerName(String customerName) { this.customerName = customerName; }
+    // Getter for customerName
+    public String getCustomerName() {
+        return customerName;
+    }
 
-    public String getContactLastName() { return contactLastName; }
-    public void setContactLastName(String contactLastName) { this.contactLastName = contactLastName; }
+    // Setter for customerName
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
-    public String getContactFirstName() { return contactFirstName; }
-    public void setContactFirstName(String contactFirstName) { this.contactFirstName = contactFirstName; }
+    // Getter for contactLastName
+    public String getContactLastName() {
+        return contactLastName;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    // Setter for contactLastName
+    public void setContactLastName(String contactLastName) {
+        this.contactLastName = contactLastName;
+    }
 
-    public String getAddressLine1() { return addressLine1; }
-    public void setAddressLine1(String addressLine1) { this.addressLine1 = addressLine1; }
+    // Getter for contactFirstName
+    public String getContactFirstName() {
+        return contactFirstName;
+    }
 
-    public String getAddressLine2() { return addressLine2; }
-    public void setAddressLine2(String addressLine2) { this.addressLine2 = addressLine2; }
+    // Setter for contactFirstName
+    public void setContactFirstName(String contactFirstName) {
+        this.contactFirstName = contactFirstName;
+    }
 
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    // Getter for phone
+    public String getPhone() {
+        return phone;
+    }
 
-    public String getState() { return state; }
-    public void setState(String state) { this.state = state; }
+    // Setter for phone
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
-    public String getPostalCode() { return postalCode; }
-    public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
+    // Getter for addressLine1
+    public String getAddressLine1() {
+        return addressLine1;
+    }
 
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
+    // Setter for addressLine1
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
 
-    public BigDecimal getCreditLimit() { return creditLimit; }
-    public void setCreditLimit(BigDecimal creditLimit) { this.creditLimit = creditLimit; }
+    // Getter for addressLine2
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    // Setter for addressLine2
+    public void setAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
+    }
+
+    // Getter for city
+    public String getCity() {
+        return city;
+    }
+
+    // Setter for city
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    // Getter for state
+    public String getState() {
+        return state;
+    }
+
+    // Setter for state
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    // Getter for postalCode
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    // Setter for postalCode
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    // Getter for country
+    public String getCountry() {
+        return country;
+    }
+
+    // Setter for country
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    // Getter for creditLimit
+    public BigDecimal getCreditLimit() {
+        return creditLimit;
+    }
+
+    // Setter for creditLimit
+    public void setCreditLimit(BigDecimal creditLimit) {
+        this.creditLimit = creditLimit;
+    }
+
+    // equals method
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        CustomerRequestDTO that = (CustomerRequestDTO) obj;
+        if (customerName != null ? !customerName.equals(that.customerName) : that.customerName != null) return false;
+        if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
+        return country != null ? country.equals(that.country) : that.country == null;
+    }
+
+    // hashCode method
+    @Override
+    public int hashCode() {
+        int result = customerName != null ? customerName.hashCode() : 0;
+        result = 31 * result + (phone != null ? phone.hashCode() : 0);
+        result = 31 * result + (country != null ? country.hashCode() : 0);
+        return result;
+    }
 }
