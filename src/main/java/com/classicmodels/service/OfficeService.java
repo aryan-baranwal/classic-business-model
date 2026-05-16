@@ -1,12 +1,12 @@
 package com.classicmodels.service;
 
-import com.classicmodels.entity.Office;
+import com.classicmodels.dto.OfficeResponseDto;
 
 import java.util.List;
 
 public interface OfficeService {
 
-    List<Office> getAllOffices();
+    List<OfficeResponseDto> getAllOffices();
 
-    Office getOfficeByCode(String officeCode);
+    OfficeResponseDto getOfficeByCode(String officeCode);
 }
