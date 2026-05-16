@@ -3,12 +3,21 @@ spring:
     url: jdbc:mysql://3.25.201.88:3306/classicmodels
     username: teamuser
     password: team123
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
       ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
     show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
 
   thymeleaf:
     cache: false
+
+server:
+  port: 8080
