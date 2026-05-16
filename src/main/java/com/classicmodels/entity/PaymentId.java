@@ -28,25 +28,47 @@ public class PaymentId implements Serializable {
         this.checkNumber = checkNumber;
     }
 
-    public Integer getCustomerNumber() { return customerNumber; }
-    public void setCustomerNumber(Integer customerNumber) { this.customerNumber = customerNumber; }
-
-    public String getCheckNumber() { return checkNumber; }
-    public void setCheckNumber(String checkNumber) { this.checkNumber = checkNumber; }
-
-    @Override
-    public int hashCode() {
-        int result = customerNumber != null ? customerNumber.hashCode() : 0;
-        result = 31 * result + (checkNumber != null ? checkNumber.hashCode() : 0);
-        return result;
+    // Getter for customerNumber
+    public Integer getCustomerNumber() {
+        return customerNumber;
     }
 
+    // Setter for customerNumber
+    public void setCustomerNumber(Integer customerNumber) {
+        this.customerNumber = customerNumber;
+    }
+
+    // Getter for checkNumber
+    public String getCheckNumber() {
+        return checkNumber;
+    }
+
+    // Setter for checkNumber
+    public void setCheckNumber(String checkNumber) {
+        this.checkNumber = checkNumber;
+    }
+
+    // equals method
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         PaymentId paymentId = (PaymentId) obj;
-        if (customerNumber != null ? !customerNumber.equals(paymentId.customerNumber) : paymentId.customerNumber != null) return false;
-        return checkNumber != null ? checkNumber.equals(paymentId.checkNumber) : paymentId.checkNumber == null;
+        if (customerNumber != null
+                ? !customerNumber.equals(paymentId.customerNumber)
+                : paymentId.customerNumber != null) {
+            return false;
+        }
+        return checkNumber != null
+                ? checkNumber.equals(paymentId.checkNumber)
+                : paymentId.checkNumber == null;
+    }
+
+    // hashCode method
+    @Override
+    public int hashCode() {
+        int result = customerNumber != null ? customerNumber.hashCode() : 0;
+        result = 31 * result + (checkNumber != null ? checkNumber.hashCode() : 0);
+        return result;
     }
 }
