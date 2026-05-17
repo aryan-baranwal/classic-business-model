@@ -2,11 +2,11 @@ package com.classicmodels.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.Objects;
 
 // DTO used for receiving status update in PATCH API request
 // Maps to: PATCH /api/orders/{orderNumber}/status
 // Only contains the status field as only status is being updated
-// Validation rules match the status column constraints in orders table
 // DB Schema: status varchar(15) NOT NULL
 public class OrderStatusUpdateDTO {
 
@@ -30,4 +30,27 @@ public class OrderStatusUpdateDTO {
 
     // Setter
     public void setStatus(String status) { this.status = status; }
+
+    // equals — compares status field to check if two status update DTOs are identical
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderStatusUpdateDTO)) return false;
+        OrderStatusUpdateDTO that = (OrderStatusUpdateDTO) o;
+        return Objects.equals(status, that.status);
+    }
+
+    // hashCode — based on status field consistent with equals
+    @Override
+    public int hashCode() {
+        return Objects.hash(status);
+    }
+
+    // toString — useful for logging and debugging status update requests
+    @Override
+    public String toString() {
+        return "OrderStatusUpdateDTO{" +
+                "status='" + status + '\'' +
+                '}';
+    }
 }

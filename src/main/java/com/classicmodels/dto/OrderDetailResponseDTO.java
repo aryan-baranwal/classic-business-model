@@ -1,40 +1,34 @@
 package com.classicmodels.dto;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 // DTO used for sending order detail data back to the client
 // Maps to: GET  /api/orders/{orderNumber}/items
 //          POST /api/orders/{orderNumber}/items
 //          PUT  /api/orders/{orderNumber}/items/{productCode}
-// No validation annotations needed — this is an outgoing response DTO
-// Data is already validated and sourced from the database
+// No validation annotations — outgoing response DTO
 public class OrderDetailResponseDTO {
 
-    // Order number this line item belongs to
     // Matches: orderNumber int(11) NOT NULL
     private Integer orderNumber;
 
-    // Product code of the item
     // Matches: productCode varchar(15) NOT NULL
     private String productCode;
 
-    // Product name for display purposes
-    // Derived from the products table via join
+    // Derived from products table — for display purposes
     private String productName;
 
-    // Number of units ordered
     // Matches: quantityOrdered int(11) NOT NULL
     private Integer quantityOrdered;
 
-    // Price per unit at time of ordering
     // Matches: priceEach decimal(10,2) NOT NULL
     private BigDecimal priceEach;
 
-    // Total line value — quantityOrdered x priceEach
-    // Calculated field — not stored in DB
+    // Calculated field — quantityOrdered x priceEach
+    // Not stored in DB — computed in service layer
     private BigDecimal lineTotal;
 
-    // Sequence number of this line item within the order
     // Matches: orderLineNumber smallint(6) NOT NULL
     private Short orderLineNumber;
 
@@ -71,4 +65,40 @@ public class OrderDetailResponseDTO {
     public void setPriceEach(BigDecimal priceEach) { this.priceEach = priceEach; }
     public void setLineTotal(BigDecimal lineTotal) { this.lineTotal = lineTotal; }
     public void setOrderLineNumber(Short orderLineNumber) { this.orderLineNumber = orderLineNumber; }
+
+    // equals — compares all fields to check if two response DTOs carry identical data
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderDetailResponseDTO)) return false;
+        OrderDetailResponseDTO that = (OrderDetailResponseDTO) o;
+        return Objects.equals(orderNumber, that.orderNumber) &&
+                Objects.equals(productCode, that.productCode) &&
+                Objects.equals(productName, that.productName) &&
+                Objects.equals(quantityOrdered, that.quantityOrdered) &&
+                Objects.equals(priceEach, that.priceEach) &&
+                Objects.equals(lineTotal, that.lineTotal) &&
+                Objects.equals(orderLineNumber, that.orderLineNumber);
+    }
+
+    // hashCode — based on all fields consistent with equals
+    @Override
+    public int hashCode() {
+        return Objects.hash(orderNumber, productCode, productName,
+                quantityOrdered, priceEach, lineTotal, orderLineNumber);
+    }
+
+    // toString — useful for logging and debugging response data
+    @Override
+    public String toString() {
+        return "OrderDetailResponseDTO{" +
+                "orderNumber=" + orderNumber +
+                ", productCode='" + productCode + '\'' +
+                ", productName='" + productName + '\'' +
+                ", quantityOrdered=" + quantityOrdered +
+                ", priceEach=" + priceEach +
+                ", lineTotal=" + lineTotal +
+                ", orderLineNumber=" + orderLineNumber +
+                '}';
+    }
 }

@@ -1,9 +1,10 @@
 package com.classicmodels.dto;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Objects;
 
 // DTO used for receiving order data in POST and PUT API requests
 // Maps to: POST /api/orders and PUT /api/orders/{orderNumber}
@@ -15,37 +16,29 @@ import java.time.LocalDate;
 public class OrderRequestDTO {
 
     // Matches: orderNumber int(11) NOT NULL
-    // NOT NULL in DB — must be provided by client
     @NotNull(message = "Order number is required")
     private Integer orderNumber;
 
     // Matches: orderDate date NOT NULL
-    // NOT NULL in DB — order date must always be provided
     @NotNull(message = "Order date is required")
     private LocalDate orderDate;
 
     // Matches: requiredDate date NOT NULL
-    // NOT NULL in DB — required date must always be provided
     @NotNull(message = "Required date is required")
     private LocalDate requiredDate;
 
     // Matches: shippedDate date DEFAULT NULL
-    // DEFAULT NULL in DB — optional, order may not be shipped yet
     private LocalDate shippedDate;
 
     // Matches: status varchar(15) NOT NULL
-    // NOT NULL in DB — status must always be provided
-    // Size(max=15) matches varchar(15) column definition
     @NotBlank(message = "Status is required")
     @Size(max = 15, message = "Status must not exceed 15 characters")
     private String status;
 
     // Matches: comments text DEFAULT NULL
-    // DEFAULT NULL in DB — comments are optional
     private String comments;
 
     // Matches: customerNumber int(11) NOT NULL
-    // NOT NULL in DB — every order must belong to a customer
     @NotNull(message = "Customer number is required")
     private Integer customerNumber;
 
@@ -82,4 +75,40 @@ public class OrderRequestDTO {
     public void setStatus(String status) { this.status = status; }
     public void setComments(String comments) { this.comments = comments; }
     public void setCustomerNumber(Integer customerNumber) { this.customerNumber = customerNumber; }
+
+    // equals — compares all fields to check if two request DTOs carry identical data
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderRequestDTO)) return false;
+        OrderRequestDTO that = (OrderRequestDTO) o;
+        return Objects.equals(orderNumber, that.orderNumber) &&
+                Objects.equals(orderDate, that.orderDate) &&
+                Objects.equals(requiredDate, that.requiredDate) &&
+                Objects.equals(shippedDate, that.shippedDate) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(comments, that.comments) &&
+                Objects.equals(customerNumber, that.customerNumber);
+    }
+
+    // hashCode — based on all fields consistent with equals
+    @Override
+    public int hashCode() {
+        return Objects.hash(orderNumber, orderDate, requiredDate,
+                shippedDate, status, comments, customerNumber);
+    }
+
+    // toString — useful for logging and debugging request data
+    @Override
+    public String toString() {
+        return "OrderRequestDTO{" +
+                "orderNumber=" + orderNumber +
+                ", orderDate=" + orderDate +
+                ", requiredDate=" + requiredDate +
+                ", shippedDate=" + shippedDate +
+                ", status='" + status + '\'' +
+                ", comments='" + comments + '\'' +
+                ", customerNumber=" + customerNumber +
+                '}';
+    }
 }

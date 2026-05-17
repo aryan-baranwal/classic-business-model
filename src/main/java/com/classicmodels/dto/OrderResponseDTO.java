@@ -1,45 +1,37 @@
 package com.classicmodels.dto;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 // DTO used for sending order data back to the client in API responses
 // Maps to: GET /api/orders, GET /api/orders/{orderNumber}
 //          GET /api/customers/{customerNumber}/orders
 //          GET /api/orders/search?status=&fromDate=&toDate=
-// No validation annotations needed — this is an outgoing response DTO
-// Data is already validated and sourced from the database
+// No validation annotations — outgoing response DTO
 public class OrderResponseDTO {
 
-    // Unique identifier of the order
     // Matches: orderNumber int(11) NOT NULL
     private Integer orderNumber;
 
-    // Date the order was placed
     // Matches: orderDate date NOT NULL
     private LocalDate orderDate;
 
-    // Date by which the customer needs the order
     // Matches: requiredDate date NOT NULL
     private LocalDate requiredDate;
 
-    // Date the order was shipped — null if not yet shipped
     // Matches: shippedDate date DEFAULT NULL
     private LocalDate shippedDate;
 
-    // Current status of the order
     // Matches: status varchar(15) NOT NULL
     private String status;
 
-    // Optional comments about the order
     // Matches: comments text DEFAULT NULL
     private String comments;
 
-    // Customer number who placed the order
     // Matches: customerNumber int(11) NOT NULL
     private Integer customerNumber;
 
-    // Customer name for display purposes
-    // Derived from the customers table via join
+    // Derived from customers table — for display purposes
     private String customerName;
 
     // Default constructor
@@ -78,4 +70,43 @@ public class OrderResponseDTO {
     public void setComments(String comments) { this.comments = comments; }
     public void setCustomerNumber(Integer customerNumber) { this.customerNumber = customerNumber; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
+
+    // equals — compares all fields to check if two response DTOs carry identical data
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderResponseDTO)) return false;
+        OrderResponseDTO that = (OrderResponseDTO) o;
+        return Objects.equals(orderNumber, that.orderNumber) &&
+                Objects.equals(orderDate, that.orderDate) &&
+                Objects.equals(requiredDate, that.requiredDate) &&
+                Objects.equals(shippedDate, that.shippedDate) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(comments, that.comments) &&
+                Objects.equals(customerNumber, that.customerNumber) &&
+                Objects.equals(customerName, that.customerName);
+    }
+
+    // hashCode — based on all fields consistent with equals
+    @Override
+    public int hashCode() {
+        return Objects.hash(orderNumber, orderDate, requiredDate,
+                shippedDate, status, comments,
+                customerNumber, customerName);
+    }
+
+    // toString — useful for logging and debugging response data
+    @Override
+    public String toString() {
+        return "OrderResponseDTO{" +
+                "orderNumber=" + orderNumber +
+                ", orderDate=" + orderDate +
+                ", requiredDate=" + requiredDate +
+                ", shippedDate=" + shippedDate +
+                ", status='" + status + '\'' +
+                ", comments='" + comments + '\'' +
+                ", customerNumber=" + customerNumber +
+                ", customerName='" + customerName + '\'' +
+                '}';
+    }
 }
