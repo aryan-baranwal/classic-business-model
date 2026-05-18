@@ -34,6 +34,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<String> handleProductNotFoundException(
+            ProductNotFoundException exception
+    ) {
+
+        return new ResponseEntity<>(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(
             MethodArgumentNotValidException exception
