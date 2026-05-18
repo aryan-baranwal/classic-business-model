@@ -1,9 +1,4 @@
-package com.classicmodels.entity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import jakarta.persistence.*;
+package com.classicmodels.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -11,41 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
 import java.util.Objects;
 
-@Entity
-@Table(name = "employees")
-@JsonIgnoreProperties({
-        "hibernateLazyInitializer",
-        "handler"
-})
-public class Employee {
+public class EmployeeRequestDto {
 
-    @Id
-    @Column(name = "employeeNumber")
     @NotNull(message = "Employee number is required")
     @Positive(message = "Employee number must be positive")
     private Integer employeeNumber;
 
-    @Column(
-            name = "lastName",
-            nullable = false,
-            length = 50
-    )
-    @NotBlank(message = "Last name is required")
-    @Size(
-            min = 2,
-            max = 50,
-            message = "Last name must be between 2 and 50 characters"
-    )
-    private String lastName;
-
-    @Column(
-            name = "firstName",
-            nullable = false,
-            length = 50
-    )
     @NotBlank(message = "First name is required")
     @Size(
             min = 2,
@@ -54,11 +22,14 @@ public class Employee {
     )
     private String firstName;
 
-    @Column(
-            name = "extension",
-            nullable = false,
-            length = 10
+    @NotBlank(message = "Last name is required")
+    @Size(
+            min = 2,
+            max = 50,
+            message = "Last name must be between 2 and 50 characters"
     )
+    private String lastName;
+
     @NotBlank(message = "Extension is required")
     @Size(
             max = 10,
@@ -66,12 +37,6 @@ public class Employee {
     )
     private String extension;
 
-    @Column(
-            name = "email",
-            nullable = false,
-            unique = true,
-            length = 100
-    )
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     @Size(
@@ -80,11 +45,6 @@ public class Employee {
     )
     private String email;
 
-    @Column(
-            name = "jobTitle",
-            nullable = false,
-            length = 50
-    )
     @NotBlank(message = "Job title is required")
     @Size(
             max = 50,
@@ -92,54 +52,37 @@ public class Employee {
     )
     private String jobTitle;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "officeCode",
-            nullable = false
-    )
-    @NotNull(message = "Office is required")
-    private Office office;
+    @NotBlank(message = "Office code is required")
+    private String officeCode;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "reportsTo")
-    @JsonIgnoreProperties({
-            "manager",
-            "subordinates"
-    })
-    private Employee manager;
-
-    @OneToMany(mappedBy = "manager")
-    @JsonIgnore
-    private List<Employee> subordinates;
+    private Integer managerId;
 
     // DEFAULT CONSTRUCTOR
 
-    public Employee() {
+    public EmployeeRequestDto() {
     }
 
     // PARAMETERIZED CONSTRUCTOR
 
-    public Employee(
+    public EmployeeRequestDto(
             Integer employeeNumber,
-            String lastName,
             String firstName,
+            String lastName,
             String extension,
             String email,
             String jobTitle,
-            Office office,
-            Employee manager,
-            List<Employee> subordinates
+            String officeCode,
+            Integer managerId
     ) {
 
         this.employeeNumber = employeeNumber;
-        this.lastName = lastName;
         this.firstName = firstName;
+        this.lastName = lastName;
         this.extension = extension;
         this.email = email;
         this.jobTitle = jobTitle;
-        this.office = office;
-        this.manager = manager;
-        this.subordinates = subordinates;
+        this.officeCode = officeCode;
+        this.managerId = managerId;
     }
 
     // GETTERS AND SETTERS
@@ -152,20 +95,20 @@ public class Employee {
         this.employeeNumber = employeeNumber;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getFirstName() {
         return firstName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getExtension() {
@@ -192,28 +135,20 @@ public class Employee {
         this.jobTitle = jobTitle;
     }
 
-    public Office getOffice() {
-        return office;
+    public String getOfficeCode() {
+        return officeCode;
     }
 
-    public void setOffice(Office office) {
-        this.office = office;
+    public void setOfficeCode(String officeCode) {
+        this.officeCode = officeCode;
     }
 
-    public Employee getManager() {
-        return manager;
+    public Integer getManagerId() {
+        return managerId;
     }
 
-    public void setManager(Employee manager) {
-        this.manager = manager;
-    }
-
-    public List<Employee> getSubordinates() {
-        return subordinates;
-    }
-
-    public void setSubordinates(List<Employee> subordinates) {
-        this.subordinates = subordinates;
+    public void setManagerId(Integer managerId) {
+        this.managerId = managerId;
     }
 
     // equals()
@@ -225,15 +160,16 @@ public class Employee {
             return true;
         }
 
-        if (!(o instanceof Employee)) {
+        if (!(o instanceof EmployeeRequestDto)) {
             return false;
         }
 
-        Employee employee = (Employee) o;
+        EmployeeRequestDto that =
+                (EmployeeRequestDto) o;
 
         return Objects.equals(
                 employeeNumber,
-                employee.employeeNumber
+                that.employeeNumber
         );
     }
 
@@ -250,13 +186,15 @@ public class Employee {
     @Override
     public String toString() {
 
-        return "Employee{" +
+        return "EmployeeRequestDto{" +
                 "employeeNumber=" + employeeNumber +
-                ", lastName='" + lastName + '\'' +
                 ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", extension='" + extension + '\'' +
                 ", email='" + email + '\'' +
                 ", jobTitle='" + jobTitle + '\'' +
+                ", officeCode='" + officeCode + '\'' +
+                ", managerId=" + managerId +
                 '}';
     }
 }
