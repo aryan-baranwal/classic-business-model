@@ -19,9 +19,8 @@ public interface CustomerService {
     // Update customer profile
     CustomerResponseDTO updateCustomer(Integer customerNumber, CustomerRequestDTO request);
 
-    // Delete a customer
-    void deleteCustomer(Integer customerNumber);
-
+    // Delete a customer - returns deleted customer data
+    CustomerResponseDTO deleteCustomer(Integer customerNumber);
     // Get just the credit limit of a customer
     BigDecimal getCreditLimit(Integer customerNumber);
 
