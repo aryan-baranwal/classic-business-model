@@ -97,6 +97,22 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentNotFoundException(
+            PaymentNotFoundException exception,
+            HttpServletRequest request
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(body(
+                        HttpStatus.NOT_FOUND,
+                        "Payment Not Found",
+                        exception.getMessage(),
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleOrderNotFound(
             OrderNotFoundException exception,
