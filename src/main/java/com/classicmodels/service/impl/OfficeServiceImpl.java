@@ -1,4 +1,4 @@
-package com.classicmodels.service.impl;
+package com.classicmodels.service.Impl;
 
 import com.classicmodels.entity.Office;
 import com.classicmodels.repository.OfficeRepository;
