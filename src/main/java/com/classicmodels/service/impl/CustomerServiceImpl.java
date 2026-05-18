@@ -101,10 +101,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     // Delete a customer
     @Override
-    public void deleteCustomer(Integer customerNumber) {
+    public CustomerResponseDTO deleteCustomer(Integer customerNumber) {
         Customer existing = customerRepository.findById(customerNumber)
                 .orElseThrow(() -> new CustomerNotFoundException(customerNumber));
+        CustomerResponseDTO deletedCustomer = toResponseDTO(existing);
         customerRepository.delete(existing);
+        return deletedCustomer;
     }
 
     // Get just the credit limit
