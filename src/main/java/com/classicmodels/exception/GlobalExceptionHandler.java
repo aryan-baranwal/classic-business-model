@@ -1,47 +1,69 @@
 package com.classicmodels.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<String> handleEmployeeNotFoundException(
+            EmployeeNotFoundException exception
+    ) {
+
+        return new ResponseEntity<>(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
     @ExceptionHandler(OfficeNotFoundException.class)
-    public String handleOfficeNotFoundException(
-            OfficeNotFoundException ex,
-            Model model) {
+    public ResponseEntity<String> handleOfficeNotFoundException(
+            OfficeNotFoundException exception
+    ) {
 
-        model.addAttribute("errorMessage", ex.getMessage());
-
-        return "error";
+        return new ResponseEntity<>(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public String handleValidationException(
-            MethodArgumentNotValidException ex,
-            Model model) {
+    public ResponseEntity<Map<String, String>> handleValidationException(
+            MethodArgumentNotValidException exception
+    ) {
 
-        model.addAttribute(
-                "errorMessage",
-                "Validation failed"
+        Map<String, String> errors = new HashMap<>();
+
+        exception.getBindingResult()
+                .getFieldErrors()
+                .forEach(error ->
+                        errors.put(
+                                error.getField(),
+                                error.getDefaultMessage()
+                        )
+                );
+
+        return new ResponseEntity<>(
+                errors,
+                HttpStatus.BAD_REQUEST
         );
-
-        return "error";
     }
 
     @ExceptionHandler(Exception.class)
-    public String handleGenericException(
-            Exception ex,
-            Model model) {
+    public ResponseEntity<String> handleGenericException(
+            Exception exception
+    ) {
 
-        model.addAttribute(
-                "errorMessage",
-                ex.getMessage()
+        return new ResponseEntity<>(
+                "Internal Server Error: " + exception.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR
         );
-
-        return "error";
     }
 }
