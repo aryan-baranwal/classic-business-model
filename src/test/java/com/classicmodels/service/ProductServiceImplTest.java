@@ -1,5 +1,5 @@
 package com.classicmodels.service;
-import com.classicmodels.service.Impl.ProductServiceImpl;
+import com.classicmodels.service.impl.ProductServiceImpl;
 
 import com.classicmodels.dto.ProductDto;
 import com.classicmodels.dto.ProductLineDto;

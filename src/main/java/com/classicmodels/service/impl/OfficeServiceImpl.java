@@ -1,4 +1,4 @@
-package com.classicmodels.service.Impl;
+package com.classicmodels.service.impl;
 
 import com.classicmodels.dto.OfficeResponseDto;
 import com.classicmodels.entity.Office;
@@ -32,7 +32,7 @@ public class OfficeServiceImpl implements OfficeService {
         }
 
         return offices.stream()
-                .map(this::convertToDto)
+                .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -48,10 +48,10 @@ public class OfficeServiceImpl implements OfficeService {
                         )
                 );
 
-        return convertToDto(office);
+        return mapToDto(office);
     }
 
-    private OfficeResponseDto convertToDto(Office office) {
+    private OfficeResponseDto mapToDto(Office office) {
 
         return new OfficeResponseDto(
                 office.getOfficeCode(),
