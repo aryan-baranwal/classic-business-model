@@ -2,7 +2,6 @@ package com.classicmodels.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,11 +12,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(
-            EmployeeNotFoundException.class
-    )
-    public ResponseEntity<String>
-    handleEmployeeNotFoundException(
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<String> handleEmployeeNotFoundException(
             EmployeeNotFoundException exception
     ) {
 
@@ -27,16 +23,23 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(
-            MethodArgumentNotValidException.class
-    )
-    public ResponseEntity<Map<String, String>>
-    handleValidationException(
+    @ExceptionHandler(OfficeNotFoundException.class)
+    public ResponseEntity<String> handleOfficeNotFoundException(
+            OfficeNotFoundException exception
+    ) {
+
+        return new ResponseEntity<>(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationException(
             MethodArgumentNotValidException exception
     ) {
 
-        Map<String, String> errors =
-                new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
 
         exception.getBindingResult()
                 .getFieldErrors()
@@ -54,14 +57,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String>
-    handleGenericException(
+    public ResponseEntity<String> handleGenericException(
             Exception exception
     ) {
 
         return new ResponseEntity<>(
-                "Internal Server Error : "
-                        + exception.getMessage(),
+                "Internal Server Error: " + exception.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
