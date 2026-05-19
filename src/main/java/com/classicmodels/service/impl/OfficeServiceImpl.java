@@ -1,5 +1,5 @@
 package com.classicmodels.service.impl;
-
+import com.classicmodels.entity.Employee;
 import com.classicmodels.dto.OfficeResponseDto;
 import com.classicmodels.entity.Office;
 import com.classicmodels.exception.OfficeNotFoundException;
@@ -49,6 +49,19 @@ public class OfficeServiceImpl implements OfficeService {
                 );
 
         return mapToDto(office);
+    }
+
+    @Override
+    public List<Employee> getEmployeesByOffice(String officeCode) {
+
+        Office office = officeRepository.findById(officeCode)
+                .orElseThrow(() ->
+                        new OfficeNotFoundException(
+                                "Office not found with code: " + officeCode
+                        )
+                );
+
+        return office.getEmployees();
     }
 
     private OfficeResponseDto mapToDto(Office office) {

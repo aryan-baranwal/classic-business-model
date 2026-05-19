@@ -31,10 +31,10 @@ public class OfficeRestController {
         return officeService.getOfficeByCode(officeCode);
     }
 
-    /*@GetMapping("/{officeCode}/employees")
+    @GetMapping("/{officeCode}/employees")
     public List<Employee> getEmployeesByOffice(
             @PathVariable String officeCode) {
 
         return officeService.getEmployeesByOffice(officeCode);
-    }*/
+    }
 }
