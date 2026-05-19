@@ -3,6 +3,7 @@ package com.classicmodels.dto;
 public class DeleteEmployeeResponseDto {
 
     private String message;
+
     private EmployeeResponseDto employee;
 
     public DeleteEmployeeResponseDto() {
@@ -12,6 +13,7 @@ public class DeleteEmployeeResponseDto {
             String message,
             EmployeeResponseDto employee
     ) {
+
         this.message = message;
         this.employee = employee;
     }
@@ -20,7 +22,9 @@ public class DeleteEmployeeResponseDto {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(
+            String message
+    ) {
         this.message = message;
     }
 
