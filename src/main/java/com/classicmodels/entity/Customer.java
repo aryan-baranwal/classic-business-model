@@ -1,22 +1,19 @@
+
+
 package com.classicmodels.entity;
 
 import com.classicmodels.entity.Employee;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Persistable;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Table(name = "customers")
-public class Customer {
+public class Customer implements Persistable<Integer> {
 
     @Id
     @Column(name = "customerNumber")
@@ -62,12 +59,23 @@ public class Customer {
     @Column(name = "creditLimit")
     private BigDecimal creditLimit;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "salesRepEmployeeNumber")
     private Employee salesRepEmployee;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "customer")
     private List<Payment> payments;
+
+    /*
+     * This field is not stored in database.
+     * Used by Spring Data JPA to identify whether
+     * the entity is new or existing.
+     */
+    @Transient
+    @JsonIgnore
+    private boolean isNew = false;
 
     // Default Constructor
     public Customer() {
@@ -102,6 +110,45 @@ public class Customer {
         this.creditLimit = creditLimit;
         this.salesRepEmployee = salesRepEmployee;
         this.payments = payments;
+    }
+
+    /*
+     * Returns the primary key value.
+     * Required by Persistable interface.
+     */
+    @Override
+    @JsonIgnore
+    public Integer getId() {
+        return customerNumber;
+    }
+
+    /*
+     * Tells Spring Data JPA whether this entity is new.
+     * If true -> persist()
+     * If false -> merge()
+     */
+    @Override
+    @JsonIgnore
+    public boolean isNew() {
+        return isNew;
+    }
+
+    /*
+     * Marks entity as new before saving.
+     */
+    public Customer markAsNew() {
+        this.isNew = true;
+        return this;
+    }
+
+    /*
+     * After loading or persisting,
+     * entity becomes existing entity.
+     */
+    @PostPersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 
     // Getter for customerNumber
@@ -249,7 +296,9 @@ public class Customer {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
+
         Customer customer = (Customer) obj;
+
         return customerNumber != null
                 ? customerNumber.equals(customer.customerNumber)
                 : customer.customerNumber == null;
