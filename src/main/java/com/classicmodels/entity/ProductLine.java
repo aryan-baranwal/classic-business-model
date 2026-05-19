@@ -3,11 +3,8 @@ package com.classicmodels.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-
-import java.util.List;
 
 @Entity
 @Table(name = "productlines")
@@ -22,18 +19,13 @@ public class ProductLine {
     @NotBlank(message = "Text description is required")
     private String textDescription;
 
-    @OneToMany(mappedBy = "productLine")
-    private List<Product> products;
-
     public ProductLine() {
     }
 
     public ProductLine(String productLine,
-                       String textDescription,
-                       List<Product> products) {
+                       String textDescription) {
         this.productLine = productLine;
         this.textDescription = textDescription;
-        this.products = products;
     }
 
     public String getProductLine() {
@@ -50,14 +42,6 @@ public class ProductLine {
 
     public void setTextDescription(String textDescription) {
         this.textDescription = textDescription;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
     }
 
     @Override

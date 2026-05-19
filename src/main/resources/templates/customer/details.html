@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Customer Details</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #F4F6F9; color: #333333; }
+        .top-bar { background-color: #004A8F; height: 5px; }
+        .header { background-color: #0070AD; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { color: white; font-size: 22px; font-weight: bold; }
+        .header span { color: #E8F4FD; font-size: 14px; }
+        .container { max-width: 800px; margin: 32px auto; padding: 0 24px; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #0070AD; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        .page-title { font-size: 24px; font-weight: bold; color: #004A8F; margin-bottom: 24px; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+        .card-header { background-color: #0070AD; padding: 16px 24px; }
+        .card-header h2 { color: white; font-size: 18px; }
+        .card-header span { color: #E8F4FD; font-size: 13px; }
+        .card-body { padding: 24px; }
+        .detail-row { display: flex; padding: 12px 0; border-bottom: 1px solid #EEF2F7; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { width: 200px; font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-value { flex: 1; font-size: 15px; color: #333; }
+        .credit-value { font-weight: bold; color: #004A8F; font-size: 16px; }
+        .footer { text-align: center; padding: 24px; color: #999; font-size: 12px; margin-top: 32px; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+<div class="header">
+    <h1>⚡ Classic Business Model</h1>
+    <span>Customer Management Module</span>
+</div>
+
+<div class="container">
+    <a th:href="@{/customers}" class="back-link">← Back to Customer List</a>
+
+    <div class="page-title">Customer Details</div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 th:text="${customer.customerName}"></h2>
+            <span th:text="'Customer #' + ${customer.customerNumber}"></span>
+        </div>
+        <div class="card-body">
+            <div class="detail-row">
+                <div class="detail-label">Customer Number</div>
+                <div class="detail-value" th:text="${customer.customerNumber}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Customer Name</div>
+                <div class="detail-value" th:text="${customer.customerName}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Contact Person</div>
+                <div class="detail-value" th:text="${customer.contactFirstName} + ' ' + ${customer.contactLastName}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Phone</div>
+                <div class="detail-value" th:text="${customer.phone}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Address</div>
+                <div class="detail-value" th:text="${customer.addressLine1}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">City</div>
+                <div class="detail-value" th:text="${customer.city}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">State</div>
+                <div class="detail-value" th:text="${customer.state} ?: 'N/A'"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Postal Code</div>
+                <div class="detail-value" th:text="${customer.postalCode} ?: 'N/A'"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Country</div>
+                <div class="detail-value" th:text="${customer.country}"></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Credit Limit</div>
+                <div class="detail-value credit-value" th:text="${customer.creditLimit}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    © 2026 Capgemini — Classic Business Model Application
+</div>
+
+</body>
+</html>

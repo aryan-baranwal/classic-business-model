@@ -1,9 +1,19 @@
+/*
+ * Customer Request DTO
+ * Used to receive customer data from client requests.
+ * Contains validation annotations and customer details.
+ */
+
 package com.classicmodels.dto;
 
 import jakarta.validation.constraints.NotBlank;
+
 import java.math.BigDecimal;
 
 public class CustomerRequestDTO {
+
+    // Customer primary key
+    private Integer customerNumber;
 
     @NotBlank(message = "Customer name must not be blank")
     private String customerName;
@@ -36,6 +46,16 @@ public class CustomerRequestDTO {
 
     // Default Constructor
     public CustomerRequestDTO() {
+    }
+
+    // Getter for customerNumber
+    public Integer getCustomerNumber() {
+        return customerNumber;
+    }
+
+    // Setter for customerNumber
+    public void setCustomerNumber(Integer customerNumber) {
+        this.customerNumber = customerNumber;
     }
 
     // Getter for customerName
@@ -151,20 +171,48 @@ public class CustomerRequestDTO {
     // equals method
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
         CustomerRequestDTO that = (CustomerRequestDTO) obj;
-        if (customerName != null ? !customerName.equals(that.customerName) : that.customerName != null) return false;
-        if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
-        return country != null ? country.equals(that.country) : that.country == null;
+
+        if (customerName != null
+                ? !customerName.equals(that.customerName)
+                : that.customerName != null) {
+            return false;
+        }
+
+        if (phone != null
+                ? !phone.equals(that.phone)
+                : that.phone != null) {
+            return false;
+        }
+
+        return country != null
+                ? country.equals(that.country)
+                : that.country == null;
     }
 
     // hashCode method
     @Override
     public int hashCode() {
-        int result = customerName != null ? customerName.hashCode() : 0;
-        result = 31 * result + (phone != null ? phone.hashCode() : 0);
-        result = 31 * result + (country != null ? country.hashCode() : 0);
+
+        int result = customerName != null
+                ? customerName.hashCode()
+                : 0;
+
+        result = 31 * result
+                + (phone != null ? phone.hashCode() : 0);
+
+        result = 31 * result
+                + (country != null ? country.hashCode() : 0);
+
         return result;
     }
 }

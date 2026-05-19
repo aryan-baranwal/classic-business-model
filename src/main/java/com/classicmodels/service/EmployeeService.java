@@ -1,25 +1,51 @@
 package com.classicmodels.service;
 
-import com.classicmodels.entity.Employee;
+import com.classicmodels.dto.DeleteEmployeeResponseDto;
+import com.classicmodels.dto.EmployeeRequestDto;
+import com.classicmodels.dto.EmployeeResponseDto;
 
 import java.util.List;
 
 public interface EmployeeService {
 
-    List<Employee> getAllEmployees();
+    // GET ALL EMPLOYEES
 
-    Employee getEmployeeById(Integer employeeNumber);
+    List<EmployeeResponseDto> getAllEmployees();
 
-    Employee createEmployee(Employee employee);
+    // GET EMPLOYEE BY ID
 
-    Employee updateEmployee(
-            Integer employeeNumber,
-            Employee employee
+    EmployeeResponseDto getEmployeeById(
+            Integer employeeNumber
     );
 
-    String deleteEmployee(Integer employeeNumber);
+    // CREATE EMPLOYEE
 
-    Employee getManager(Integer employeeNumber);
+    EmployeeResponseDto createEmployee(
+            EmployeeRequestDto dto
+    );
 
-    List<Employee> getSubordinates(Integer employeeNumber);
+    // UPDATE EMPLOYEE
+
+    EmployeeResponseDto updateEmployee(
+            Integer employeeNumber,
+            EmployeeRequestDto dto
+    );
+
+    // DELETE EMPLOYEE
+
+    DeleteEmployeeResponseDto deleteEmployee(
+            Integer employeeNumber
+    );
+
+    // GET MANAGER
+
+    EmployeeResponseDto getManager(
+            Integer employeeNumber
+    );
+
+    // GET SUBORDINATES
+
+    List<EmployeeResponseDto> getSubordinates(
+            Integer employeeNumber
+    );
 }

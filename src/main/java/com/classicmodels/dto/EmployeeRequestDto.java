@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-import java.util.*;
+import java.util.Objects;
 
-public class EmployeeResponseDto {
+public class EmployeeRequestDto {
 
     @NotNull(message = "Employee number is required")
     @Positive(message = "Employee number must be positive")
@@ -30,6 +30,13 @@ public class EmployeeResponseDto {
     )
     private String lastName;
 
+    @NotBlank(message = "Extension is required")
+    @Size(
+            max = 10,
+            message = "Extension cannot exceed 10 characters"
+    )
+    private String extension;
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     @Size(
@@ -46,34 +53,36 @@ public class EmployeeResponseDto {
     private String jobTitle;
 
     @NotBlank(message = "Office code is required")
-    @Size(
-            max = 10,
-            message = "Office code cannot exceed 10 characters"
-    )
     private String officeCode;
+
+    private Integer managerId;
 
     // DEFAULT CONSTRUCTOR
 
-    public EmployeeResponseDto() {
+    public EmployeeRequestDto() {
     }
 
     // PARAMETERIZED CONSTRUCTOR
 
-    public EmployeeResponseDto(
+    public EmployeeRequestDto(
             Integer employeeNumber,
             String firstName,
             String lastName,
+            String extension,
             String email,
             String jobTitle,
-            String officeCode
+            String officeCode,
+            Integer managerId
     ) {
 
         this.employeeNumber = employeeNumber;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.extension = extension;
         this.email = email;
         this.jobTitle = jobTitle;
         this.officeCode = officeCode;
+        this.managerId = managerId;
     }
 
     // GETTERS AND SETTERS
@@ -102,6 +111,14 @@ public class EmployeeResponseDto {
         this.lastName = lastName;
     }
 
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -126,6 +143,14 @@ public class EmployeeResponseDto {
         this.officeCode = officeCode;
     }
 
+    public Integer getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(Integer managerId) {
+        this.managerId = managerId;
+    }
+
     // equals()
 
     @Override
@@ -135,11 +160,12 @@ public class EmployeeResponseDto {
             return true;
         }
 
-        if (!(o instanceof EmployeeResponseDto)) {
+        if (!(o instanceof EmployeeRequestDto)) {
             return false;
         }
 
-        EmployeeResponseDto that = (EmployeeResponseDto) o;
+        EmployeeRequestDto that =
+                (EmployeeRequestDto) o;
 
         return Objects.equals(
                 employeeNumber,
@@ -160,13 +186,15 @@ public class EmployeeResponseDto {
     @Override
     public String toString() {
 
-        return "EmployeeResponseDto{" +
+        return "EmployeeRequestDto{" +
                 "employeeNumber=" + employeeNumber +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", extension='" + extension + '\'' +
                 ", email='" + email + '\'' +
                 ", jobTitle='" + jobTitle + '\'' +
                 ", officeCode='" + officeCode + '\'' +
+                ", managerId=" + managerId +
                 '}';
     }
 }

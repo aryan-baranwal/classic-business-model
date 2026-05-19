@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Order Item</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 16px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        .content { padding: 30px; max-width: 520px; }
+        h2 { color: #2c3e50; margin-bottom: 6px; }
+        .sub-info { font-size: 14px; color: #666; margin-bottom: 24px; }
+
+        .card {
+            background: #fff; border-radius: 6px; padding: 30px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+
+        .readonly-field {
+            background: #f5f5f5; padding: 9px 12px;
+            border: 1px solid #ddd; border-radius: 4px;
+            font-size: 14px; color: #666;
+            width: 100%;
+        }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block; font-size: 13px;
+            color: #555; margin-bottom: 6px; font-weight: bold;
+        }
+        .form-group input {
+            width: 100%; padding: 9px 12px;
+            border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+        }
+        .form-group input:focus { border-color: #ff9800; outline: none; }
+        .hint { font-size: 11px; color: #999; margin-top: 4px; }
+        .required { color: #e74c3c; }
+
+        .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-submit {
+            background: #ff9800; color: #fff; padding: 10px 24px;
+            border: none; border-radius: 4px; font-size: 14px;
+            cursor: pointer; font-weight: bold;
+        }
+        .btn-submit:hover { background: #e68900; }
+        .btn-cancel {
+            background: #6c757d; color: #fff; padding: 10px 24px;
+            border-radius: 4px; font-size: 14px;
+            text-decoration: none; font-weight: bold;
+        }
+        .btn-cancel:hover { opacity:.85; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders}">All Orders</a>
+    <a th:href="@{/orders/search}">Search</a>
+    <a th:href="@{/orders/new}">+ New Order</a>
+</div>
+
+<div class="content">
+    <h2>Edit Item — Order #<span th:text="${orderNumber}"></span></h2>
+    <p class="sub-info">
+        Product: <strong th:text="${productCode}"></strong>
+    </p>
+
+    <div class="card">
+        <!-- Maps to POST /orders/{orderNumber}/items/{productCode}/edit → orderService.updateItem() -->
+        <form th:action="@{/orders/{n}/items/{p}/edit(n=${orderNumber},p=${productCode})}"
+              th:object="${itemDTO}" method="post">
+
+            <!-- Product code is fixed — display only, not editable -->
+            <div class="form-group">
+                <label>Product Code</label>
+                <div class="readonly-field" th:text="${productCode}"></div>
+                <div class="hint">Product code cannot be changed. Delete and re-add to change product.</div>
+            </div>
+
+            <div class="form-group">
+                <label>Quantity Ordered <span class="required">*</span></label>
+                <input type="number" th:field="*{quantityOrdered}"
+                       min="1" placeholder="e.g. 30"/>
+            </div>
+
+            <div class="form-group">
+                <label>Price Each <span class="required">*</span></label>
+                <input type="number" th:field="*{priceEach}"
+                       step="0.01" min="0.01" placeholder="e.g. 136.00"/>
+            </div>
+
+            <div class="form-group">
+                <label>Order Line Number <span class="required">*</span></label>
+                <input type="number" th:field="*{orderLineNumber}"
+                       min="1" placeholder="e.g. 3"/>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">✔ Save Changes</button>
+                <a class="btn-cancel"
+                   th:href="@{/orders/{n}/items(n=${orderNumber})}">✖ Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>

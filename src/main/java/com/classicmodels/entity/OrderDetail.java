@@ -1,5 +1,6 @@
 package com.classicmodels.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -24,6 +25,7 @@ public class OrderDetail {
     @ManyToOne
     @MapsId("orderNumber")
     @JoinColumn(name = "orderNumber")
+    @JsonBackReference
     private Order order;
 
     @ManyToOne
@@ -46,8 +48,7 @@ public class OrderDetail {
     public void setQuantityOrdered(Integer quantityOrdered) { this.quantityOrdered = quantityOrdered; }
     public void setPriceEach(BigDecimal priceEach) { this.priceEach = priceEach; }
     public void setOrderLineNumber(Short orderLineNumber) { this.orderLineNumber = orderLineNumber; }
-    public void setOrder(Order order) { this.order = order; }
-    public void setProduct(Product product) { this.product = product; }
+
 
     @Override
     public boolean equals(Object o) {
@@ -60,5 +61,16 @@ public class OrderDetail {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+    public void setOrder(Order order) {
+        this.order = order;
+        if (this.id == null) this.id = new OrderDetailId();
+        this.id.setOrderNumber(order.getOrderNumber());
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+        if (this.id == null) this.id = new OrderDetailId();
+        this.id.setProductCode(product.getProductCode());
     }
 }

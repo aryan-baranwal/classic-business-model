@@ -17,7 +17,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "employees")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({
+        "hibernateLazyInitializer",
+        "handler"
+})
 public class Employee {
 
     @Id
@@ -26,7 +29,11 @@ public class Employee {
     @Positive(message = "Employee number must be positive")
     private Integer employeeNumber;
 
-    @Column(name = "lastName", nullable = false, length = 50)
+    @Column(
+            name = "lastName",
+            nullable = false,
+            length = 50
+    )
     @NotBlank(message = "Last name is required")
     @Size(
             min = 2,
@@ -35,7 +42,11 @@ public class Employee {
     )
     private String lastName;
 
-    @Column(name = "firstName", nullable = false, length = 50)
+    @Column(
+            name = "firstName",
+            nullable = false,
+            length = 50
+    )
     @NotBlank(message = "First name is required")
     @Size(
             min = 2,
@@ -44,7 +55,11 @@ public class Employee {
     )
     private String firstName;
 
-    @Column(name = "extension", nullable = false, length = 10)
+    @Column(
+            name = "extension",
+            nullable = false,
+            length = 10
+    )
     @NotBlank(message = "Extension is required")
     @Size(
             max = 10,
@@ -52,7 +67,12 @@ public class Employee {
     )
     private String extension;
 
-    @Column(name = "email", nullable = false, unique = true, length = 100)
+    @Column(
+            name = "email",
+            nullable = false,
+            unique = true,
+            length = 100
+    )
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     @Size(
@@ -61,7 +81,11 @@ public class Employee {
     )
     private String email;
 
-    @Column(name = "jobTitle", nullable = false, length = 50)
+    @Column(
+            name = "jobTitle",
+            nullable = false,
+            length = 50
+    )
     @NotBlank(message = "Job title is required")
     @Size(
             max = 50,
@@ -71,12 +95,19 @@ public class Employee {
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "officeCode", nullable = false)
+    @JoinColumn(
+            name = "officeCode",
+            nullable = false
+    )
     @NotNull(message = "Office is required")
     private Office office;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reportsTo")
+    @JsonIgnoreProperties({
+            "manager",
+            "subordinates"
+    })
     private Employee manager;
 
     @OneToMany(mappedBy = "manager")

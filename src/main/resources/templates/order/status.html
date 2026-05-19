@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Update Order Status</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 16px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        .content { padding: 30px; max-width: 500px; }
+        h2 { color: #2c3e50; margin-bottom: 24px; }
+
+        .current-info {
+            background: #fff; border-radius: 6px; padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 24px;
+        }
+        .current-info p { font-size: 14px; color: #555; margin-bottom: 8px; }
+        .current-info p:last-child { margin-bottom: 0; }
+        .current-info strong { color: #2c3e50; }
+
+        .badge {
+            padding: 4px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: bold;
+        }
+        .Shipped    { background:#d4edda; color:#155724; }
+        .Cancelled  { background:#f8d7da; color:#721c24; }
+        .On-Hold    { background:#fff3cd; color:#856404; }
+        .In-Process { background:#cce5ff; color:#004085; }
+        .Disputed   { background:#f8d7da; color:#721c24; }
+        .Resolved   { background:#d1ecf1; color:#0c5460; }
+
+        .card {
+            background: #fff; border-radius: 6px; padding: 30px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block; font-size: 13px;
+            color: #555; margin-bottom: 8px; font-weight: bold;
+        }
+
+        /* Status radio buttons as styled pills */
+        .status-options { display: flex; flex-direction: column; gap: 10px; }
+        .status-options label {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border: 2px solid #ddd;
+            border-radius: 6px; cursor: pointer; font-weight: normal;
+            transition: border-color .2s;
+        }
+        .status-options label:hover { border-color: #9c27b0; }
+        .status-options input[type=radio]:checked + span {
+            font-weight: bold;
+        }
+        .status-options input[type=radio] { cursor: pointer; }
+
+        .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-submit {
+            background: #9c27b0; color: #fff; padding: 10px 24px;
+            border: none; border-radius: 4px; font-size: 14px;
+            cursor: pointer; font-weight: bold;
+        }
+        .btn-submit:hover { background: #7b1fa2; }
+        .btn-cancel {
+            background: #6c757d; color: #fff; padding: 10px 24px;
+            border-radius: 4px; font-size: 14px;
+            text-decoration: none; font-weight: bold;
+        }
+        .btn-cancel:hover { opacity:.85; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders}">All Orders</a>
+    <a th:href="@{/orders/search}">Search</a>
+    <a th:href="@{/orders/new}">+ New Order</a>
+</div>
+
+<div class="content">
+    <h2>Update Order Status — #<span th:text="${order.orderNumber}"></span></h2>
+
+    <!-- Current order info -->
+    <div class="current-info">
+        <p><strong>Customer:</strong> <span th:text="${order.customerName}"></span></p>
+        <p><strong>Order Date:</strong> <span th:text="${order.orderDate}"></span></p>
+        <p>
+            <strong>Current Status:</strong>
+            <span class="badge"
+                  th:classappend="${#strings.replace(order.status,' ','-')}"
+                  th:text="${order.status}">
+            </span>
+        </p>
+    </div>
+
+    <div class="card">
+        <!-- Maps to POST /orders/{orderNumber}/status → orderService.updateOrderStatus() -->
+        <form th:action="@{/orders/{n}/status(n=${order.orderNumber})}"
+              th:object="${statusDTO}" method="post">
+
+            <div class="form-group">
+                <label>Select New Status</label>
+                <div class="status-options">
+
+                    <label>
+                        <input type="radio" th:field="*{status}" value="In Process"/>
+                        <span class="badge In-Process">In Process</span>
+                    </label>
+                    <label>
+                        <input type="radio" th:field="*{status}" value="Shipped"/>
+                        <span class="badge Shipped">Shipped</span>
+                    </label>
+                    <label>
+                        <input type="radio" th:field="*{status}" value="Resolved"/>
+                        <span class="badge Resolved">Resolved</span>
+                    </label>
+                    <label>
+                        <input type="radio" th:field="*{status}" value="Cancelled"/>
+                        <span class="badge Cancelled">Cancelled</span>
+                    </label>
+                    <label>
+                        <input type="radio" th:field="*{status}" value="On Hold"/>
+                        <span class="badge On-Hold">On Hold</span>
+                    </label>
+                    <label>
+                        <input type="radio" th:field="*{status}" value="Disputed"/>
+                        <span class="badge Disputed">Disputed</span>
+                    </label>
+
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">🔄 Update Status</button>
+                <a class="btn-cancel"
+                   th:href="@{/orders/{n}(n=${order.orderNumber})}">✖ Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>
