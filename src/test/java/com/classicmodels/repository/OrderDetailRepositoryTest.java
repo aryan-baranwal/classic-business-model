@@ -165,7 +165,7 @@ public class OrderDetailRepositoryTest {
     @Test
     public void testFindByOrderNumber() {
         // Act — find all line items for order 10001
-        List<OrderDetail> items = orderDetailRepository.findByOrderNumber(10001);
+        List<OrderDetail> items = orderDetailRepository.findById_OrderNumber(10100);
 
         // Assert — verify both line items are returned
         assertNotNull(items);
