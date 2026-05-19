@@ -3,12 +3,16 @@ package com.classicmodels.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "offices")
@@ -49,6 +53,10 @@ public class Office {
     @Column(name = "territory")
     @NotBlank(message = "Territory cannot be empty")
     private String territory;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "office")
+    private List<Employee> employees;
 
     public Office() {
     }
@@ -123,6 +131,14 @@ public class Office {
 
     public void setTerritory(String territory) {
         this.territory = territory;
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
     }
 
     @Override
