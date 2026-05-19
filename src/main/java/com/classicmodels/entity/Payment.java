@@ -8,7 +8,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -26,7 +26,7 @@ public class Payment {
     @NotNull(message = "Payment amount must not be null")
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
-
+    @JsonIgnore
     @ManyToOne
     @MapsId("customerNumber")
     @JoinColumn(name = "customerNumber")

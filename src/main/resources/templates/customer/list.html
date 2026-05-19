@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Customers - Classic Business Model</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #F4F6F9; color: #333333; }
+        .top-bar { background-color: #004A8F; height: 5px; }
+        .header { background-color: #0070AD; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { color: white; font-size: 22px; font-weight: bold; letter-spacing: 1px; }
+        .header span { color: #E8F4FD; font-size: 14px; }
+        .container { max-width: 1200px; margin: 32px auto; padding: 0 24px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .page-title { font-size: 24px; font-weight: bold; color: #004A8F; }
+        .page-subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
+        .search-bar { display: flex; gap: 12px; margin-bottom: 24px; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .search-bar input { flex: 1; padding: 8px 14px; border: 1px solid #C0D8EE; border-radius: 4px; font-size: 14px; outline: none; }
+        .search-bar input:focus { border-color: #0070AD; }
+        .btn { padding: 8px 16px; background-color: #0070AD; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { background-color: #004A8F; }
+        .btn-green { background-color: #2E7D32; }
+        .btn-green:hover { background-color: #1B5E20; }
+        .btn-orange { background-color: #F57F17; }
+        .btn-orange:hover { background-color: #E65100; }
+        .btn-red { background-color: #C62828; }
+        .btn-red:hover { background-color: #B71C1C; }
+        .btn-outline { background-color: white; color: #0070AD; border: 1px solid #0070AD; }
+        .btn-outline:hover { background-color: #E8F4FD; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .table-wrapper { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background-color: #0070AD; color: white; }
+        thead th { padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+        tbody tr { border-bottom: 1px solid #EEF2F7; transition: background 0.2s; }
+        tbody tr:hover { background-color: #E8F4FD; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody td { padding: 10px 16px; font-size: 14px; color: #444; }
+        .customer-number { font-weight: bold; color: #0070AD; }
+        .credit-limit { font-weight: 600; color: #004A8F; }
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .footer { text-align: center; padding: 24px; color: #999; font-size: 12px; margin-top: 32px; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+<div class="header">
+    <h1>⚡ Classic Business Model</h1>
+    <span>Customer Management Module</span>
+</div>
+
+<div class="container">
+
+    <div class="page-header">
+        <div class="page-title">Customer List</div>
+        <a th:href="@{/customers/create}" class="btn btn-green">➕ Add New Customer</a>
+    </div>
+    <div class="page-subtitle">Manage and view all registered customers</div>
+
+    <!-- SEARCH BAR -->
+    <div class="search-bar">
+        <form th:action="@{/customers/search}" method="get"
+              style="display:flex; gap:12px; width:100%">
+            <input type="text" name="country" placeholder="Search by Country (e.g. France)"/>
+            <input type="text" name="city" placeholder="Search by City (e.g. Nantes)"/>
+            <button type="submit" class="btn">🔍 Search</button>
+            <a th:href="@{/customers}" class="btn btn-outline">Reset</a>
+        </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Customer No.</th>
+                <th>Name</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Credit Limit</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="customer, stat : ${customers}">
+                <td th:text="${stat.count}"></td>
+                <td class="customer-number"
+                    th:text="${customer.customerNumber}"></td>
+                <td>
+                    <a th:href="@{/customers/{id}(id=${customer.customerNumber})}"
+                       th:text="${customer.customerName}"
+                       style="color:#0070AD; text-decoration:none; font-weight:500;">
+                    </a>
+                </td>
+                <td th:text="${customer.city}"></td>
+                <td th:text="${customer.country}"></td>
+                <td class="credit-limit"
+                    th:text="${customer.creditLimit}"></td>
+                <td>
+                    <div class="actions">
+                        <!-- VIEW -->
+                        <a th:href="@{/customers/{id}(id=${customer.customerNumber})}"
+                           class="btn btn-sm">👁 View</a>
+                        <!-- EDIT -->
+                        <a th:href="@{/customers/{id}/edit(id=${customer.customerNumber})}"
+                           class="btn btn-sm btn-orange">✏️ Edit</a>
+                        <!-- CREDIT LIMIT -->
+                        <a th:href="@{/customers/{id}/credit-limit(id=${customer.customerNumber})}"
+                           class="btn btn-sm" style="background-color:#004A8F;">💰 Credit</a>
+                        <!-- DELETE -->
+                        <form th:action="@{/customers/{id}/delete(id=${customer.customerNumber})}"
+                              method="post" style="display:inline;"
+                              onsubmit="return confirm('Are you sure you want to delete this customer?')">
+                            <button type="submit"
+                                    class="btn btn-sm btn-red">🗑 Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="footer">
+    © 2026 Capgemini — Classic Business Model Application
+</div>
+
+</body>
+</html>
