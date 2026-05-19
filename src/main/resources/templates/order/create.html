@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Order</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 16px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        .content { padding: 30px; max-width: 600px; }
+        h2 { color: #2c3e50; margin-bottom: 24px; }
+
+        .card {
+            background: #fff; border-radius: 6px; padding: 30px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block; font-size: 13px;
+            color: #555; margin-bottom: 6px; font-weight: bold;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%; padding: 9px 12px;
+            border: 1px solid #ccc; border-radius: 4px;
+            font-size: 14px; color: #333;
+        }
+        .form-group textarea { height: 80px; resize: vertical; }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #4CAF50; outline: none;
+        }
+
+        .hint { font-size: 11px; color: #999; margin-top: 4px; }
+        .required { color: #e74c3c; }
+
+        .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-submit {
+            background: #4CAF50; color: #fff; padding: 10px 24px;
+            border: none; border-radius: 4px; font-size: 14px;
+            cursor: pointer; font-weight: bold;
+        }
+        .btn-submit:hover { background: #45a049; }
+        .btn-cancel {
+            background: #6c757d; color: #fff; padding: 10px 24px;
+            border-radius: 4px; font-size: 14px;
+            text-decoration: none; font-weight: bold;
+        }
+        .btn-cancel:hover { opacity:.85; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders}">All Orders</a>
+    <a th:href="@{/orders/search}">Search</a>
+    <a th:href="@{/orders/new}">+ New Order</a>
+</div>
+
+<div class="content">
+    <h2>Create New Order</h2>
+
+    <div class="card">
+        <!-- Maps to POST /orders/new → orderService.createOrder() -->
+        <form th:action="@{/orders/new}" th:object="${orderDTO}" method="post">
+
+            <div class="form-group">
+                <label>Order Number <span class="required">*</span></label>
+                <input type="number" th:field="*{orderNumber}" placeholder="e.g. 10426"/>
+                <div class="hint">Must be unique and not already in the database</div>
+            </div>
+
+            <div class="form-group">
+                <label>Order Date <span class="required">*</span></label>
+                <input type="date" th:field="*{orderDate}"/>
+            </div>
+
+            <div class="form-group">
+                <label>Required Date <span class="required">*</span></label>
+                <input type="date" th:field="*{requiredDate}"/>
+            </div>
+
+            <div class="form-group">
+                <label>Shipped Date</label>
+                <input type="date" th:field="*{shippedDate}"/>
+                <div class="hint">Leave blank if not yet shipped</div>
+            </div>
+
+            <div class="form-group">
+                <label>Status <span class="required">*</span></label>
+                <select th:field="*{status}">
+                    <option value="">-- Select Status --</option>
+                    <option value="In Process">In Process</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="Disputed">Disputed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Customer Number <span class="required">*</span></label>
+                <input type="number" th:field="*{customerNumber}" placeholder="e.g. 363"/>
+                <div class="hint">Must exist in the customers table</div>
+            </div>
+
+            <div class="form-group">
+                <label>Comments</label>
+                <textarea th:field="*{comments}" placeholder="Optional comments..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">✔ Create Order</button>
+                <a class="btn-cancel" th:href="@{/orders}">✖ Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>

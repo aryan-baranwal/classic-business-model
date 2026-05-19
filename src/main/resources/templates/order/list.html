@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Orders</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 16px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        .content { padding: 30px; }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+
+        .top-bar {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 16px;
+        }
+        .btn-primary {
+            background: #4CAF50; color: #fff; padding: 9px 18px;
+            border-radius: 4px; text-decoration: none; font-size: 14px;
+        }
+        .btn-primary:hover { background: #45a049; }
+
+        table {
+            width: 100%; border-collapse: collapse;
+            background: #fff; border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
+        }
+        thead th {
+            background: #2c3e50; color: #fff;
+            padding: 12px 14px; text-align: left; font-size: 13px;
+        }
+        tbody tr:nth-child(even) { background: #f9f9f9; }
+        tbody tr:hover { background: #eef2f7; }
+        td { padding: 11px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
+
+        .badge {
+            padding: 3px 9px; border-radius: 12px;
+            font-size: 11px; font-weight: bold;
+        }
+        .Shipped    { background:#d4edda; color:#155724; }
+        .Cancelled  { background:#f8d7da; color:#721c24; }
+        .On-Hold    { background:#fff3cd; color:#856404; }
+        .In-Process { background:#cce5ff; color:#004085; }
+        .Disputed   { background:#f8d7da; color:#721c24; }
+        .Resolved   { background:#d1ecf1; color:#0c5460; }
+
+        .btn {
+            display: inline-block; padding: 4px 10px;
+            border-radius: 4px; font-size: 12px;
+            text-decoration: none; margin-right: 3px;
+        }
+        .btn-view  { background:#2196F3; color:#fff; }
+        .btn-edit  { background:#ff9800; color:#fff; }
+        .btn-items { background:#4CAF50; color:#fff; }
+        .btn:hover { opacity:.85; }
+
+        .empty { text-align:center; padding:40px; color:#888; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders}">All Orders</a>
+    <a th:href="@{/orders/search}">Search</a>
+    <a th:href="@{/orders/new}">+ New Order</a>
+</div>
+
+<div class="content">
+    <div class="top-bar">
+        <h2>All Orders</h2>
+        <a class="btn-primary" th:href="@{/orders/new}">+ Create Order</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Order Date</th>
+            <th>Required Date</th>
+            <th>Shipped Date</th>
+            <th>Comments</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${orders.isEmpty()}">
+            <td colspan="8" class="empty">No orders found.</td>
+        </tr>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.orderNumber}"></td>
+            <td th:text="${order.customerName}"></td>
+            <td>
+                    <span class="badge"
+                          th:classappend="${#strings.replace(order.status,' ','-')}"
+                          th:text="${order.status}">
+                    </span>
+            </td>
+            <td th:text="${order.orderDate}"></td>
+            <td th:text="${order.requiredDate}"></td>
+            <td th:text="${order.shippedDate != null ? order.shippedDate : '—'}"></td>
+            <td th:text="${order.comments != null ? order.comments : '—'}"></td>
+            <td>
+                <a class="btn btn-view"
+                   th:href="@{/orders/{n}(n=${order.orderNumber})}">View</a>
+                <a class="btn btn-edit"
+                   th:href="@{/orders/{n}/edit(n=${order.orderNumber})}">Edit</a>
+                <a class="btn btn-items"
+                   th:href="@{/orders/{n}/items(n=${order.orderNumber})}">Items</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
