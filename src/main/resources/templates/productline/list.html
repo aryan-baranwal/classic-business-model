@@ -2,134 +2,308 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Product Lines</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --cap-blue: #0070AD;
+            --cap-cyan: #12ABDB;
+            --cap-dark: #003057;
+            --cap-light: #E8F4FB;
+            --cap-white: #FFFFFF;
+            --cap-gray: #F2F6FA;
+            --cap-border: #D6E8F5;
+            --cap-text: #1A2B3C;
+            --cap-muted: #5A7A92;
+            --shadow-sm: 0 2px 8px rgba(0,48,87,0.08);
+            --shadow-md: 0 8px 28px rgba(0,48,87,0.12);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #f5efe6, #e8ddd4);
-            margin: 0;
-            padding: 40px;
-            color: #4e342e;
+            font-family: 'DM Sans', sans-serif;
+            background: #F0F5FA;
+            color: var(--cap-text);
+            min-height: 100vh;
         }
 
-        h2 {
-            text-align: center;
-            font-size: 48px;
-            color: #6d4c41;
-            margin-bottom: 30px;
+        .topbar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--cap-blue) 0%, var(--cap-cyan) 60%, #8EDFF5 100%);
         }
 
-        table {
-            width: 95%;
-            margin: auto;
-            border-collapse: collapse;
-            background: #ffffff;
+        header {
+            background: var(--cap-white);
+            padding: 0 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+            border-bottom: 1px solid var(--cap-border);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; }
+
+        .logo-mark {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--cap-blue), var(--cap-cyan));
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .logo-mark svg { width: 22px; height: 22px; fill: none; stroke: white; stroke-width: 2; }
+
+        .logo-text {
+            font-family: 'Raleway', sans-serif;
+            font-weight: 800; font-size: 20px; color: var(--cap-dark); letter-spacing: -0.3px;
+        }
+
+        .logo-text span { color: var(--cap-cyan); }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 22px; border-radius: 6px;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+            text-decoration: none; transition: all 0.2s ease; border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--cap-blue), var(--cap-cyan));
+            color: white; box-shadow: 0 4px 14px rgba(0,112,173,0.28);
+        }
+
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,112,173,0.38); filter: brightness(1.05); }
+
+        main { max-width: 1200px; margin: 0 auto; padding: 44px 48px; }
+
+        .page-hero { margin-bottom: 36px; }
+
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: var(--cap-muted); margin-bottom: 10px;
+        }
+
+        .breadcrumb a { color: var(--cap-blue); font-weight: 600; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb-sep { color: #B0C4D4; }
+
+        .page-title {
+            font-family: 'Raleway', sans-serif;
+            font-size: 38px; font-weight: 800;
+            color: var(--cap-dark); letter-spacing: -0.5px; line-height: 1.1;
+        }
+
+        .page-title em { font-style: normal; color: var(--cap-blue); }
+        .page-subtitle { margin-top: 8px; font-size: 15px; color: var(--cap-muted); }
+
+        /* ── GRID CARDS ── */
+        .lines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .line-card {
+            background: var(--cap-white);
+            border: 1px solid var(--cap-border);
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        th {
-            background: #8d6e63;
-            color: #ffffff;
-            padding: 18px;
-            font-size: 24px;
-            text-align: center;
-        }
-
-        td {
-            padding: 18px;
-            font-size: 18px;
-            border-bottom: 1px solid #d7ccc8;
-            vertical-align: top;
-            line-height: 1.6;
-        }
-
-        tr:nth-child(even) {
-            background: #f9f6f2;
-        }
-
-        tr:hover {
-            background: #efebe9;
-            transition: 0.3s;
-        }
-
-        td:first-child {
-            font-weight: bold;
-            color: #5d4037;
-            width: 18%;
-            text-align: center;
-        }
-
-        td:last-child {
-            width: 82%;
-            text-align: justify;
-        }
-
-        .back-link {
-            display: block;
-            width: fit-content;
-            margin: 30px auto 0;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s ease;
+            animation: fadeUp 0.4s ease both;
             text-decoration: none;
-            background: #8d6e63;
-            color: #ffffff;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: 0.3s;
+            color: inherit;
         }
 
-        .back-link:hover {
-            background: #6d4c41;
-            transform: translateY(-2px);
+        .line-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--cap-cyan);
         }
+
+        .line-card-accent {
+            height: 4px;
+            background: linear-gradient(90deg, var(--cap-blue), var(--cap-cyan));
+        }
+
+        .line-card-body { padding: 24px 26px 20px; flex: 1; }
+
+        .line-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .line-icon {
+            width: 46px; height: 46px;
+            background: var(--cap-light);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .line-icon svg { width: 24px; height: 24px; stroke: var(--cap-blue); fill: none; stroke-width: 1.8; }
+
+        .line-name {
+            font-family: 'Raleway', sans-serif;
+            font-size: 18px; font-weight: 800;
+            color: var(--cap-dark);
+            margin-bottom: 10px;
+        }
+
+        .line-desc {
+            font-size: 13.5px;
+            color: var(--cap-muted);
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-card-footer {
+            padding: 14px 26px;
+            border-top: 1px solid #EDF2F7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FAFCFE;
+        }
+
+        .view-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--cap-blue);
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: gap 0.2s;
+        }
+
+        .line-card:hover .view-link { gap: 10px; }
+
+        .view-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+        .line-tag {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--cap-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            background: var(--cap-light);
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .back-section {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .line-card:nth-child(1) { animation-delay: 0.05s; }
+        .line-card:nth-child(2) { animation-delay: 0.1s; }
+        .line-card:nth-child(3) { animation-delay: 0.15s; }
+        .line-card:nth-child(4) { animation-delay: 0.2s; }
+        .line-card:nth-child(5) { animation-delay: 0.25s; }
+        .line-card:nth-child(6) { animation-delay: 0.3s; }
+        .line-card:nth-child(7) { animation-delay: 0.35s; }
+
+        footer {
+            margin-top: 48px; padding: 24px 48px;
+            border-top: 1px solid var(--cap-border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .footer-text { font-size: 13px; color: var(--cap-muted); }
+        .footer-text strong { color: var(--cap-blue); }
 
         @media (max-width: 768px) {
-            body {
-                padding: 20px;
-            }
-
-            h2 {
-                font-size: 36px;
-            }
-
-            table {
-                width: 100%;
-            }
-
-            th, td {
-                padding: 12px;
-                font-size: 14px;
-            }
-
-            .back-link {
-                font-size: 16px;
-                padding: 12px 20px;
-            }
+            header { padding: 0 20px; }
+            main { padding: 24px 20px; }
+            .lines-grid { grid-template-columns: 1fr; }
+            .page-title { font-size: 28px; }
         }
+
+        /* Icon variety per line type */
+        .icon-motorcycles svg, .icon-classic svg, .icon-vintage svg { stroke: #0070AD; }
+        .icon-planes svg { stroke: #12ABDB; }
+        .icon-ships svg { stroke: #0099CC; }
+        .icon-trains svg { stroke: #005F93; }
+        .icon-trucks svg { stroke: #0080BE; }
     </style>
 </head>
 <body>
 
-<h2>Product Lines</h2>
+<div class="topbar"></div>
 
-<table>
-    <tr>
-        <th>Product Line</th>
-        <th>Text Description</th>
-    </tr>
+<header style="justify-content:flex-end;">
+    <a th:href="@{/products}" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Products
+    </a>
+</header>
 
-    <tr th:each="productLine : ${productLines}">
-        <td th:text="${productLine.productLine}"></td>
-        <td th:text="${productLine.textDescription}"></td>
-    </tr>
-</table>
+<main>
+    <div class="page-hero">
+        <div class="breadcrumb">
+            <a th:href="@{/products}">Products</a>
+            <span class="breadcrumb-sep">›</span>
+            <span>Product Lines</span>
+        </div>
+        <h1 class="page-title">Product <em>Lines</em></h1>
+        <p class="page-subtitle">Explore all available product categories and their descriptions</p>
+    </div>
 
-<a href="/api/products" class="back-link">
-    ← Back to Products
-</a>
+    <div class="lines-grid">
+        <div class="line-card" th:each="productLine : ${productLines}">
+            <div class="line-card-accent"></div>
+            <div class="line-card-body">
+                <div class="line-card-header">
+                    <div class="line-icon">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                </div>
+                <div class="line-name" th:text="${productLine.productLine}">Classic Cars</div>
+                <div class="line-desc" th:text="${productLine.textDescription}">
+                    Attention car enthusiasts: make perfect, hand-crafted miniatures from the…
+                </div>
+            </div>
+            <div class="line-card-footer">
+                <a class="view-link"
+                   th:href="@{'/product-lines/' + ${productLine.productLine} + '/products'}">
+                    View Products
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                <span class="line-tag">Product Line</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-section">
+        <a th:href="@{/products}" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Products
+        </a>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-text">© 2025 Product Management System</div>
+    <div class="footer-text">Internal Use Only</div>
+</footer>
 
 </body>
 </html>

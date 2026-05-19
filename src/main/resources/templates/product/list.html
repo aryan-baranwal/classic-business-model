@@ -1,171 +1,539 @@
-<!-- Save this as:
-src/main/resources/templates/product/list.html
--->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Products</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --cap-blue: #0070AD;
+            --cap-cyan: #12ABDB;
+            --cap-dark: #003057;
+            --cap-light: #E8F4FB;
+            --cap-white: #FFFFFF;
+            --cap-gray: #F2F6FA;
+            --cap-border: #D6E8F5;
+            --cap-text: #1A2B3C;
+            --cap-muted: #5A7A92;
+            --shadow-sm: 0 2px 8px rgba(0,48,87,0.08);
+            --shadow-md: 0 8px 28px rgba(0,48,87,0.12);
+            --shadow-lg: 0 20px 60px rgba(0,48,87,0.16);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #f5efe6, #e8ddd4);
-            margin: 0;
-            padding: 40px;
+            font-family: 'DM Sans', sans-serif;
+            background: #F0F5FA;
+            color: var(--cap-text);
+            min-height: 100vh;
         }
 
-        h1 {
-            text-align: center;
-            color: #6d4c41;
-            font-size: 56px;
-            margin-bottom: 30px;
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--cap-dark);
+            height: 4px;
+            background: linear-gradient(90deg, var(--cap-blue) 0%, var(--cap-cyan) 60%, #8EDFF5 100%);
         }
 
-        /* Top Buttons */
-        .top-buttons {
-            text-align: center;
-            margin-bottom: 30px;
+        /* ── HEADER ── */
+        header {
+            background: var(--cap-white);
+            padding: 0 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+            border-bottom: 1px solid var(--cap-border);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .top-buttons a {
-            display: inline-block;
-            margin: 0 10px;
-            padding: 12px 28px;
-            background: #a1887f;
-            color: #ffffff;
-            text-decoration: none;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--cap-blue), var(--cap-cyan));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-mark svg { width: 22px; height: 22px; fill: white; }
+
+        .logo-text {
+            font-family: 'Raleway', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--cap-dark);
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text span { color: var(--cap-cyan); }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
             border-radius: 6px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            transition: 0.3s;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
         }
 
-        .top-buttons a:hover {
-            background: #8d6e63;
-            transform: translateY(-2px);
+        .btn-primary {
+            background: linear-gradient(90deg, var(--cap-blue), var(--cap-cyan));
+            color: white;
+            box-shadow: 0 4px 14px rgba(0,112,173,0.28);
         }
 
-        /* Main Table */
-        table {
-            width: 95%;
-            margin: auto;
-            border-collapse: collapse;
-            background: #ffffff;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,112,173,0.38);
+            filter: brightness(1.05);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--cap-blue);
+            border: 1.5px solid var(--cap-blue);
+        }
+
+        .btn-outline:hover {
+            background: var(--cap-light);
+            transform: translateY(-1px);
+        }
+
+        /* ── MAIN CONTENT ── */
+        main {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 44px 48px;
+        }
+
+        /* ── PAGE HERO ── */
+        .page-hero {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 36px;
+        }
+
+        .page-hero-left {}
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--cap-muted);
+            margin-bottom: 10px;
+        }
+
+        .breadcrumb span { color: var(--cap-blue); font-weight: 600; }
+
+        .breadcrumb-sep { color: #B0C4D4; }
+
+        .page-title {
+            font-family: 'Raleway', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--cap-dark);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .page-title em {
+            font-style: normal;
+            color: var(--cap-blue);
+        }
+
+        .page-subtitle {
+            margin-top: 8px;
+            font-size: 15px;
+            color: var(--cap-muted);
+            font-weight: 400;
+        }
+
+        .page-hero-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ── STATS STRIP ── */
+        .stats-strip {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--cap-white);
+            border: 1px solid var(--cap-border);
             border-radius: 12px;
+            padding: 18px 24px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--cap-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon svg { width: 22px; height: 22px; stroke: var(--cap-blue); fill: none; stroke-width: 2; }
+
+        .stat-value {
+            font-family: 'Raleway', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--cap-dark);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--cap-muted);
+            font-weight: 500;
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: var(--cap-white);
+            border-radius: 16px;
+            border: 1px solid var(--cap-border);
+            box-shadow: var(--shadow-md);
             overflow: hidden;
         }
 
-        /* Header */
-        th {
-            background: #8d6e63;
-            color: #ffffff;
-            padding: 18px;
-            font-size: 24px;
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--cap-border);
+            background: linear-gradient(90deg, #FAFCFE 0%, #F5F9FD 100%);
+        }
+
+        .table-title {
+            font-family: 'Raleway', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--cap-dark);
+        }
+
+        .table-meta {
+            font-size: 13px;
+            color: var(--cap-muted);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--cap-gray);
+            border: 1.5px solid var(--cap-border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            transition: all 0.2s;
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--cap-cyan);
+            box-shadow: 0 0 0 3px rgba(18,171,219,0.12);
+        }
+
+        .search-bar svg { width: 16px; height: 16px; stroke: var(--cap-muted); fill: none; stroke-width: 2; }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--cap-text);
+            width: 200px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: linear-gradient(90deg, var(--cap-blue) 0%, #0088CC 100%);
+            color: white;
+            padding: 14px 20px;
+            font-size: 12px;
+            font-weight: 700;
             text-align: left;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
 
-        /* Data Cells */
-        td {
-            padding: 14px 18px;
-            font-size: 20px;
-            color: #4e342e;
-            border-bottom: 1px solid #d7ccc8;
+        thead th:first-child { border-radius: 0; padding-left: 28px; }
+        thead th:last-child { padding-right: 28px; }
+
+        tbody td {
+            padding: 15px 20px;
+            font-size: 14px;
+            color: var(--cap-text);
+            border-bottom: 1px solid #EDF2F7;
+            vertical-align: middle;
         }
 
-        /* Alternating Row Colors */
-        tr:nth-child(even) {
-            background: #f8f5f2;
+        tbody td:first-child { padding-left: 28px; }
+        tbody td:last-child { padding-right: 28px; }
+
+        tbody tr:last-child td { border-bottom: none; }
+
+        tbody tr:hover {
+            background: linear-gradient(90deg, #F0F8FF 0%, #F5FBFF 100%);
+            transition: background 0.15s ease;
         }
 
-        tr:nth-child(odd) {
-            background: #ffffff;
-        }
-
-        /* Hover Effect */
-        tr:hover {
-            background: #efebe9;
-            transition: 0.3s;
-        }
-
-        /* Product Code Link */
-        td a {
-            color: #6d4c41;
-            font-weight: bold;
+        .product-code-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--cap-blue);
+            font-weight: 700;
             text-decoration: none;
+            font-size: 13px;
+            font-family: 'DM Mono', monospace;
+            background: var(--cap-light);
+            padding: 4px 10px;
+            border-radius: 5px;
+            transition: all 0.2s;
         }
 
-        td a:hover {
-            text-decoration: underline;
-            color: #4e342e;
+        .product-code-link:hover {
+            background: var(--cap-blue);
+            color: white;
         }
 
-        /* Responsive */
+        .product-name { font-weight: 500; color: var(--cap-dark); }
+
+        .qty-badge {
+            display: inline-block;
+            background: #E8F5E9;
+            color: #2E7D32;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .price-tag {
+            font-weight: 600;
+            color: var(--cap-dark);
+        }
+
+        .line-badge {
+            display: inline-block;
+            background: var(--cap-light);
+            color: var(--cap-blue);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid #C2DFF0;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            margin-top: 48px;
+            padding: 24px 48px;
+            border-top: 1px solid var(--cap-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: var(--cap-muted);
+        }
+
+        .footer-text strong { color: var(--cap-blue); }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .table-card { animation: fadeUp 0.4s ease both; }
+        .stat-card:nth-child(1) { animation: fadeUp 0.3s 0.05s ease both; }
+        .stat-card:nth-child(2) { animation: fadeUp 0.3s 0.1s ease both; }
+        .stat-card:nth-child(3) { animation: fadeUp 0.3s 0.15s ease both; }
+        .stat-card:nth-child(4) { animation: fadeUp 0.3s 0.2s ease both; }
+
         @media (max-width: 900px) {
-            body {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 42px;
-            }
-
-            table {
-                width: 100%;
-                font-size: 14px;
-            }
-
-            th,
-            td {
-                padding: 10px;
-                font-size: 16px;
-            }
-
-            .top-buttons a {
-                display: block;
-                margin: 10px auto;
-                width: fit-content;
-            }
+            header { padding: 0 20px; }
+            main { padding: 24px 20px; }
+            .stats-strip { flex-wrap: wrap; }
+            .page-hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .page-title { font-size: 28px; }
+            .table-header { flex-direction: column; align-items: flex-start; gap: 12px; }
         }
     </style>
 </head>
 <body>
 
-<h1>Products</h1>
+<div class="topbar"></div>
 
-<div class="top-buttons">
-    <a href="/api/product-lines">View Product Lines</a>
-    <a href="/login">Login</a>
-</div>
+<header>
+    <div class="header-nav" style="margin-left:auto;">
+        <a th:href="@{/product-lines}" class="btn btn-outline">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Product Lines
+        </a>
+        <a th:href="@{/login}" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Login
+        </a>
+    </div>
+</header>
 
-<table>
-    <thead>
-    <tr>
-        <th>Product Code</th>
-        <th>Product Name</th>
-        <th>Quantity In Stock</th>
-        <th>Buy Price</th>
-        <th>Product Line</th>
-    </tr>
-    </thead>
+<main>
+    <div class="page-hero">
+        <div class="page-hero-left">
+            <div class="breadcrumb">
+                <span>Home</span>
+                <span class="breadcrumb-sep">›</span>
+                Catalog
+                <span class="breadcrumb-sep">›</span>
+                <span>Products</span>
+            </div>
+            <h1 class="page-title">Product <em>Catalog</em></h1>
+            <p class="page-subtitle">Browse and manage your complete product inventory</p>
+        </div>
+    </div>
 
-    <tbody>
-    <tr th:each="product : ${products}">
-        <td>
-            <a th:href="@{'/api/products/' + ${product.productCode}}"
-               th:text="${product.productCode}">
-            </a>
-        </td>
+    <div class="stats-strip">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <div>
+                <div class="stat-value" th:text="${products != null ? products.size() : 0}">110</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+                <div class="stat-value">7</div>
+                <div class="stat-label">Product Lines</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div>
+                <div class="stat-value">Active</div>
+                <div class="stat-label">Catalog Status</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div>
+                <div class="stat-value">In Stock</div>
+                <div class="stat-label">Inventory</div>
+            </div>
+        </div>
+    </div>
 
-        <td th:text="${product.productName}"></td>
-        <td th:text="${product.quantityInStock}"></td>
-        <td th:text="${product.buyPrice}"></td>
-        <td th:text="${product.productLine}"></td>
-    </tr>
-    </tbody>
-</table>
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <div class="table-title">All Products</div>
+                <div class="table-meta">Showing all available products in the system</div>
+            </div>
+            <div class="search-bar">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search products..." id="searchInput" oninput="filterTable()">
+            </div>
+        </div>
+
+        <table id="productTable">
+            <thead>
+            <tr>
+                <th>Product Code</th>
+                <th>Product Name</th>
+                <th>Qty In Stock</th>
+                <th>Buy Price</th>
+                <th>Product Line</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td>
+                    <a class="product-code-link"
+                       th:href="@{'/products/' + ${product.productCode}}"
+                       th:text="${product.productCode}">S10_1678</a>
+                </td>
+                <td class="product-name" th:text="${product.productName}">1969 Harley Davidson</td>
+                <td><span class="qty-badge" th:text="${product.quantityInStock}">7933</span></td>
+                <td class="price-tag" th:text="${product.buyPrice}">48.81</td>
+                <td><span class="line-badge" th:text="${product.productLine}">Motorcycles</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-text">© 2025 Product Management System</div>
+    <div class="footer-text">Internal Use Only</div>
+</footer>
+
+<script>
+    function filterTable() {
+        const val = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#productTable tbody tr');
+        rows.forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(val) ? '' : 'none';
+        });
+    }
+</script>
 
 </body>
 </html>
