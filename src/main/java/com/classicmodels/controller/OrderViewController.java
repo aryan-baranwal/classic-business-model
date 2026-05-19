@@ -23,6 +23,11 @@ public class OrderViewController {
 
     private final OrderService orderService;
 
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "order/dashboard";
+    }
+
     // =========================================================================
     // GET /orders — Show all orders as table
     // =========================================================================

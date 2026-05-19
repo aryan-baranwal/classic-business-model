@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Line Items</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 16px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        .content { padding: 30px; }
+        h2 { color: #2c3e50; margin-bottom: 6px; }
+
+        .sub-info {
+            font-size: 14px; color: #666;
+            margin-bottom: 20px;
+        }
+
+        .top-bar {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 16px;
+        }
+        .btn-primary {
+            background: #4CAF50; color: #fff; padding: 9px 18px;
+            border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;
+        }
+        .btn-primary:hover { background: #45a049; }
+
+        table {
+            width: 100%; border-collapse: collapse;
+            background: #fff; border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
+        }
+        thead th {
+            background: #2c3e50; color: #fff;
+            padding: 12px 14px; text-align: left; font-size: 13px;
+        }
+        tbody tr:nth-child(even) { background: #f9f9f9; }
+        tbody tr:hover { background: #eef2f7; }
+        td { padding: 11px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
+
+        tfoot td {
+            padding: 12px 14px; font-weight: bold;
+            background: #f0f4f8; border-top: 2px solid #2c3e50;
+            font-size: 14px;
+        }
+
+        .price { text-align: right; }
+        thead th.price { text-align: right; }
+
+        .btn {
+            display: inline-block; padding: 4px 10px;
+            border-radius: 4px; font-size: 12px;
+            text-decoration: none; margin-right: 3px;
+        }
+        .btn-edit   { background:#ff9800; color:#fff; }
+        .btn-delete {
+            background:#e53935; color:#fff;
+            border: none; cursor: pointer; padding: 4px 10px;
+            border-radius: 4px; font-size: 12px;
+        }
+        .btn:hover, .btn-delete:hover { opacity:.85; }
+
+        .btn-back {
+            display: inline-block; margin-top: 20px;
+            background: #6c757d; color: #fff;
+            padding: 9px 18px; border-radius: 4px;
+            text-decoration: none; font-size: 14px;
+        }
+        .btn-back:hover { opacity:.85; }
+
+        .empty { text-align:center; padding:40px; color:#888; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders}">All Orders</a>
+    <a th:href="@{/orders/search}">Search</a>
+    <a th:href="@{/orders/new}">+ New Order</a>
+</div>
+
+<div class="content">
+    <h2>Line Items — Order #<span th:text="${orderNumber}"></span></h2>
+    <p class="sub-info">
+        Showing all products in this order.
+    </p>
+
+    <div class="top-bar">
+        <span th:text="'Total items: ' + ${items.size()}"></span>
+        <a class="btn-primary"
+           th:href="@{/orders/{n}/items/new(n=${orderNumber})}">+ Add Item</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Line #</th>
+            <th>Product Code</th>
+            <th>Product Name</th>
+            <th>Qty Ordered</th>
+            <th class="price">Price Each</th>
+            <th class="price">Line Total</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${items.isEmpty()}">
+            <td colspan="7" class="empty">No items found for this order.</td>
+        </tr>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.orderLineNumber}"></td>
+            <td th:text="${item.productCode}"></td>
+            <td th:text="${item.productName}"></td>
+            <td th:text="${item.quantityOrdered}"></td>
+            <td class="price"
+                th:text="${'$' + #numbers.formatDecimal(item.priceEach, 1, 2)}"></td>
+            <td class="price"
+                th:text="${'$' + #numbers.formatDecimal(item.lineTotal, 1, 2)}"></td>
+            <td>
+                <!-- Edit item -->
+                <a class="btn btn-edit"
+                   th:href="@{/orders/{n}/items/{p}/edit(n=${orderNumber},p=${item.productCode})}">
+                    Edit
+                </a>
+                <!-- Delete item — POST form (browsers don't support DELETE) -->
+                <form style="display:inline"
+                      th:action="@{/orders/{n}/items/{p}/delete(n=${orderNumber},p=${item.productCode})}"
+                      method="post"
+                      onsubmit="return confirm('Delete product ' + this.dataset.code + ' from this order?')"
+                      th:data-code="${item.productCode}">
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr th:if="${!items.isEmpty()}">
+            <td colspan="5" style="text-align:right;">Order Total:</td>
+            <td class="price"
+                th:text="${'$' + #numbers.formatDecimal(
+                                items.stream()
+                                     .mapToDouble(i -> i.getLineTotal().doubleValue())
+                                     .sum(), 1, 2)}">
+            </td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <a class="btn-back" th:href="@{/orders/{n}(n=${orderNumber})}">
+        ← Back to Order Details
+    </a>
+</div>
+</body>
+</html>
