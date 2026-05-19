@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle}">Orders</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 16px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        .content { padding: 30px; }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+
+        /* ── Search form (shown only on search page) ── */
+        .search-form {
+            background: #fff; padding: 24px; border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 24px;
+            display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+        }
+        .search-form .field { display: flex; flex-direction: column; gap: 6px; }
+        .search-form label { font-size: 12px; color: #555; font-weight: bold; }
+        .search-form select,
+        .search-form input {
+            padding: 9px 12px; border: 1px solid #ccc;
+            border-radius: 4px; font-size: 14px; min-width: 160px;
+        }
+        .search-form button {
+            background: #4CAF50; color: #fff; padding: 9px 20px;
+            border: none; border-radius: 4px; cursor: pointer;
+            font-size: 14px; font-weight: bold; height: 38px;
+        }
+        .search-form button:hover { background: #45a049; }
+        .btn-reset {
+            background: #6c757d; color: #fff; padding: 9px 16px;
+            border-radius: 4px; font-size: 14px;
+            text-decoration: none; height: 38px; display:flex;
+            align-items:center;
+        }
+        .btn-reset:hover { opacity:.85; }
+
+        .result-count {
+            font-size: 13px; color: #666; margin-bottom: 12px;
+        }
+
+        table {
+            width: 100%; border-collapse: collapse;
+            background: #fff; border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
+        }
+        thead th {
+            background: #2c3e50; color: #fff;
+            padding: 12px 14px; text-align: left; font-size: 13px;
+        }
+        tbody tr:nth-child(even) { background: #f9f9f9; }
+        tbody tr:hover { background: #eef2f7; }
+        td { padding: 11px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
+
+        .badge {
+            padding: 3px 9px; border-radius: 12px;
+            font-size: 11px; font-weight: bold;
+        }
+        .Shipped    { background:#d4edda; color:#155724; }
+        .Cancelled  { background:#f8d7da; color:#721c24; }
+        .On-Hold    { background:#fff3cd; color:#856404; }
+        .In-Process { background:#cce5ff; color:#004085; }
+        .Disputed   { background:#f8d7da; color:#721c24; }
+        .Resolved   { background:#d1ecf1; color:#0c5460; }
+
+        .btn {
+            display: inline-block; padding: 4px 10px;
+            border-radius: 4px; font-size: 12px;
+            text-decoration: none; margin-right: 3px;
+        }
+        .btn-view  { background:#2196F3; color:#fff; }
+        .btn-edit  { background:#ff9800; color:#fff; }
+        .btn-items { background:#4CAF50; color:#fff; }
+        .btn:hover { opacity:.85; }
+
+        .empty { text-align:center; padding:40px; color:#888; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders}">All Orders</a>
+    <a th:href="@{/orders/search}">Search</a>
+    <a th:href="@{/orders/new}">+ New Order</a>
+</div>
+
+<div class="content">
+    <h2 th:text="${pageTitle}">Orders</h2>
+
+    <!-- Search form — shown only for /orders/search -->
+    <div class="search-form" th:if="${showSearchForm}">
+        <form th:action="@{/orders/search}" method="get"
+              style="display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; width:100%;">
+
+            <div class="field">
+                <label>Status</label>
+                <select name="status">
+                    <option value="">All Statuses</option>
+                    <option value="In Process"  th:selected="${status == 'In Process'}">In Process</option>
+                    <option value="Shipped"     th:selected="${status == 'Shipped'}">Shipped</option>
+                    <option value="Resolved"    th:selected="${status == 'Resolved'}">Resolved</option>
+                    <option value="Cancelled"   th:selected="${status == 'Cancelled'}">Cancelled</option>
+                    <option value="On Hold"     th:selected="${status == 'On Hold'}">On Hold</option>
+                    <option value="Disputed"    th:selected="${status == 'Disputed'}">Disputed</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>From Date</label>
+                <input type="date" name="fromDate"
+                       th:value="${fromDate}"/>
+            </div>
+
+            <div class="field">
+                <label>To Date</label>
+                <input type="date" name="toDate"
+                       th:value="${toDate}"/>
+            </div>
+
+            <button type="submit">🔍 Search</button>
+            <a class="btn-reset" th:href="@{/orders/search}">✖ Reset</a>
+        </form>
+    </div>
+
+    <!-- Result count -->
+    <p class="result-count"
+       th:text="'Showing ' + ${orders.size()} + ' order(s)'">
+    </p>
+
+    <!-- Results table -->
+    <table>
+        <thead>
+        <tr>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Order Date</th>
+            <th>Required Date</th>
+            <th>Shipped Date</th>
+            <th>Comments</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${orders.isEmpty()}">
+            <td colspan="8" class="empty">No orders match your search.</td>
+        </tr>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.orderNumber}"></td>
+            <td th:text="${order.customerName}"></td>
+            <td>
+                    <span class="badge"
+                          th:classappend="${#strings.replace(order.status,' ','-')}"
+                          th:text="${order.status}">
+                    </span>
+            </td>
+            <td th:text="${order.orderDate}"></td>
+            <td th:text="${order.requiredDate}"></td>
+            <td th:text="${order.shippedDate != null ? order.shippedDate : '—'}"></td>
+            <td th:text="${order.comments != null ? order.comments : '—'}"></td>
+            <td>
+                <a class="btn btn-view"
+                   th:href="@{/orders/{n}(n=${order.orderNumber})}">View</a>
+                <a class="btn btn-edit"
+                   th:href="@{/orders/{n}/edit(n=${order.orderNumber})}">Edit</a>
+                <a class="btn btn-items"
+                   th:href="@{/orders/{n}/items(n=${order.orderNumber})}">Items</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

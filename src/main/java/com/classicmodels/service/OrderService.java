@@ -1,56 +1,51 @@
 package com.classicmodels.service;
 
+import com.classicmodels.dto.OrderDetailRequestDTO;
+import com.classicmodels.dto.OrderDetailResponseDTO;
+import com.classicmodels.dto.OrderRequestDTO;
+import com.classicmodels.dto.OrderResponseDTO;
+import com.classicmodels.dto.OrderStatusUpdateDTO;
 import com.classicmodels.entity.OrderDetail;
-import com.classicmodels.entity.Order;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderService {
 
-    // ── Order CRUD ──────────────────────────────────────────────────────────
+    // ── POST /api/orders ───────────────────────────────────────────────────────
+    OrderResponseDTO createOrder(OrderRequestDTO dto);
 
-    /** POST /api/orders – Create a new order */
-    Order createOrder(Order order);
+    // ── GET /api/orders ────────────────────────────────────────────────────────
+    List<OrderResponseDTO> getAllOrders();
 
-    /** GET /api/orders – Retrieve all orders */
-    List<Order> getAllOrders();
+    // ── GET /api/orders/{orderNumber} ──────────────────────────────────────────
+    OrderResponseDTO getOrderById(Integer orderNumber);
 
-    /** GET /api/orders/{orderNumber} – Get order details */
-    Order getOrderById(Integer orderNumber);
+    // ── PUT /api/orders/{orderNumber} ──────────────────────────────────────────
+    OrderResponseDTO updateOrder(Integer orderNumber, OrderRequestDTO dto);
 
-    /** PUT /api/orders/{orderNumber} – Update order (dates, comments) */
-    Order updateOrder(Integer orderNumber, Order updatedOrder);
+    // ── PATCH /api/orders/{orderNumber}/status ─────────────────────────────────
+    OrderResponseDTO updateOrderStatus(Integer orderNumber, OrderStatusUpdateDTO dto);
 
-    /** PATCH /api/orders/{orderNumber}/status – Update order status */
-    Order updateOrderStatus(Integer orderNumber, String status);
+    // ── GET /api/customers/{customerNumber}/orders ─────────────────────────────
+    List<OrderResponseDTO> getOrdersByCustomer(Integer customerNumber);
 
-    /** GET /api/customers/{customerNumber}/orders – Orders for a customer */
-    List<Order> getOrdersByCustomer(Integer customerNumber);
+    // ── GET /api/orders/search?status=&fromDate=&toDate= ──────────────────────
+    List<OrderResponseDTO> searchOrders(String status, LocalDate fromDate, LocalDate toDate);
 
-    /**
-     * GET /api/orders/search?status=&fromDate=&toDate=
-     * Search orders by status and optional date range
-     */
-    List<Order> searchOrders(String status, LocalDate fromDate, LocalDate toDate);
+    // ── POST /api/orders/{orderNumber}/items ───────────────────────────────────
+    OrderDetailResponseDTO addItem(Integer orderNumber, OrderDetailRequestDTO dto);
 
-    // ── Order Line Items ─────────────────────────────────────────────────────
+    // ── GET /api/orders/{orderNumber}/items ────────────────────────────────────
+    List<OrderDetailResponseDTO> getItems(Integer orderNumber);
 
-    /** POST /api/orders/{orderNumber}/items – Add product to an order */
-    OrderDetail addItemToOrder(Integer orderNumber, OrderDetail item);
+    // ── PUT /api/orders/{orderNumber}/items/{productCode} ─────────────────────
+    OrderDetailResponseDTO updateItem(Integer orderNumber, String productCode,
+                                      OrderDetailRequestDTO dto);
 
-    /** GET /api/orders/{orderNumber}/items – List order line items */
-    List<OrderDetail> getOrderItems(Integer orderNumber);
+    // ── DELETE /api/orders/{orderNumber}/items/{productCode} ──────────────────
+    // Returns the deleted row so the controller can include it in the response body
+    OrderDetailResponseDTO removeItem(Integer orderNumber, String productCode);
 
-    /** PUT /api/orders/{orderNumber}/items/{productCode} – Update qty / price */
-    OrderDetail updateOrderItem(Integer orderNumber, String productCode, OrderDetail updatedItem);
 
-    /** DELETE /api/orders/{orderNumber}/items/{productCode} – Remove item */
-    void removeOrderItem(Integer orderNumber, String productCode);
-
-    // ── Reporting ────────────────────────────────────────────────────────────
-
-    /** GET /api/reports/order-value/{orderNumber} – Total order value */
-    BigDecimal calculateOrderValue(Integer orderNumber);
 }

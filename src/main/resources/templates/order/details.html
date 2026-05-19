@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Details</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 16px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        .content { padding: 30px; max-width: 800px; }
+        h2 { color: #2c3e50; margin-bottom: 24px; }
+
+        .card {
+            background: #fff; border-radius: 6px; padding: 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .card table { width: 100%; border-collapse: collapse; }
+        .card th {
+            background: #f0f0f0; text-align: left;
+            padding: 12px 18px; border-bottom: 1px solid #ddd;
+            width: 200px; font-size: 14px; color: #555;
+        }
+        .card td {
+            padding: 12px 18px; border-bottom: 1px solid #eee; font-size: 14px;
+        }
+        .card tr:last-child th,
+        .card tr:last-child td { border-bottom: none; }
+
+        .badge {
+            padding: 4px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: bold;
+        }
+        .Shipped    { background:#d4edda; color:#155724; }
+        .Cancelled  { background:#f8d7da; color:#721c24; }
+        .On-Hold    { background:#fff3cd; color:#856404; }
+        .In-Process { background:#cce5ff; color:#004085; }
+        .Disputed   { background:#f8d7da; color:#721c24; }
+        .Resolved   { background:#d1ecf1; color:#0c5460; }
+
+        .actions { display:flex; gap:10px; flex-wrap:wrap; }
+        .btn {
+            display: inline-block; padding: 9px 18px;
+            border-radius: 4px; font-size: 14px;
+            text-decoration: none; font-weight: bold;
+        }
+        .btn-edit   { background:#ff9800; color:#fff; }
+        .btn-status { background:#9c27b0; color:#fff; }
+        .btn-items  { background:#4CAF50; color:#fff; }
+        .btn-back   { background:#6c757d; color:#fff; }
+        .btn:hover  { opacity:.85; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders}">All Orders</a>
+    <a th:href="@{/orders/search}">Search</a>
+    <a th:href="@{/orders/new}">+ New Order</a>
+</div>
+
+<div class="content">
+    <h2>Order Details — #<span th:text="${order.orderNumber}"></span></h2>
+
+    <div class="card">
+        <table>
+            <tr>
+                <th>Order Number</th>
+                <td th:text="${order.orderNumber}"></td>
+            </tr>
+            <tr>
+                <th>Customer</th>
+                <td th:text="${order.customerName}"></td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>
+                    <span class="badge"
+                          th:classappend="${#strings.replace(order.status,' ','-')}"
+                          th:text="${order.status}">
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th>Order Date</th>
+                <td th:text="${order.orderDate}"></td>
+            </tr>
+            <tr>
+                <th>Required Date</th>
+                <td th:text="${order.requiredDate}"></td>
+            </tr>
+            <tr>
+                <th>Shipped Date</th>
+                <td th:text="${order.shippedDate != null ? order.shippedDate : '—'}"></td>
+            </tr>
+            <tr>
+                <th>Comments</th>
+                <td th:text="${order.comments != null ? order.comments : '—'}"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="actions">
+        <a class="btn btn-edit"
+           th:href="@{/orders/{n}/edit(n=${order.orderNumber})}">✏ Edit Order</a>
+        <a class="btn btn-status"
+           th:href="@{/orders/{n}/status(n=${order.orderNumber})}">🔄 Update Status</a>
+        <a class="btn btn-items"
+           th:href="@{/orders/{n}/items(n=${order.orderNumber})}">📦 View Items</a>
+        <a class="btn btn-back" th:href="@{/orders}">← Back to All Orders</a>
+    </div>
+</div>
+</body>
+</html>

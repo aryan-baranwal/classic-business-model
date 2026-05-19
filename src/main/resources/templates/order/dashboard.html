@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Module — API Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; }
+
+        /* ── Navbar ── */
+        .navbar {
+            background: #2c3e50; padding: 14px 30px;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .navbar .brand { color: #fff; font-weight: bold; font-size: 18px; }
+        .navbar a {
+            color: #ecf0f1; text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 14px;
+        }
+        .navbar a:hover { background: #3d5166; }
+
+        /* ── Page ── */
+        .content { padding: 36px 40px; }
+        .page-title { color: #2c3e50; font-size: 26px; margin-bottom: 6px; }
+        .page-sub   { color: #777; font-size: 14px; margin-bottom: 36px; }
+
+        /* ── Section heading ── */
+        .section-heading {
+            font-size: 15px; font-weight: bold; color: #fff;
+            padding: 10px 16px; border-radius: 6px 6px 0 0;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-order  { background: #2c3e50; }
+        .section-detail { background: #37474f; }
+
+        /* ── Cards ── */
+        .card {
+            background: #fff;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.08);
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        /* ── Endpoint table ── */
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: #f0f4f8; color: #555;
+            padding: 10px 16px; text-align: left;
+            font-size: 12px; text-transform: uppercase;
+            letter-spacing: .5px; border-bottom: 1px solid #e0e0e0;
+        }
+        tbody tr { border-bottom: 1px solid #f0f0f0; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #fafcff; }
+        td { padding: 13px 16px; font-size: 14px; vertical-align: middle; }
+
+        /* ── HTTP method badges ── */
+        .method {
+            display: inline-block; padding: 3px 10px;
+            border-radius: 4px; font-size: 11px;
+            font-weight: bold; min-width: 56px; text-align: center;
+        }
+        .GET    { background: #e3f2fd; color: #1565c0; }
+        .POST   { background: #e8f5e9; color: #2e7d32; }
+        .PUT    { background: #fff3e0; color: #e65100; }
+        .PATCH  { background: #f3e5f5; color: #6a1b9a; }
+        .DELETE { background: #ffebee; color: #b71c1c; }
+
+        /* ── Endpoint path ── */
+        .endpoint-path {
+            font-family: monospace; font-size: 13px;
+            color: #333; background: #f5f5f5;
+            padding: 4px 8px; border-radius: 4px;
+        }
+
+        /* ── Description ── */
+        .desc { color: #555; font-size: 13px; }
+
+        /* ── Open link button ── */
+        .open-btn {
+            display: inline-block; padding: 6px 14px;
+            background: #2196F3; color: #fff;
+            border-radius: 4px; text-decoration: none;
+            font-size: 12px; font-weight: bold;
+            white-space: nowrap;
+        }
+        .open-btn:hover { background: #1976D2; }
+
+        /* Disabled — for POST/PUT/DELETE (no direct GET link) */
+        .open-btn.form-link { background: #4CAF50; }
+        .open-btn.form-link:hover { background: #388E3C; }
+        .open-btn.na {
+            background: #bdbdbd; cursor: default; pointer-events: none;
+        }
+
+        /* ── Quick links bar ── */
+        .quick-links {
+            display: flex; gap: 10px; flex-wrap: wrap;
+            background: #fff; padding: 16px 20px;
+            border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            margin-bottom: 32px;
+        }
+        .quick-links span { font-size: 13px; color: #666; align-self: center; }
+        .ql {
+            display: inline-block; padding: 6px 14px;
+            border-radius: 20px; font-size: 12px;
+            text-decoration: none; font-weight: bold;
+        }
+        .ql-blue  { background:#e3f2fd; color:#1565c0; }
+        .ql-green { background:#e8f5e9; color:#2e7d32; }
+        .ql-ql:hover { opacity:.8; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <span class="brand">Classic Models</span>
+    <a th:href="@{/orders/dashboard}">Dashboard</a>
+    <a th:href="@{/orders}" target="_blank">All Orders ↗</a>
+    <a th:href="@{/orders/search}" target="_blank">Search ↗</a>
+    <a th:href="@{/orders/new}" target="_blank">+ New Order ↗</a>
+</div>
+
+<div class="content">
+
+    <h1 class="page-title">Order Module — API Dashboard</h1>
+    <p class="page-sub">Click "Open" to launch any endpoint in a new tab. Green buttons open forms.</p>
+
+    <!-- ── Quick access ─────────────────────────────────────────────────── -->
+    <div class="quick-links">
+        <span>Quick links:</span>
+        <a class="ql ql-blue" th:href="@{/orders}"             target="_blank">All Orders</a>
+        <a class="ql ql-blue" th:href="@{/orders/10100}"       target="_blank">Order 10100</a>
+        <a class="ql ql-blue" th:href="@{/orders/10101}"       target="_blank">Order 10101</a>
+        <a class="ql ql-blue" th:href="@{/orders/10102}"       target="_blank">Order 10102</a>
+        <a class="ql ql-blue" th:href="@{/orders/search}"      target="_blank">Search</a>
+        <a class="ql ql-blue" th:href="@{/orders/customers/363/orders}" target="_blank">Customer 363</a>
+        <a class="ql ql-blue" th:href="@{/orders/customers/128/orders}" target="_blank">Customer 128</a>
+        <a class="ql ql-blue" th:href="@{/orders/10100/items}" target="_blank">Items 10100</a>
+        <a class="ql ql-green" th:href="@{/orders/new}"        target="_blank">+ Create Order</a>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!--  ORDER CONTROLLER                                                  -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="section-heading section-order">
+        📦 Order Controller &nbsp;—&nbsp; 7 endpoints
+    </div>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th style="width:70px">Method</th>
+                <th style="width:320px">API Endpoint</th>
+                <th>Description</th>
+                <th style="width:120px">View URL</th>
+                <th style="width:90px">Open</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <!-- GET /api/orders -->
+            <tr>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/orders</span></td>
+                <td class="desc">Retrieve all orders as a table</td>
+                <td><span class="endpoint-path">/orders</span></td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+
+            <!-- GET /api/orders/{orderNumber} -->
+            <tr>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/orders/{orderNumber}</span></td>
+                <td class="desc">Get details of a single order (using 10100)</td>
+                <td><span class="endpoint-path">/orders/10100</span></td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/10100}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+
+            <!-- POST /api/orders -->
+            <tr>
+                <td><span class="method POST">POST</span></td>
+                <td><span class="endpoint-path">/api/orders</span></td>
+                <td class="desc">Create a new order — opens the create form</td>
+                <td><span class="endpoint-path">/orders/new</span></td>
+                <td>
+                    <a class="open-btn form-link"
+                       th:href="@{/orders/new}" target="_blank">Form ↗</a>
+                </td>
+            </tr>
+
+            <!-- PUT /api/orders/{orderNumber} -->
+            <tr>
+                <td><span class="method PUT">PUT</span></td>
+                <td><span class="endpoint-path">/api/orders/{orderNumber}</span></td>
+                <td class="desc">Update order dates/comments (using 10100)</td>
+                <td><span class="endpoint-path">/orders/10100/edit</span></td>
+                <td>
+                    <a class="open-btn form-link"
+                       th:href="@{/orders/10100/edit}" target="_blank">Form ↗</a>
+                </td>
+            </tr>
+
+            <!-- PATCH /api/orders/{orderNumber}/status -->
+            <tr>
+                <td><span class="method PATCH">PATCH</span></td>
+                <td><span class="endpoint-path">/api/orders/{orderNumber}/status</span></td>
+                <td class="desc">Update order status — Shipped, Cancelled, etc. (using 10100)</td>
+                <td><span class="endpoint-path">/orders/10100/status</span></td>
+                <td>
+                    <a class="open-btn form-link"
+                       th:href="@{/orders/10100/status}" target="_blank">Form ↗</a>
+                </td>
+            </tr>
+
+            <!-- GET /api/orders/search -->
+            <tr>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/orders/search?status=&fromDate=&toDate=</span></td>
+                <td class="desc">Search orders by status and/or date range</td>
+                <td><span class="endpoint-path">/orders/search</span></td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/search}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+
+            <!-- GET /api/customers/{customerNumber}/orders -->
+            <tr>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/customers/{customerNumber}/orders</span></td>
+                <td class="desc">All orders for a customer (using customer 363)</td>
+                <td><span class="endpoint-path">/orders/customers/363/orders</span></td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/customers/363/orders}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!--  ORDER DETAIL CONTROLLER                                           -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="section-heading section-detail">
+        🗂 Order Detail Controller &nbsp;—&nbsp; 4 endpoints
+    </div>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th style="width:70px">Method</th>
+                <th style="width:320px">API Endpoint</th>
+                <th>Description</th>
+                <th style="width:160px">View URL</th>
+                <th style="width:90px">Open</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <!-- GET /api/orders/{orderNumber}/items -->
+            <tr>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/orders/{orderNumber}/items</span></td>
+                <td class="desc">List all line items for an order (using 10100)</td>
+                <td><span class="endpoint-path">/orders/10100/items</span></td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/10100/items}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+
+            <!-- POST /api/orders/{orderNumber}/items -->
+            <tr>
+                <td><span class="method POST">POST</span></td>
+                <td><span class="endpoint-path">/api/orders/{orderNumber}/items</span></td>
+                <td class="desc">Add a product to an order — opens the add form (using 10100)</td>
+                <td><span class="endpoint-path">/orders/10100/items/new</span></td>
+                <td>
+                    <a class="open-btn form-link"
+                       th:href="@{/orders/10100/items/new}" target="_blank">Form ↗</a>
+                </td>
+            </tr>
+
+            <!-- PUT /api/orders/{orderNumber}/items/{productCode} -->
+            <tr>
+                <td><span class="method PUT">PUT</span></td>
+                <td><span class="endpoint-path">/api/orders/{orderNumber}/items/{productCode}</span></td>
+                <td class="desc">Update quantity or price of a line item (order 10100, product S18_1749)</td>
+                <td><span class="endpoint-path">/orders/10100/items/S18_1749/edit</span></td>
+                <td>
+                    <a class="open-btn form-link"
+                       th:href="@{/orders/10100/items/S18_1749/edit}" target="_blank">Form ↗</a>
+                </td>
+            </tr>
+
+            <!-- DELETE /api/orders/{orderNumber}/items/{productCode} -->
+            <tr>
+                <td><span class="method DELETE">DELETE</span></td>
+                <td><span class="endpoint-path">/api/orders/{orderNumber}/items/{productCode}</span></td>
+                <td class="desc">Remove item from order — use the Delete button on the items page</td>
+                <td><span class="endpoint-path">/orders/10100/items</span></td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/10100/items}" target="_blank">Items ↗</a>
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!--  SAMPLE DATA reference                                             -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="section-heading" style="background:#455a64;">
+        🗃 Sample Data — Try these too
+    </div>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>What</th>
+                <th>Link</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="desc">Order 10101 details</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/10101}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Order 10102 details</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/10102}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Items in order 10101</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/10101/items}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Orders for customer 128</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/customers/128/orders}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Orders for customer 181</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/customers/181/orders}" target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Search — Shipped orders in 2003</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/search(status='Shipped',fromDate='2003-01-01',toDate='2003-12-31')}"
+                       target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Search — In Process orders</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/search(status='In Process')}"
+                       target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Search — Cancelled orders</td>
+                <td>
+                    <a class="open-btn"
+                       th:href="@{/orders/search(status='Cancelled')}"
+                       target="_blank">Open ↗</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="desc">Edit item S18_2248 in order 10100</td>
+                <td>
+                    <a class="open-btn form-link"
+                       th:href="@{/orders/10100/items/S18_2248/edit}" target="_blank">Form ↗</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

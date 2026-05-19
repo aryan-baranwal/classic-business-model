@@ -1,5 +1,7 @@
 package com.classicmodels.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,12 +31,18 @@ public class Order {
     @Column(name = "comments", columnDefinition = "text")
     private String comments;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customerNumber", nullable = false)
+    @JsonIgnoreProperties({
+            "orders",
+            "payments",
+            "salesRepEmployee"
+    })
     private Customer customer;
 
     // ✅ FIXED: initialize list + cascade
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     public Order() {}
