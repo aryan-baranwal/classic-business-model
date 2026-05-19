@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class OfficeServiceImplTest {
 
@@ -34,8 +34,7 @@ class OfficeServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testGetAllOfficesSuccess() {
+    private Office createOffice() {
 
         Office office = new Office();
 
@@ -44,6 +43,14 @@ class OfficeServiceImplTest {
         office.setPhone("123456789");
         office.setCountry("USA");
         office.setTerritory("NA");
+
+        return office;
+    }
+
+    @Test
+    void testGetAllOfficesSuccess() {
+
+        Office office = createOffice();
 
         when(officeRepository.findAll())
                 .thenReturn(Arrays.asList(office));
@@ -79,13 +86,7 @@ class OfficeServiceImplTest {
     @Test
     void testGetOfficeByCodeSuccess() {
 
-        Office office = new Office();
-
-        office.setOfficeCode("1");
-        office.setCity("Boston");
-        office.setPhone("987654321");
-        office.setCountry("USA");
-        office.setTerritory("NA");
+        Office office = createOffice();
 
         when(officeRepository.findById("1"))
                 .thenReturn(Optional.of(office));
@@ -93,7 +94,7 @@ class OfficeServiceImplTest {
         OfficeResponseDto dto =
                 officeService.getOfficeByCode("1");
 
-        assertEquals("Boston", dto.getCity());
+        assertEquals("San Francisco", dto.getCity());
     }
 
     @Test
@@ -111,5 +112,101 @@ class OfficeServiceImplTest {
                 "Office not found with code: 999",
                 exception.getMessage()
         );
+    }
+
+    @Test
+    void testGetAllOfficesReturnsCorrectOfficeCode() {
+
+        Office office = createOffice();
+
+        when(officeRepository.findAll())
+                .thenReturn(Arrays.asList(office));
+
+        List<OfficeResponseDto> offices =
+                officeService.getAllOffices();
+
+        assertEquals(
+                "1",
+                offices.get(0).getOfficeCode()
+        );
+    }
+
+    @Test
+    void testGetAllOfficesReturnsCorrectPhone() {
+
+        Office office = createOffice();
+
+        when(officeRepository.findAll())
+                .thenReturn(Arrays.asList(office));
+
+        List<OfficeResponseDto> offices =
+                officeService.getAllOffices();
+
+        assertEquals(
+                "123456789",
+                offices.get(0).getPhone()
+        );
+    }
+
+    @Test
+    void testGetAllOfficesReturnsCorrectCountry() {
+
+        Office office = createOffice();
+
+        when(officeRepository.findAll())
+                .thenReturn(Arrays.asList(office));
+
+        List<OfficeResponseDto> offices =
+                officeService.getAllOffices();
+
+        assertEquals(
+                "USA",
+                offices.get(0).getCountry()
+        );
+    }
+
+    @Test
+    void testGetAllOfficesReturnsCorrectTerritory() {
+
+        Office office = createOffice();
+
+        when(officeRepository.findAll())
+                .thenReturn(Arrays.asList(office));
+
+        List<OfficeResponseDto> offices =
+                officeService.getAllOffices();
+
+        assertEquals(
+                "NA",
+                offices.get(0).getTerritory()
+        );
+    }
+
+    @Test
+    void testRepositoryFindAllCalledOnce() {
+
+        Office office = createOffice();
+
+        when(officeRepository.findAll())
+                .thenReturn(Arrays.asList(office));
+
+        officeService.getAllOffices();
+
+        verify(officeRepository, times(1))
+                .findAll();
+    }
+
+    @Test
+    void testRepositoryFindByIdCalledOnce() {
+
+        Office office = createOffice();
+
+        when(officeRepository.findById("1"))
+                .thenReturn(Optional.of(office));
+
+        officeService.getOfficeByCode("1");
+
+        verify(officeRepository, times(1))
+                .findById("1");
     }
 }
