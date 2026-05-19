@@ -1,8 +1,13 @@
 package com.classicmodels.service;
 
+import com.classicmodels.dto.DeleteEmployeeResponseDto;
+import com.classicmodels.dto.EmployeeRequestDto;
+import com.classicmodels.dto.EmployeeResponseDto;
 import com.classicmodels.entity.Employee;
+import com.classicmodels.entity.Office;
 import com.classicmodels.exception.EmployeeNotFoundException;
 import com.classicmodels.repository.EmployeeRepository;
+import com.classicmodels.repository.OfficeRepository;
 import com.classicmodels.service.impl.EmployeeServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,15 +29,23 @@ public class EmployeeServiceTest {
     @Mock
     private EmployeeRepository employeeRepository;
 
+    @Mock
+    private OfficeRepository officeRepository;
+
     @InjectMocks
     private EmployeeServiceImpl employeeService;
 
     private Employee employee;
 
+    private Office office;
+
     @BeforeEach
     void setUp() {
 
         MockitoAnnotations.openMocks(this);
+
+        office = new Office();
+        office.setOfficeCode("1");
 
         employee = new Employee();
 
@@ -42,6 +55,7 @@ public class EmployeeServiceTest {
         employee.setExtension("x5800");
         employee.setEmail("dmurphy@classicmodelcars.com");
         employee.setJobTitle("President");
+        employee.setOffice(office);
     }
 
     // TEST GET ALL EMPLOYEES
@@ -55,7 +69,7 @@ public class EmployeeServiceTest {
         when(employeeRepository.findAll())
                 .thenReturn(employeeList);
 
-        List<Employee> result =
+        List<EmployeeResponseDto> result =
                 employeeService.getAllEmployees();
 
         assertNotNull(result);
@@ -78,7 +92,7 @@ public class EmployeeServiceTest {
         when(employeeRepository.findById(1002))
                 .thenReturn(Optional.of(employee));
 
-        Employee result =
+        EmployeeResponseDto result =
                 employeeService.getEmployeeById(1002);
 
         assertNotNull(result);
@@ -114,11 +128,25 @@ public class EmployeeServiceTest {
     @Test
     void testCreateEmployee() {
 
-        when(employeeRepository.save(employee))
+        EmployeeRequestDto dto =
+                new EmployeeRequestDto();
+
+        dto.setEmployeeNumber(1002);
+        dto.setFirstName("Diane");
+        dto.setLastName("Murphy");
+        dto.setExtension("x5800");
+        dto.setEmail("dmurphy@classicmodelcars.com");
+        dto.setJobTitle("President");
+        dto.setOfficeCode("1");
+
+        when(officeRepository.findById("1"))
+                .thenReturn(Optional.of(office));
+
+        when(employeeRepository.save(any(Employee.class)))
                 .thenReturn(employee);
 
-        Employee savedEmployee =
-                employeeService.createEmployee(employee);
+        EmployeeResponseDto savedEmployee =
+                employeeService.createEmployee(dto);
 
         assertNotNull(savedEmployee);
 
@@ -133,29 +161,34 @@ public class EmployeeServiceTest {
     @Test
     void testUpdateEmployee() {
 
-        Employee updatedEmployee =
-                new Employee();
+        EmployeeRequestDto dto =
+                new EmployeeRequestDto();
 
-        updatedEmployee.setFirstName("Updated");
+        dto.setFirstName("Updated");
 
-        updatedEmployee.setLastName("Employee");
+        dto.setLastName("Employee");
 
-        updatedEmployee.setExtension("x1111");
+        dto.setExtension("x1111");
 
-        updatedEmployee.setEmail("updated@classicmodelcars.com");
+        dto.setEmail("updated@classicmodelcars.com");
 
-        updatedEmployee.setJobTitle("Manager");
+        dto.setJobTitle("Manager");
+
+        dto.setOfficeCode("1");
 
         when(employeeRepository.findById(1002))
                 .thenReturn(Optional.of(employee));
 
-        when(employeeRepository.save(any(Employee.class)))
-                .thenReturn(updatedEmployee);
+        when(officeRepository.findById("1"))
+                .thenReturn(Optional.of(office));
 
-        Employee result =
+        when(employeeRepository.save(any(Employee.class)))
+                .thenReturn(employee);
+
+        EmployeeResponseDto result =
                 employeeService.updateEmployee(
                         1002,
-                        updatedEmployee
+                        dto
                 );
 
         assertNotNull(result);
@@ -178,12 +211,17 @@ public class EmployeeServiceTest {
                 .when(employeeRepository)
                 .delete(employee);
 
-        String result =
+        DeleteEmployeeResponseDto result =
                 employeeService.deleteEmployee(1002);
 
         assertEquals(
                 "Employee deleted successfully",
-                result
+                result.getMessage()
+        );
+
+        assertEquals(
+                1002,
+                result.getEmployee().getEmployeeNumber()
         );
 
         verify(employeeRepository,
@@ -203,12 +241,14 @@ public class EmployeeServiceTest {
 
         manager.setFirstName("Manager");
 
+        manager.setOffice(office);
+
         employee.setManager(manager);
 
         when(employeeRepository.findById(1002))
                 .thenReturn(Optional.of(employee));
 
-        Employee result =
+        EmployeeResponseDto result =
                 employeeService.getManager(1002);
 
         assertNotNull(result);
@@ -233,7 +273,7 @@ public class EmployeeServiceTest {
                 .findByManagerEmployeeNumber(1001))
                 .thenReturn(subordinates);
 
-        List<Employee> result =
+        List<EmployeeResponseDto> result =
                 employeeService.getSubordinates(1001);
 
         assertNotNull(result);
