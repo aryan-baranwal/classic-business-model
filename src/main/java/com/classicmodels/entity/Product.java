@@ -34,7 +34,7 @@ public class Product {
      * Changed from Integer -> Short to fix:
      * Schema-validation: found [smallint] but expecting [integer]
      */
-    @Column(name = "quantityInStock")
+    @Column(name = "quantityInStock", columnDefinition = "SMALLINT")
     @NotNull(message = "Quantity in stock is required")
     @PositiveOrZero(message = "Quantity in stock must be zero or greater")
     private Short quantityInStock;
