@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Product Details</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f5efe6, #e8ddd4);
+            margin: 0;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #6d4c41;
+            font-size: 48px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 700px;
+            margin: auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #8d6e63;
+            color: #ffffff;
+            padding: 18px;
+            font-size: 22px;
+            text-align: left;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 20px;
+            color: #4e342e;
+            border-bottom: 1px solid #d7ccc8;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f5f2;
+        }
+
+        tr:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        tr:hover {
+            background: #efebe9;
+            transition: 0.3s;
+        }
+
+        .field-name {
+            font-weight: bold;
+            color: #5d4037;
+            width: 250px;
+        }
+
+        .back-link {
+            display: block;
+            width: fit-content;
+            margin: 30px auto 0;
+            padding: 12px 28px;
+            background: #a1887f;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            background: #8d6e63;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<h1>Product Details</h1>
+
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Value</th>
+    </tr>
+
+    <tr>
+        <td class="field-name">Product Code</td>
+        <td th:text="${product.productCode}"></td>
+    </tr>
+
+    <tr>
+        <td class="field-name">Product Name</td>
+        <td th:text="${product.productName}"></td>
+    </tr>
+
+    <tr>
+        <td class="field-name">Quantity In Stock</td>
+        <td th:text="${product.quantityInStock}"></td>
+    </tr>
+
+    <tr>
+        <td class="field-name">Buy Price</td>
+        <td th:text="${product.buyPrice}"></td>
+    </tr>
+
+    <tr>
+        <td class="field-name">Product Line</td>
+        <td th:text="${product.productLine}"></td>
+    </tr>
+</table>
+
+<a href="/api/products" class="back-link">
+    ← Back to Product List
+</a>
+
+</body>
+</html>

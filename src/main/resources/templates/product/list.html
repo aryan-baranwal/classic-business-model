@@ -1,0 +1,171 @@
+<!-- Save this as:
+src/main/resources/templates/product/list.html
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Products</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f5efe6, #e8ddd4);
+            margin: 0;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #6d4c41;
+            font-size: 56px;
+            margin-bottom: 30px;
+        }
+
+        /* Top Buttons */
+        .top-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .top-buttons a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 12px 28px;
+            background: #a1887f;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: 0.3s;
+        }
+
+        .top-buttons a:hover {
+            background: #8d6e63;
+            transform: translateY(-2px);
+        }
+
+        /* Main Table */
+        table {
+            width: 95%;
+            margin: auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Header */
+        th {
+            background: #8d6e63;
+            color: #ffffff;
+            padding: 18px;
+            font-size: 24px;
+            text-align: left;
+        }
+
+        /* Data Cells */
+        td {
+            padding: 14px 18px;
+            font-size: 20px;
+            color: #4e342e;
+            border-bottom: 1px solid #d7ccc8;
+        }
+
+        /* Alternating Row Colors */
+        tr:nth-child(even) {
+            background: #f8f5f2;
+        }
+
+        tr:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        /* Hover Effect */
+        tr:hover {
+            background: #efebe9;
+            transition: 0.3s;
+        }
+
+        /* Product Code Link */
+        td a {
+            color: #6d4c41;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+            color: #4e342e;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            body {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 42px;
+            }
+
+            table {
+                width: 100%;
+                font-size: 14px;
+            }
+
+            th,
+            td {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .top-buttons a {
+                display: block;
+                margin: 10px auto;
+                width: fit-content;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Products</h1>
+
+<div class="top-buttons">
+    <a href="/api/product-lines">View Product Lines</a>
+    <a href="/login">Login</a>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Product Code</th>
+        <th>Product Name</th>
+        <th>Quantity In Stock</th>
+        <th>Buy Price</th>
+        <th>Product Line</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td>
+            <a th:href="@{'/api/products/' + ${product.productCode}}"
+               th:text="${product.productCode}">
+            </a>
+        </td>
+
+        <td th:text="${product.productName}"></td>
+        <td th:text="${product.quantityInStock}"></td>
+        <td th:text="${product.buyPrice}"></td>
+        <td th:text="${product.productLine}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

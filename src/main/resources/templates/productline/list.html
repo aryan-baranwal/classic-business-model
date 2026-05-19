@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Product Lines</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f5efe6, #e8ddd4);
+            margin: 0;
+            padding: 40px;
+            color: #4e342e;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 48px;
+            color: #6d4c41;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 95%;
+            margin: auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        th {
+            background: #8d6e63;
+            color: #ffffff;
+            padding: 18px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        td {
+            padding: 18px;
+            font-size: 18px;
+            border-bottom: 1px solid #d7ccc8;
+            vertical-align: top;
+            line-height: 1.6;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f6f2;
+        }
+
+        tr:hover {
+            background: #efebe9;
+            transition: 0.3s;
+        }
+
+        td:first-child {
+            font-weight: bold;
+            color: #5d4037;
+            width: 18%;
+            text-align: center;
+        }
+
+        td:last-child {
+            width: 82%;
+            text-align: justify;
+        }
+
+        .back-link {
+            display: block;
+            width: fit-content;
+            margin: 30px auto 0;
+            text-decoration: none;
+            background: #8d6e63;
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            background: #6d4c41;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 36px;
+            }
+
+            table {
+                width: 100%;
+            }
+
+            th, td {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .back-link {
+                font-size: 16px;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h2>Product Lines</h2>
+
+<table>
+    <tr>
+        <th>Product Line</th>
+        <th>Text Description</th>
+    </tr>
+
+    <tr th:each="productLine : ${productLines}">
+        <td th:text="${productLine.productLine}"></td>
+        <td th:text="${productLine.textDescription}"></td>
+    </tr>
+</table>
+
+<a href="/api/products" class="back-link">
+    ← Back to Products
+</a>
+
+</body>
+</html>

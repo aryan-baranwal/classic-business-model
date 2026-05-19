@@ -1,6 +1,6 @@
 package com.classicmodels.service;
-import com.classicmodels.service.Impl.ProductServiceImpl;
 
+import com.classicmodels.service.Impl.ProductServiceImpl;
 import com.classicmodels.dto.ProductDto;
 import com.classicmodels.dto.ProductLineDto;
 import com.classicmodels.entity.Product;
@@ -43,7 +43,7 @@ public class ProductServiceImplTest {
         Product product = new Product();
         product.setProductCode("S10_1678");
         product.setProductName("1969 Harley Davidson Ultimate Chopper");
-        product.setQuantityInStock(7933);
+        product.setQuantityInStock((short) 7933);
         product.setBuyPrice(new BigDecimal("48.81"));
         product.setProductLine(productLine);
 
@@ -66,7 +66,7 @@ public class ProductServiceImplTest {
         Product product = new Product();
         product.setProductCode("S10_1678");
         product.setProductName("1969 Harley Davidson Ultimate Chopper");
-        product.setQuantityInStock(7933);
+        product.setQuantityInStock((short) 7933);
         product.setBuyPrice(new BigDecimal("48.81"));
         product.setProductLine(productLine);
 
@@ -120,7 +120,7 @@ public class ProductServiceImplTest {
         Product product = new Product();
         product.setProductCode("S10_1678");
         product.setProductName("1969 Harley Davidson Ultimate Chopper");
-        product.setQuantityInStock(7933);
+        product.setQuantityInStock((short) 7933);
         product.setBuyPrice(new BigDecimal("48.81"));
         product.setProductLine(productLine);
 

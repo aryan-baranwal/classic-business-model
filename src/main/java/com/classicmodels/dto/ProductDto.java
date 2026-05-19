@@ -15,9 +15,19 @@ public class ProductDto {
     @NotBlank(message = "Product name is required")
     private String productName;
 
+    /*
+     * IMPORTANT:
+     * In the Classic Models MySQL database,
+     * quantityInStock is defined as SMALLINT.
+     *
+     * Java type for SMALLINT = Short
+     *
+     * Changed from Integer to Short to match the database
+     * and avoid Hibernate schema validation errors.
+     */
     @NotNull(message = "Quantity in stock is required")
     @PositiveOrZero(message = "Quantity in stock must be zero or greater")
-    private Integer quantityInStock;
+    private Short quantityInStock;
 
     @NotNull(message = "Buy price is required")
     @DecimalMin(
@@ -35,7 +45,7 @@ public class ProductDto {
 
     public ProductDto(String productCode,
                       String productName,
-                      Integer quantityInStock,
+                      Short quantityInStock,
                       BigDecimal buyPrice,
                       String productLine) {
         this.productCode = productCode;
@@ -61,11 +71,11 @@ public class ProductDto {
         this.productName = productName;
     }
 
-    public Integer getQuantityInStock() {
+    public Short getQuantityInStock() {
         return quantityInStock;
     }
 
-    public void setQuantityInStock(Integer quantityInStock) {
+    public void setQuantityInStock(Short quantityInStock) {
         this.quantityInStock = quantityInStock;
     }
 
@@ -84,7 +94,6 @@ public class ProductDto {
     public void setProductLine(String productLine) {
         this.productLine = productLine;
     }
-
 
     @Override
     public boolean equals(Object o) {

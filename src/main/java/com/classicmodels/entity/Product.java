@@ -26,10 +26,18 @@ public class Product {
     @NotBlank(message = "Product name is required")
     private String productName;
 
+    /*
+     * IMPORTANT FIX:
+     * quantityInStock column in MySQL is SMALLINT.
+     * Java type for SMALLINT is Short.
+     *
+     * Changed from Integer -> Short to fix:
+     * Schema-validation: found [smallint] but expecting [integer]
+     */
     @Column(name = "quantityInStock")
     @NotNull(message = "Quantity in stock is required")
     @PositiveOrZero(message = "Quantity in stock must be zero or greater")
-    private Integer quantityInStock;
+    private Short quantityInStock;
 
     @Column(name = "buyPrice")
     @NotNull(message = "Buy price is required")
@@ -50,7 +58,7 @@ public class Product {
 
     public Product(String productCode,
                    String productName,
-                   Integer quantityInStock,
+                   Short quantityInStock,
                    BigDecimal buyPrice,
                    ProductLine productLine) {
         this.productCode = productCode;
@@ -76,11 +84,11 @@ public class Product {
         this.productName = productName;
     }
 
-    public Integer getQuantityInStock() {
+    public Short getQuantityInStock() {
         return quantityInStock;
     }
 
-    public void setQuantityInStock(Integer quantityInStock) {
+    public void setQuantityInStock(Short quantityInStock) {
         this.quantityInStock = quantityInStock;
     }
 
@@ -114,6 +122,7 @@ public class Product {
         return productCode != null &&
                 productCode.equals(product.productCode);
     }
+
     @Override
     public int hashCode() {
         return productCode != null ? productCode.hashCode() : 0;
