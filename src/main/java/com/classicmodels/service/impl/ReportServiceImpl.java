@@ -1,14 +1,11 @@
 package com.classicmodels.service.impl;
 
-import com.classicmodels.dto.CustomerExposureDto;
-import com.classicmodels.dto.OrderValueDto;
-import com.classicmodels.dto.SalesByCountryDto;
-import com.classicmodels.dto.SalesByEmployeeDto;
+import com.classicmodels.dto.*;
 
 import com.classicmodels.repository.CustomerRepository;
 import com.classicmodels.repository.EmployeeRepository;
 import com.classicmodels.repository.OrderRepository;
-
+import com.classicmodels.repository.PaymentRepository;
 import com.classicmodels.service.ReportService;
 
 import org.springframework.stereotype.Service;
@@ -17,8 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ReportServiceImpl
-        implements ReportService {
+public class ReportServiceImpl implements ReportService {
 
     private final EmployeeRepository employeeRepository;
 
@@ -26,10 +22,13 @@ public class ReportServiceImpl
 
     private final OrderRepository orderRepository;
 
+    private final PaymentRepository paymentRepository;
+
     public ReportServiceImpl(
             EmployeeRepository employeeRepository,
             CustomerRepository customerRepository,
-            OrderRepository orderRepository
+            OrderRepository orderRepository,
+            PaymentRepository paymentRepository
     ) {
 
         this.employeeRepository = employeeRepository;
@@ -37,6 +36,8 @@ public class ReportServiceImpl
         this.customerRepository = customerRepository;
 
         this.orderRepository = orderRepository;
+
+        this.paymentRepository = paymentRepository;
     }
 
     @Override
@@ -166,5 +167,46 @@ public class ReportServiceImpl
         );
 
         return dto;
+    }
+// MONTHLY REVENUE REPORT
+
+    @Override
+    public List<MonthlyRevenueDto>
+    getMonthlyRevenue() {
+
+        List<Object[]> results =
+                paymentRepository
+                        .findMonthlyRevenue();
+
+        List<MonthlyRevenueDto> response =
+                new ArrayList<>();
+
+        for (Object[] row : results) {
+
+            MonthlyRevenueDto dto =
+                    new MonthlyRevenueDto();
+
+            dto.setMonth(
+                    (String) row[0]
+            );
+
+            dto.setTotalRevenue(
+                    (java.math.BigDecimal) row[1]
+            );
+
+            response.add(dto);
+        }
+
+        return response;
+    }
+
+// HIGH RISK CUSTOMERS REPORT
+
+    @Override
+    public List<HighRiskCustomerDto>
+    getHighRiskCustomers() {
+
+        return customerRepository
+                .findHighRiskCustomers();
     }
 }
