@@ -1,12 +1,14 @@
 package com.classicmodels.controller;
 
 import com.classicmodels.dto.CustomerExposureDto;
+import com.classicmodels.dto.OrderValueDto;
 import com.classicmodels.dto.SalesByCountryDto;
 import com.classicmodels.dto.SalesByEmployeeDto;
 
 import com.classicmodels.service.ReportService;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,5 +54,16 @@ public class ReportRestController {
 
         return reportService
                 .getCustomerExposure();
+    }
+
+    // ORDER VALUE REPORT
+
+    @GetMapping("/order-value/{orderNumber}")
+    public OrderValueDto getOrderValue(
+            @PathVariable Integer orderNumber
+    ) {
+
+        return reportService
+                .getOrderValue(orderNumber);
     }
 }

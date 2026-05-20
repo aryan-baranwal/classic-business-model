@@ -1,6 +1,7 @@
 package com.classicmodels.service;
 
 import com.classicmodels.dto.CustomerExposureDto;
+import com.classicmodels.dto.OrderValueDto;
 import com.classicmodels.dto.SalesByCountryDto;
 import com.classicmodels.dto.SalesByEmployeeDto;
 
@@ -13,4 +14,8 @@ public interface ReportService {
     List<SalesByCountryDto> getSalesByCountry();
 
     List<CustomerExposureDto> getCustomerExposure();
+
+    OrderValueDto getOrderValue(
+            Integer orderNumber
+    );
 }

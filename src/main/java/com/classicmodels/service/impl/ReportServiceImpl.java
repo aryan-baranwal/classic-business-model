@@ -1,11 +1,13 @@
 package com.classicmodels.service.impl;
 
 import com.classicmodels.dto.CustomerExposureDto;
+import com.classicmodels.dto.OrderValueDto;
 import com.classicmodels.dto.SalesByCountryDto;
 import com.classicmodels.dto.SalesByEmployeeDto;
 
 import com.classicmodels.repository.CustomerRepository;
 import com.classicmodels.repository.EmployeeRepository;
+import com.classicmodels.repository.OrderRepository;
 
 import com.classicmodels.service.ReportService;
 
@@ -22,12 +24,19 @@ public class ReportServiceImpl
 
     private final CustomerRepository customerRepository;
 
+    private final OrderRepository orderRepository;
+
     public ReportServiceImpl(
             EmployeeRepository employeeRepository,
-            CustomerRepository customerRepository
+            CustomerRepository customerRepository,
+            OrderRepository orderRepository
     ) {
+
         this.employeeRepository = employeeRepository;
+
         this.customerRepository = customerRepository;
+
+        this.orderRepository = orderRepository;
     }
 
     @Override
@@ -132,5 +141,30 @@ public class ReportServiceImpl
         }
 
         return response;
+    }
+
+    @Override
+    public OrderValueDto getOrderValue(
+            Integer orderNumber
+    ) {
+
+        List<Object[]> results =
+                orderRepository
+                        .getOrderValue(orderNumber);
+
+        Object[] result = results.get(0);
+
+        OrderValueDto dto =
+                new OrderValueDto();
+
+        dto.setOrderNumber(
+                (Integer) result[0]
+        );
+
+        dto.setTotalOrderValue(
+                ((Number) result[1]).doubleValue()
+        );
+
+        return dto;
     }
 }
