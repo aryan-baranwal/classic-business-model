@@ -1,9 +1,33 @@
+server:
+  port: 8080
+
 spring:
+  application:
+    name: classicmodels
+
+  config:
+    import: optional:vault://
+
+  cloud:
+    vault:
+      uri: ${VAULT_URL}
+      token: ${VAULT_TOKEN}
+      kv:
+        enabled: true
+        backend: secret
+        default-context: classicmodels
+
   datasource:
-    url: jdbc:mysql://3.25.201.88:3306/classicmodels
-    username: teamuser
-    password: team123
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
 
   jpa:
     hibernate:
@@ -17,3 +41,8 @@ spring:
 
   thymeleaf:
     cache: false
+
+logging:
+  level:
+    org.springframework.vault: DEBUG
+    org.springframework.cloud.vault: DEBUG
