@@ -3,6 +3,7 @@ package com.classicmodels.repository;
 import com.classicmodels.entity.Employee;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,4 +30,20 @@ public interface EmployeeRepository
     // CHECK EMAIL EXISTS
 
     boolean existsByEmail(String email);
+
+    // SALES BY EMPLOYEE REPORT
+
+    @Query("""
+           SELECT
+           CONCAT(e.firstName, ' ', e.lastName),
+           SUM(od.quantityOrdered * od.priceEach)
+           FROM Employee e
+           JOIN e.customers c
+           JOIN c.orders o
+           JOIN o.orderDetails od
+           GROUP BY e.employeeNumber,
+                    e.firstName,
+                    e.lastName
+           """)
+    List<Object[]> getSalesByEmployee();
 }

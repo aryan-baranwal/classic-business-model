@@ -1,10 +1,17 @@
 package com.classicmodels.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -114,6 +121,12 @@ public class Employee {
     @JsonIgnore
     private List<Employee> subordinates;
 
+    // REQUIRED FOR REPORT ENDPOINTS
+
+    @OneToMany(mappedBy = "salesRepEmployee")
+    @JsonIgnore
+    private List<Customer> customers;
+
     // DEFAULT CONSTRUCTOR
 
     public Employee() {
@@ -130,7 +143,8 @@ public class Employee {
             String jobTitle,
             Office office,
             Employee manager,
-            List<Employee> subordinates
+            List<Employee> subordinates,
+            List<Customer> customers
     ) {
 
         this.employeeNumber = employeeNumber;
@@ -142,6 +156,7 @@ public class Employee {
         this.office = office;
         this.manager = manager;
         this.subordinates = subordinates;
+        this.customers = customers;
     }
 
     // GETTERS AND SETTERS
@@ -150,7 +165,9 @@ public class Employee {
         return employeeNumber;
     }
 
-    public void setEmployeeNumber(Integer employeeNumber) {
+    public void setEmployeeNumber(
+            Integer employeeNumber
+    ) {
         this.employeeNumber = employeeNumber;
     }
 
@@ -158,7 +175,9 @@ public class Employee {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(
+            String lastName
+    ) {
         this.lastName = lastName;
     }
 
@@ -166,7 +185,9 @@ public class Employee {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(
+            String firstName
+    ) {
         this.firstName = firstName;
     }
 
@@ -174,7 +195,9 @@ public class Employee {
         return extension;
     }
 
-    public void setExtension(String extension) {
+    public void setExtension(
+            String extension
+    ) {
         this.extension = extension;
     }
 
@@ -182,7 +205,9 @@ public class Employee {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(
+            String email
+    ) {
         this.email = email;
     }
 
@@ -190,7 +215,9 @@ public class Employee {
         return jobTitle;
     }
 
-    public void setJobTitle(String jobTitle) {
+    public void setJobTitle(
+            String jobTitle
+    ) {
         this.jobTitle = jobTitle;
     }
 
@@ -198,7 +225,9 @@ public class Employee {
         return office;
     }
 
-    public void setOffice(Office office) {
+    public void setOffice(
+            Office office
+    ) {
         this.office = office;
     }
 
@@ -206,7 +235,9 @@ public class Employee {
         return manager;
     }
 
-    public void setManager(Employee manager) {
+    public void setManager(
+            Employee manager
+    ) {
         this.manager = manager;
     }
 
@@ -214,8 +245,20 @@ public class Employee {
         return subordinates;
     }
 
-    public void setSubordinates(List<Employee> subordinates) {
+    public void setSubordinates(
+            List<Employee> subordinates
+    ) {
         this.subordinates = subordinates;
+    }
+
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(
+            List<Customer> customers
+    ) {
+        this.customers = customers;
     }
 
     // equals()
@@ -244,7 +287,9 @@ public class Employee {
     @Override
     public int hashCode() {
 
-        return Objects.hash(employeeNumber);
+        return Objects.hash(
+                employeeNumber
+        );
     }
 
     // toString()
