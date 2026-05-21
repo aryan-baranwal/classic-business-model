@@ -1,9 +1,6 @@
 package com.classicmodels.service;
 
-import com.classicmodels.dto.CustomerExposureDto;
-import com.classicmodels.dto.OrderValueDto;
-import com.classicmodels.dto.SalesByCountryDto;
-import com.classicmodels.dto.SalesByEmployeeDto;
+import com.classicmodels.dto.*;
 
 import java.util.List;
 
@@ -18,4 +15,10 @@ public interface ReportService {
     OrderValueDto getOrderValue(
             Integer orderNumber
     );
+
+    // MONTHLY REVENUE REPORT
+    List<MonthlyRevenueDto> getMonthlyRevenue();
+
+    // HIGH RISK CUSTOMERS REPORT
+    List<HighRiskCustomerDto> getHighRiskCustomers();
 }

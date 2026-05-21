@@ -1,5 +1,6 @@
 package com.classicmodels.repository;
 
+import com.classicmodels.dto.HighRiskCustomerDto;
 import com.classicmodels.entity.Customer;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -62,4 +63,34 @@ public interface CustomerRepository
                     c.creditLimit
            """)
     List<Object[]> getCustomerExposure();
+
+    // HIGH RISK CUSTOMERS REPORT
+
+    @Query("""
+       SELECT new com.classicmodels.dto.HighRiskCustomerDto(
+           c.customerNumber,
+           c.customerName,
+           c.creditLimit,
+           COALESCE(SUM(p.amount), 0),
+           c.creditLimit -
+           COALESCE(SUM(p.amount), 0)
+       )
+       FROM Customer c
+       LEFT JOIN c.payments p
+       WHERE c.creditLimit IS NOT NULL
+       GROUP BY
+           c.customerNumber,
+           c.customerName,
+           c.creditLimit
+       HAVING
+           (c.creditLimit -
+           COALESCE(SUM(p.amount), 0))
+           <=
+           (c.creditLimit * 0.2)
+       ORDER BY
+           (c.creditLimit -
+           COALESCE(SUM(p.amount), 0))
+       """)
+    List<HighRiskCustomerDto>
+    findHighRiskCustomers();
 }
