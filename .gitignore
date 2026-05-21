@@ -15,3 +15,7 @@
 
 ### Logs ###
 *.log
+
+### Environment Variables ###
+.env
+src/main/resources/bootstrap.yml

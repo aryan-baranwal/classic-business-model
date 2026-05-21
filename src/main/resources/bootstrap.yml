@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: classicmodels
+
+  cloud:
+    vault:
+      enabled: true
+      host: 16.170.245.125
+      port: 8200
+      scheme: http
+      authentication: TOKEN
+      token: ${VAULT_TOKEN}
+      kv:
+        enabled: true
+        backend: secret
+        default-context: classicmodels
