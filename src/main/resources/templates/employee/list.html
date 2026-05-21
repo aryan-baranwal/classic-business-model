@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Offices - Classic Business Model</title>
+    <title>Employees - Classic Business Model</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
@@ -27,7 +27,8 @@
         tbody tr:hover { background-color: #F0F6FA; }
         tbody tr:last-child { border-bottom: none; }
         tbody td { padding: 14px 20px; font-size: 14px; color: #444; }
-        .office-code { font-weight: bold; color: #0070AD; font-family: monospace; font-size: 15px; }
+        .emp-num { font-weight: bold; color: #0070AD; font-family: monospace; font-size: 15px; }
+        .job-title { font-weight: 600; color: #003057; }
         .footer { text-align: center; padding: 24px; color: #8CA2BA; font-size: 12px; border-top: 1px solid #E1E8EE; margin-top: auto; }
     </style>
 </head>
@@ -37,8 +38,8 @@
 <div class="header">
     <h1>⚡ Classic Business Model</h1>
     <div class="header-right">
-        <span>Office Management Module</span>
-        <a href="/api/offices/dashboard" class="btn btn-endpoints">
+        <span>Employee Directory Module</span>
+        <a href="/employees/dashboard" class="btn btn-endpoints">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="stroke:white;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             test endpoints
         </a>
@@ -47,28 +48,34 @@
 
 <div class="container">
     <div class="page-header">
-        <div class="page-title">Office List</div>
+        <div class="page-title">Employee Directory</div>
     </div>
-    <div class="page-subtitle">View and manage corporate branch offices across different global regions</div>
+    <div class="page-subtitle">Internal directory roster showing all active classic business model personnel</div>
 
     <div class="table-wrapper">
         <table>
             <thead>
             <tr>
+                <th>#</th>
+                <th>Emp No.</th>
+                <th>Name</th>
+                <th>Job Title</th>
+                <th>Email</th>
                 <th>Office Code</th>
-                <th>City</th>
-                <th>Phone</th>
-                <th>Country</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="office : ${offices}">
+            <tr th:each="emp, stat : ${employees}">
+                <td th:text="${stat.count}"></td>
                 <td>
-                    <span class="office-code" th:text="${office.officeCode}"></span>
+                    <span class="emp-num" th:text="${emp.employeeNumber}"></span>
                 </td>
-                <td th:text="${office.city}" style="font-weight: 500;"></td>
-                <td th:text="${office.phone}"></td>
-                <td th:text="${office.country}"></td>
+                <td th:text="${emp.firstName + ' ' + emp.lastName}" style="font-weight: 500;"></td>
+                <td>
+                    <span class="job-title" th:text="${emp.jobTitle}"></span>
+                </td>
+                <td th:text="${emp.email}"></td>
+                <td th:text="${emp.officeCode}" style="font-weight: bold;"></td>
             </tr>
             </tbody>
         </table>

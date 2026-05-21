@@ -86,6 +86,12 @@ public class CustomerViewController {
         return "redirect:/customers";
     }
 
+    // Shows the API dashboard for in-page testing
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "customer/dashboard";
+    }
+
     // Shows credit limit page
     @GetMapping("/{customerNumber}/credit-limit")
     public String showCreditLimit(

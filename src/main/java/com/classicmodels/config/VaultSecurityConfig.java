@@ -45,10 +45,11 @@ public class VaultSecurityConfig {
 
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 
+        // Aryan — OFFICE + REPORT (was: OFFICE only)
         if (u1 != null && !u1.isBlank()) {
             manager.createUser(User.withUsername(u1.trim())
                     .password("{noop}" + p1.trim())
-                    .roles("OFFICE")
+                    .roles("OFFICE", "REPORT")
                     .build());
         }
 
@@ -66,17 +67,20 @@ public class VaultSecurityConfig {
                     .build());
         }
 
+        // Dhanavarshini — PRODUCT + REPORT (was: PRODUCT only)
         if (u4 != null && !u4.isBlank()) {
             manager.createUser(User.withUsername(u4.trim())
                     .password("{noop}" + p4.trim())
-                    .roles("PRODUCT")
+                    .roles("PRODUCT", "REPORT")
                     .build());
         }
 
+        // Shivani — ORDER + CUSTOMER (was: ORDER only)
+        // CUSTOMER role needed for /api/customers/{customerNumber}/orders
         if (u5 != null && !u5.isBlank()) {
             manager.createUser(User.withUsername(u5.trim())
                     .password("{noop}" + p5.trim())
-                    .roles("ORDER")
+                    .roles("ORDER", "CUSTOMER")
                     .build());
         }
 
@@ -91,10 +95,20 @@ public class VaultSecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // Public resources & Landing page
+                        .requestMatchers(
+                                "/",
+                                "/home",
+                                "/images/**",
+                                "/css/**",
+                                "/js/**",
+                                "/favicon.ico"
+                        ).permitAll()
 
                         // Swagger public access
                         .requestMatchers(
@@ -105,6 +119,25 @@ public class VaultSecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
+                        // ── NEW: Aryan's report endpoints ──────────────────
+                        .requestMatchers(
+                                "/api/reports/customer-exposure",
+                                "/api/reports/order-value/**",
+                                "/api/reports/sales-by-country",
+                                "/api/reports/sales-by-employee"
+                        ).hasAnyRole("REPORT", "ADMIN")
+
+                        // ── NEW: Dhana's report endpoints ──────────────────
+                        .requestMatchers(
+                                "/api/reports/monthly-revenue",
+                                "/api/reports/high-risk-customers"
+                        ).hasAnyRole("REPORT", "ADMIN")
+
+                        // ── NEW: Shivani's customer-orders endpoint ─────────
+                        // Must be BEFORE /api/customers/** rule
+                        .requestMatchers("/api/customers/*/orders")
+                        .hasAnyRole("ORDER", "CUSTOMER", "ADMIN")
+
                         // Modules
                         .requestMatchers("/api/customers/**").hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers("/api/products/**").hasAnyRole("PRODUCT", "ADMIN")
@@ -113,6 +146,7 @@ public class VaultSecurityConfig {
                         .requestMatchers("/api/orderdetails/**").hasAnyRole("ORDER", "ADMIN")
                         .requestMatchers("/api/v1/offices/**").hasAnyRole("OFFICE", "ADMIN")
                         .requestMatchers("/api/employees/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/employees/**").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers("/api/payments/**").hasAnyRole("CUSTOMER", "ADMIN")
 
                         .anyRequest().authenticated()

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Order Module — API Dashboard</title>
+    <title>Office & Reports — API Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -38,9 +38,8 @@
             padding: 12px 18px; border-radius: 8px 8px 0 0;
             display: flex; align-items: center; gap: 10px;
         }
-        .section-order  { background: linear-gradient(90deg, #2c3e50, #34495e); }
-        .section-detail { background: linear-gradient(90deg, #37474f, #546e7a); }
-        .section-sample { background: linear-gradient(90deg, #455a64, #607d8b); }
+        .section-office { background: linear-gradient(90deg, #003057, #005A8C); }
+        .section-report { background: linear-gradient(90deg, #12ABDB, #0070AD); }
 
         /* ── Cards ── */
         .card {
@@ -93,14 +92,6 @@
             transition: all 0.2s; font-family: 'DM Sans', sans-serif;
         }
         .test-btn:hover { background: #005A8C; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,112,173,0.3); }
-        .test-btn.post-btn { background: #2E7D32; }
-        .test-btn.post-btn:hover { background: #1B5E20; }
-        .test-btn.put-btn { background: #E65100; }
-        .test-btn.put-btn:hover { background: #BF360C; }
-        .test-btn.patch-btn { background: #6A1B9A; }
-        .test-btn.patch-btn:hover { background: #4A148C; }
-        .test-btn.delete-btn { background: #B71C1C; }
-        .test-btn.delete-btn:hover { background: #7F0000; }
 
         /* ── MODAL OVERLAY ── */
         .modal-overlay {
@@ -155,13 +146,6 @@
             color: var(--cap-navy); background: #FAFCFE; outline: none; transition: all 0.2s;
         }
         .param-input:focus { border-color: var(--cap-cyan); box-shadow: 0 0 0 3px rgba(18,171,219,0.12); background: #fff; }
-        .param-textarea {
-            width: 100%; padding: 10px 12px; border: 1.5px solid var(--cap-border);
-            border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 12px;
-            color: var(--cap-navy); background: #FAFCFE; min-height: 120px;
-            resize: vertical; outline: none; transition: all 0.2s;
-        }
-        .param-textarea:focus { border-color: var(--cap-cyan); box-shadow: 0 0 0 3px rgba(18,171,219,0.12); background: #fff; }
 
         .run-btn {
             width: 100%; padding: 12px; background: linear-gradient(90deg, var(--cap-blue), var(--cap-cyan));
@@ -203,19 +187,17 @@
 
 <div class="navbar">
     <span class="brand">⚡ Classic Models</span>
-    <a th:href="@{/orders}">All Orders</a>
-    <a th:href="@{/orders/search}">Search</a>
-    <a th:href="@{/orders/new}">+ New Order</a>
-    <a class="back-link" th:href="@{/orders}">← Back to Orders</a>
+    <a href="/api/offices">All Offices</a>
+    <a class="back-link" href="/api/offices">← Back to Offices</a>
 </div>
 
 <div class="content">
 
-    <h1 class="page-title">Order Module — API Dashboard</h1>
+    <h1 class="page-title">Office & Reports — API Dashboard</h1>
     <p class="page-sub">Click <strong>test</strong> to execute any endpoint inline. Results appear in a modal panel — no new tabs, no Swagger UI.</p>
 
-    <!-- ══ ORDER CONTROLLER ══ -->
-    <div class="section-heading section-order">📦 Order Controller &nbsp;— 7 endpoints</div>
+    <!-- ══ OFFICE CONTROLLER ══ -->
+    <div class="section-heading section-office">🏢 Office Controller &nbsp;— 3 endpoints</div>
     <div class="card">
         <table>
             <thead>
@@ -229,52 +211,28 @@
             <tbody>
             <tr>
                 <td><span class="method GET">GET</span></td>
-                <td><span class="endpoint-path">/api/orders</span></td>
-                <td class="desc">Retrieve all orders as JSON</td>
-                <td><button class="test-btn" onclick="openModal('get-all-orders')">test</button></td>
+                <td><span class="endpoint-path">/api/v1/offices</span></td>
+                <td class="desc">Retrieve all global corporate offices as JSON</td>
+                <td><button class="test-btn" onclick="openModal('get-all-offices')">test</button></td>
             </tr>
             <tr>
                 <td><span class="method GET">GET</span></td>
-                <td><span class="endpoint-path">/api/orders/{orderNumber}</span></td>
-                <td class="desc">Get a single order by number</td>
-                <td><button class="test-btn" onclick="openModal('get-order')">test</button></td>
-            </tr>
-            <tr>
-                <td><span class="method POST">POST</span></td>
-                <td><span class="endpoint-path">/api/orders</span></td>
-                <td class="desc">Create a new order</td>
-                <td><button class="test-btn post-btn" onclick="openModal('create-order')">test</button></td>
-            </tr>
-            <tr>
-                <td><span class="method PUT">PUT</span></td>
-                <td><span class="endpoint-path">/api/orders/{orderNumber}</span></td>
-                <td class="desc">Update order dates / comments</td>
-                <td><button class="test-btn put-btn" onclick="openModal('update-order')">test</button></td>
-            </tr>
-            <tr>
-                <td><span class="method PATCH">PATCH</span></td>
-                <td><span class="endpoint-path">/api/orders/{orderNumber}/status</span></td>
-                <td class="desc">Update order status (Shipped, Cancelled…)</td>
-                <td><button class="test-btn patch-btn" onclick="openModal('patch-status')">test</button></td>
+                <td><span class="endpoint-path">/api/v1/offices/{officeCode}</span></td>
+                <td class="desc">Get details for a specific office code</td>
+                <td><button class="test-btn" onclick="openModal('get-office')">test</button></td>
             </tr>
             <tr>
                 <td><span class="method GET">GET</span></td>
-                <td><span class="endpoint-path">/api/orders/search?status=&amp;fromDate=&amp;toDate=</span></td>
-                <td class="desc">Search orders by status and date range</td>
-                <td><button class="test-btn" onclick="openModal('search-orders')">test</button></td>
-            </tr>
-            <tr>
-                <td><span class="method GET">GET</span></td>
-                <td><span class="endpoint-path">/api/customers/{customerNumber}/orders</span></td>
-                <td class="desc">All orders for a given customer</td>
-                <td><button class="test-btn" onclick="openModal('customer-orders')">test</button></td>
+                <td><span class="endpoint-path">/api/v1/offices/{officeCode}/employees</span></td>
+                <td class="desc">List employees belonging to a specific office</td>
+                <td><button class="test-btn" onclick="openModal('get-office-employees')">test</button></td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- ══ ORDER DETAIL CONTROLLER ══ -->
-    <div class="section-heading section-detail">🗂 Order Detail Controller &nbsp;— 4 endpoints</div>
+    <!-- ══ REPORT CONTROLLER ══ -->
+    <div class="section-heading section-report">📈 High-Impact Reports Controller &nbsp;— 4 endpoints</div>
     <div class="card">
         <table>
             <thead>
@@ -288,27 +246,27 @@
             <tbody>
             <tr>
                 <td><span class="method GET">GET</span></td>
-                <td><span class="endpoint-path">/api/orders/{orderNumber}/items</span></td>
-                <td class="desc">List all line items for an order</td>
-                <td><button class="test-btn" onclick="openModal('get-items')">test</button></td>
+                <td><span class="endpoint-path">/api/reports/sales-by-employee</span></td>
+                <td class="desc">Total sales generated by each employee</td>
+                <td><button class="test-btn" onclick="openModal('sales-by-employee')">test</button></td>
             </tr>
             <tr>
-                <td><span class="method POST">POST</span></td>
-                <td><span class="endpoint-path">/api/orders/{orderNumber}/items</span></td>
-                <td class="desc">Add a product to an order</td>
-                <td><button class="test-btn post-btn" onclick="openModal('add-item')">test</button></td>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/reports/sales-by-country</span></td>
+                <td class="desc">Corporate sales breakdown by country</td>
+                <td><button class="test-btn" onclick="openModal('sales-by-country')">test</button></td>
             </tr>
             <tr>
-                <td><span class="method PUT">PUT</span></td>
-                <td><span class="endpoint-path">/api/orders/{orderNumber}/items/{productCode}</span></td>
-                <td class="desc">Update quantity or price of a line item</td>
-                <td><button class="test-btn put-btn" onclick="openModal('update-item')">test</button></td>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/reports/customer-exposure</span></td>
+                <td class="desc">Customer total outstanding payment risk reporting</td>
+                <td><button class="test-btn" onclick="openModal('customer-exposure')">test</button></td>
             </tr>
             <tr>
-                <td><span class="method DELETE">DELETE</span></td>
-                <td><span class="endpoint-path">/api/orders/{orderNumber}/items/{productCode}</span></td>
-                <td class="desc">Remove an item from an order</td>
-                <td><button class="test-btn delete-btn" onclick="openModal('delete-item')">test</button></td>
+                <td><span class="method GET">GET</span></td>
+                <td><span class="endpoint-path">/api/reports/order-value/{orderNumber}</span></td>
+                <td class="desc">Total valuation details for a specific order</td>
+                <td><button class="test-btn" onclick="openModal('order-value')">test</button></td>
             </tr>
             </tbody>
         </table>
@@ -322,7 +280,7 @@
         <div class="modal-header">
             <div class="modal-header-left">
                 <span class="modal-method-badge method GET" id="modalMethodBadge">GET</span>
-                <span class="modal-endpoint" id="modalEndpointText">/api/orders</span>
+                <span class="modal-endpoint" id="modalEndpointText">/api/v1/offices</span>
             </div>
             <button class="modal-close-btn" onclick="closeModal()">✕</button>
         </div>
@@ -348,75 +306,40 @@
 //  ENDPOINT REGISTRY
 // ══════════════════════════════════════════════
 const ENDPOINTS = {
-    'get-all-orders': {
-        method: 'GET', url: '/api/orders',
-        desc: 'Returns the full list of orders as a JSON array.',
+    'get-all-offices': {
+        method: 'GET', url: '/api/v1/offices',
+        desc: 'Returns the full list of offices as a JSON array.',
         params: []
     },
-    'get-order': {
-        method: 'GET', url: '/api/orders/{orderNumber}',
-        desc: 'Returns a single order by its order number.',
+    'get-office': {
+        method: 'GET', url: '/api/v1/offices/{officeCode}',
+        desc: 'Returns a single corporate office by its unique code (e.g. 1, 2, ...).',
+        params: [{ name: 'officeCode', in: 'path', default: '1', label: 'officeCode' }]
+    },
+    'get-office-employees': {
+        method: 'GET', url: '/api/v1/offices/{officeCode}/employees',
+        desc: 'Lists all personnel assigned to the given office code.',
+        params: [{ name: 'officeCode', in: 'path', default: '1', label: 'officeCode' }]
+    },
+    'sales-by-employee': {
+        method: 'GET', url: '/api/reports/sales-by-employee',
+        desc: 'Aggregates sales performance data group by employee.',
+        params: []
+    },
+    'sales-by-country': {
+        method: 'GET', url: '/api/reports/sales-by-country',
+        desc: 'Generates analytical report of total orders and sales volume by country.',
+        params: []
+    },
+    'customer-exposure': {
+        method: 'GET', url: '/api/reports/customer-exposure',
+        desc: 'Computes total credit exposure and payment history analysis per customer.',
+        params: []
+    },
+    'order-value': {
+        method: 'GET', url: '/api/reports/order-value/{orderNumber}',
+        desc: 'Calculates the total financial worth of the items in a specific order.',
         params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }]
-    },
-    'create-order': {
-        method: 'POST', url: '/api/orders',
-        desc: 'Creates a new order. Provide the JSON body below.',
-        params: [],
-        body: '{\n  "orderDate": "2025-01-15",\n  "requiredDate": "2025-01-25",\n  "status": "In Process",\n  "comments": "New order via dashboard",\n  "customerNumber": 363\n}'
-    },
-    'update-order': {
-        method: 'PUT', url: '/api/orders/{orderNumber}',
-        desc: 'Updates the dates or comments for an existing order.',
-        params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }],
-        body: '{\n  "requiredDate": "2025-02-01",\n  "shippedDate": "2025-01-20",\n  "comments": "Updated via dashboard"\n}'
-    },
-    'patch-status': {
-        method: 'PATCH', url: '/api/orders/{orderNumber}/status',
-        desc: 'Updates the status of an order (e.g. Shipped, Cancelled, Resolved).',
-        params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }],
-        body: '{\n  "status": "Shipped"\n}'
-    },
-    'search-orders': {
-        method: 'GET', url: '/api/orders/search',
-        desc: 'Search orders by status and/or date range (all params optional).',
-        params: [
-            { name: 'status', in: 'query', default: 'Shipped', label: 'status' },
-            { name: 'fromDate', in: 'query', default: '2003-01-01', label: 'fromDate' },
-            { name: 'toDate', in: 'query', default: '2003-12-31', label: 'toDate' }
-        ]
-    },
-    'customer-orders': {
-        method: 'GET', url: '/api/customers/{customerNumber}/orders',
-        desc: 'Returns all orders placed by a specific customer.',
-        params: [{ name: 'customerNumber', in: 'path', default: '363', label: 'customerNumber' }]
-    },
-    'get-items': {
-        method: 'GET', url: '/api/orders/{orderNumber}/items',
-        desc: 'Returns all line items for a given order.',
-        params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }]
-    },
-    'add-item': {
-        method: 'POST', url: '/api/orders/{orderNumber}/items',
-        desc: 'Adds a new product line item to an order.',
-        params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }],
-        body: '{\n  "productCode": "S18_1749",\n  "quantityOrdered": 5,\n  "priceEach": 100.00,\n  "orderLineNumber": 5\n}'
-    },
-    'update-item': {
-        method: 'PUT', url: '/api/orders/{orderNumber}/items/{productCode}',
-        desc: 'Updates quantity or price of a line item in an order.',
-        params: [
-            { name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' },
-            { name: 'productCode', in: 'path', default: 'S18_1749', label: 'productCode' }
-        ],
-        body: '{\n  "quantityOrdered": 10,\n  "priceEach": 95.50\n}'
-    },
-    'delete-item': {
-        method: 'DELETE', url: '/api/orders/{orderNumber}/items/{productCode}',
-        desc: 'Removes a product line item from an order.',
-        params: [
-            { name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' },
-            { name: 'productCode', in: 'path', default: 'S18_1749', label: 'productCode' }
-        ]
     }
 };
 
