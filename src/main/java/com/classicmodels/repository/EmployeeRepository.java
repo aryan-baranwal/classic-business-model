@@ -36,7 +36,9 @@ public interface EmployeeRepository
     @Query("""
            SELECT
            CONCAT(e.firstName, ' ', e.lastName),
-           SUM(od.quantityOrdered * od.priceEach)
+           SUM(od.quantityOrdered * od.priceEach),
+           MIN(o.orderDate),
+           MAX(o.orderDate)
            FROM Employee e
            JOIN e.customers c
            JOIN c.orders o

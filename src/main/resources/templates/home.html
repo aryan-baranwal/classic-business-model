@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Classic Business Model</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet">
+    <style>
+        :root {
+            --cap-dark-blue: #001A30;
+            --cap-dark-navy: #003057;
+            --cap-blue: #0070AD;
+            --cap-cyan: #12ABDB;
+            --cap-light-blue: #E8F4FB;
+            --cap-white: #FFFFFF;
+            --cap-gray: #FAFCFE;
+            --cap-border: rgba(18, 171, 219, 0.2);
+            --card-bg: rgba(0, 48, 87, 0.72);
+            --modal-bg: rgba(0, 26, 48, 0.85);
+            --shadow-primary: 0 15px 35px rgba(0, 112, 173, 0.25);
+            --shadow-glow: 0 0 25px rgba(18, 171, 219, 0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cap-dark-blue);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(0, 112, 173, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(18, 171, 219, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #E2ECF5;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 0%, rgba(18, 171, 219, 0.035) 45%, transparent 70%);
+            transform: translateX(-120%);
+            animation: page-sweep 9s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes page-sweep {
+            0%, 28% {
+                transform: translateX(-120%);
+            }
+
+            58%, 100% {
+                transform: translateX(120%);
+            }
+        }
+
+        /* ── GEOMETRIC BACKGROUND SHAPES ── */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: -1;
+            pointer-events: none;
+            animation: grid-drift 26s linear infinite;
+        }
+
+        @keyframes grid-drift {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 60px 60px;
+            }
+        }
+
+        .bg-glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(18, 171, 219, 0.08) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(50px);
+            animation: pulse-orb 15s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulse-orb {
+            0% {
+                transform: translate(-50%, -50%) scale(0.9) rotate(0deg);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translate(-45%, -55%) scale(1.1) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        /* ── TOP ACCENT BAR ── */
+        .topbar {
+            height: 5px;
+            background: linear-gradient(90deg, var(--cap-dark-navy) 0%, var(--cap-blue) 40%, var(--cap-cyan) 80%, #9FE5FC 100%);
+            background-size: 220% 100%;
+            box-shadow: 0 2px 10px rgba(18, 171, 219, 0.3);
+            position: relative;
+            z-index: 100;
+            animation: topbar-flow 4s linear infinite;
+        }
+
+        @keyframes topbar-flow {
+            from {
+                background-position: 0% 50%;
+            }
+
+            to {
+                background-position: 220% 50%;
+            }
+        }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 40px;
+            width: 100%;
+        }
+
+        /* ── HEADER ── */
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 50px;
+            animation: header-drop 0.65s ease both;
+        }
+
+        @keyframes header-drop {
+            from {
+                opacity: 0;
+                transform: translateY(-18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--cap-blue), var(--cap-cyan));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 112, 173, 0.4);
+            animation: logo-float 4s ease-in-out infinite;
+        }
+
+        @keyframes logo-float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .brand-logo svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: var(--cap-white);
+            stroke-width: 2.5;
+        }
+
+        .live-clock {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            color: #8CA2BA;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: soft-glow 3.5s ease-in-out infinite;
+        }
+
+        @keyframes soft-glow {
+            0%, 100% {
+                box-shadow: 0 0 0 rgba(18, 171, 219, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 18px rgba(18, 171, 219, 0.16);
+            }
+        }
+
+        .live-clock-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--cap-cyan);
+            border-radius: 50%;
+            animation: pulse-dot 1.5s infinite;
+            box-shadow: 0 0 8px var(--cap-cyan);
+        }
+
+        @keyframes pulse-dot {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.9);
+                opacity: 0.5;
+            }
+        }
+
+        /* ── HERO SECTION ── */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fade-in 0.8s ease-out, hero-breathe 7s ease-in-out infinite;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes hero-breathe {
+            0%, 100% {
+                filter: drop-shadow(0 0 0 rgba(18, 171, 219, 0));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 16px rgba(18, 171, 219, 0.08));
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(18, 171, 219, 0.08);
+            border: 1.5px solid var(--cap-border);
+            padding: 6px 16px;
+            border-radius: 30px;
+            color: var(--cap-cyan);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            animation: badge-hover 3.2s ease-in-out infinite;
+        }
+
+        @keyframes badge-hover {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .hero-badge svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 46px;
+            font-weight: 800;
+            color: var(--cap-white);
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+            line-height: 1.15;
+        }
+
+        .hero-title em {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--cap-blue) 0%, var(--cap-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: #8CA2BA;
+            max-width: 680px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ── TEAM GRID ── */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 64px;
+            align-items: stretch;
+        }
+
+        .member-card {
+            background:
+                linear-gradient(160deg, rgba(18, 171, 219, 0.12) 0%, rgba(0, 48, 87, 0.2) 42%, rgba(0, 26, 48, 0.28) 100%),
+                var(--card-bg);
+            border: 1px solid rgba(18, 171, 219, 0.16);
+            border-radius: 20px;
+            padding: 22px 18px 20px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 332px;
+            height: 100%;
+            transition: var(--transition);
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: card-rise 0.7s ease both;
+        }
+
+        .member-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(18, 171, 219, 0.14) 0%, transparent 100%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 0;
+        }
+
+        .member-card::after {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: -70%;
+            width: 55%;
+            height: 180%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+            transform: rotate(22deg);
+            transition: left 0.65s ease;
+            z-index: 0;
+        }
+
+        .member-card:hover {
+            transform: translateY(-8px) scale(1.015);
+            border-color: rgba(18, 171, 219, 0.4);
+            box-shadow: var(--shadow-primary);
+        }
+
+        .member-card:hover::before {
+            opacity: 1;
+        }
+
+        .member-card:hover::after {
+            left: 115%;
+        }
+
+        .member-card:nth-child(1) { animation-delay: 0.05s; }
+        .member-card:nth-child(2) { animation-delay: 0.12s; }
+        .member-card:nth-child(3) { animation-delay: 0.19s; }
+        .member-card:nth-child(4) { animation-delay: 0.26s; }
+        .member-card:nth-child(5) { animation-delay: 0.33s; }
+
+        @keyframes card-rise {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .member-avatar-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+            z-index: 1;
+            width: 108px;
+            height: 108px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .member-avatar-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px dashed rgba(18, 171, 219, 0.3);
+            animation: rotate-ring 12s linear infinite;
+            transition: var(--transition);
+        }
+
+        @keyframes rotate-ring {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .member-card:hover .member-avatar-ring {
+            border-color: var(--cap-cyan);
+            box-shadow: var(--shadow-glow);
+            transform: scale(1.05);
+        }
+
+        .member-avatar {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.08);
+            object-fit: cover;
+            position: relative;
+            background-color: var(--cap-dark-blue);
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .member-card:hover .member-avatar {
+            border-color: var(--cap-cyan);
+            transform: scale(1.03);
+        }
+
+        .member-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--cap-white);
+            margin-bottom: 6px;
+            z-index: 1;
+            transition: var(--transition);
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .member-card:hover .member-name {
+            color: var(--cap-cyan);
+        }
+
+        .member-title {
+            font-size: 13px;
+            color: #8CA2BA;
+            margin-bottom: 12px;
+            min-height: 36px;
+            line-height: 1.4;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            align-content: flex-start;
+            margin-bottom: 16px;
+            z-index: 1;
+            min-height: 54px;
+            width: 100%;
+        }
+
+        .module-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            animation: badge-pulse 4.4s ease-in-out infinite;
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% {
+                transform: translateY(0);
+                filter: brightness(1);
+            }
+
+            50% {
+                transform: translateY(-1px);
+                filter: brightness(1.12);
+            }
+        }
+
+        .badge-office {
+            background: rgba(0, 112, 173, 0.15);
+            color: #82C4EC;
+            border: 1px solid rgba(0, 112, 173, 0.3);
+        }
+
+        .badge-report {
+            background: rgba(18, 171, 219, 0.15);
+            color: #87DFFA;
+            border: 1px solid rgba(18, 171, 219, 0.3);
+        }
+
+        .badge-employee {
+            background: rgba(156, 39, 176, 0.15);
+            color: #E1BEE7;
+            border: 1px solid rgba(156, 39, 176, 0.3);
+        }
+
+        .badge-customer {
+            background: rgba(76, 175, 80, 0.15);
+            color: #C8E6C9;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .badge-product {
+            background: rgba(255, 152, 0, 0.15);
+            color: #FFE0B2;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .badge-order {
+            background: rgba(233, 30, 99, 0.15);
+            color: #F8BBD0;
+            border: 1px solid rgba(233, 30, 99, 0.3);
+        }
+
+        .btn-authenticate {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            color: var(--cap-white);
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 1;
+            min-height: 44px;
+            margin-top: auto;
+        }
+
+        .btn-authenticate svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+            transition: var(--transition);
+        }
+
+        .member-card:hover .btn-authenticate {
+            background: linear-gradient(90deg, var(--cap-blue), var(--cap-cyan));
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(0, 112, 173, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .member-card:hover .btn-authenticate svg {
+            transform: translateX(2px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ── MODAL WINDOW ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 10, 20, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-panel {
+            background: var(--modal-bg);
+            border: 1.5px solid var(--cap-border);
+            width: 440px;
+            max-width: 90%;
+            border-radius: 24px;
+            padding: 40px 36px 36px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), var(--shadow-primary);
+            position: relative;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: modal-idle-glow 5s ease-in-out infinite;
+        }
+
+        .modal-overlay.active .modal-panel {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        @keyframes modal-idle-glow {
+            0%, 100% {
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), var(--shadow-primary);
+            }
+
+            50% {
+                box-shadow: 0 25px 64px rgba(0, 0, 0, 0.52), 0 0 28px rgba(18, 171, 219, 0.22);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8CA2BA;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--cap-white);
+            transform: rotate(90deg);
+        }
+
+        .modal-close svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+        }
+
+        .modal-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 3px solid var(--cap-cyan);
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-glow);
+            object-fit: cover;
+        }
+
+        .modal-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--cap-white);
+            margin-bottom: 4px;
+        }
+
+        .modal-title {
+            font-size: 13px;
+            color: var(--cap-cyan);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+        }
+
+        /* ── FORM CONTROL ── */
+        .modal-form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #8CA2BA;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            width: 16px;
+            height: 16px;
+            stroke: #8CA2BA;
+            fill: none;
+            stroke-width: 2;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            background: rgba(0, 10, 20, 0.4);
+            border: 1.5px solid rgba(18, 171, 219, 0.15);
+            border-radius: 10px;
+            color: var(--cap-white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--cap-cyan);
+            box-shadow: 0 0 0 3px rgba(18, 171, 219, 0.15);
+            background: rgba(0, 10, 20, 0.6);
+        }
+
+        .form-input:focus~.input-icon {
+            stroke: var(--cap-cyan);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #8CA2BA;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .password-toggle:hover {
+            color: var(--cap-white);
+        }
+
+        .password-toggle svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* ── BUTTON ACTIONS ── */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, var(--cap-blue) 0%, var(--cap-cyan) 100%);
+            border: none;
+            color: var(--cap-white);
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 5px 20px rgba(0, 112, 173, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 112, 173, 0.4), var(--shadow-glow);
+            filter: brightness(1.05);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+        }
+
+        .btn-submit-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── FEEDBACK ALERTS ── */
+        .feedback-message {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            line-height: 1.4;
+            animation: shake-anim 0.4s ease-in-out;
+        }
+
+        .feedback-message.error {
+            display: flex;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #FF8A80;
+        }
+
+        .feedback-message.success {
+            display: flex;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #A5D6A7;
+            animation: success-pulse 1s infinite alternate;
+        }
+
+        @keyframes success-pulse {
+            0% {
+                box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+            }
+
+            100% {
+                box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+            }
+        }
+
+        .feedback-message svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+            flex-shrink: 0;
+        }
+
+        @keyframes shake-anim {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-6px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        /* ── FOOTER SECURE NOTE ── */
+        .secure-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 26px;
+            font-size: 11px;
+            color: #5F7D95;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .secure-note svg {
+            width: 12px;
+            height: 12px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+        }
+
+        /* ── SYSTEM FOOTER ── */
+        footer {
+            margin-top: auto;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            animation: footer-rise 0.75s ease both;
+            animation-delay: 0.42s;
+        }
+
+        @keyframes footer-rise {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: #5F7D95;
+        }
+
+        .footer-text strong {
+            color: var(--cap-cyan);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 24px;
+            }
+
+            .hero-title {
+                font-size: 34px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            header {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 1180px) {
+            .team-grid {
+                grid-template-columns: repeat(3, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 860px) {
+            .team-grid {
+                grid-template-columns: repeat(2, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 560px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .member-card {
+                min-height: 320px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow-orb"></div>
+<div class="topbar"></div>
+
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                </div>
+            </div>
+            <div class="live-clock">
+                <div class="live-clock-dot"></div>
+                <span id="clock-display">PORTAL SECURE</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <section class="hero">
+        <div class="hero-badge">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Identity & Access Gateway
+        </div>
+        <h1 class="hero-title">Classic <em>Business</em> Model</h1>
+        <p class="hero-subtitle">The Classic Business Model is a Java Spring Boot application developed to manage
+            the operations of a product-based business. It handles entities such as Office, Employee, Customer,
+            Product, Orders, and Payments to simulate real-world business workflows. Customers place orders for
+            products, employees manage customer interactions, and payments are tracked after order processing.</p>
+    </section>
+
+    <!-- WRONG PROFILE ALERT -->
+    <div id="wrongProfileAlert"
+         style="display: none; background: rgba(220, 53, 69, 0.15); border: 1.5px dashed #DC3545; border-radius: 8px; padding: 16px 20px; margin-bottom: 30px; align-items: center; gap: 12px; color: #FF8D94; font-size: 14px;">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"
+             style="flex-shrink: 0;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <span><strong>Access Denied:</strong> You tried to access a dashboard/API belonging to a different profile.
+                Please select the correct profile below to verify identity.</span>
+    </div>
+
+    <!-- 5 TEAM PROFILE CARDS -->
+    <section class="team-grid">
+
+        <!-- ARYAN -->
+        <div class="member-card"
+             onclick="openLoginModal('Aryan Baranwal', 'OFFICE MANAGER (ADMIN)', '/images/aryan.jpg', 'OFFICE, REPORT', '/api/offices')">
+            <div class="member-avatar-wrapper">
+                <div class="member-avatar-ring"></div>
+                <img class="member-avatar" src="/images/aryan.jpg" alt="Aryan">
+            </div>
+            <h3 class="member-name">Aryan Baranwal</h3>
+            <p class="member-title">OFFICE MANAGER (ADMIN)</p>
+            <div class="badge-container">
+                <span class="module-badge badge-office">Office</span>
+                <span class="module-badge badge-report">Reports</span>
+            </div>
+            <button class="btn-authenticate">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
+                </svg>
+                Authenticate
+            </button>
+        </div>
+
+        <!-- AMAN -->
+        <div class="member-card"
+             onclick="openLoginModal('Aman Raj', 'EMPLOYEE MANAGER', '/images/aman.jpg', 'EMPLOYEE', '/employees')">
+            <div class="member-avatar-wrapper">
+                <div class="member-avatar-ring"></div>
+                <img class="member-avatar" src="/images/aman.jpg" alt="Aman">
+            </div>
+            <h3 class="member-name">Aman Raj</h3>
+            <p class="member-title">EMPLOYEE MANAGER</p>
+            <div class="badge-container">
+                <span class="module-badge badge-employee">Employee</span>
+            </div>
+            <button class="btn-authenticate">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
+                </svg>
+                Authenticate
+            </button>
+        </div>
+
+        <!-- KUSHAL -->
+        <div class="member-card"
+             onclick="openLoginModal('Kushal Kumar', 'CUSTOMER MANAGER', '/images/kushal.jpeg', 'CUSTOMER, PAYMENT', '/customers')">
+            <div class="member-avatar-wrapper">
+                <div class="member-avatar-ring"></div>
+                <img class="member-avatar" src="/images/kushal.jpeg" alt="Kushal">
+            </div>
+            <h3 class="member-name">Kushal Kumar</h3>
+            <p class="member-title">CUSTOMER MANAGER</p>
+            <div class="badge-container">
+                <span class="module-badge badge-customer">Customer</span>
+                <span class="module-badge badge-report">Payment</span>
+            </div>
+            <button class="btn-authenticate">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
+                </svg>
+                Authenticate
+            </button>
+        </div>
+
+        <!-- DHANAVARSHINI -->
+        <div class="member-card"
+             onclick="openLoginModal('Dhanavarshini', 'PRODUCT MANAGER', '/images/dhanavarshini.jpg', 'PRODUCT, REPORT', '/products')">
+            <div class="member-avatar-wrapper">
+                <div class="member-avatar-ring"></div>
+                <img class="member-avatar" src="/images/dhanavarshini.jpg" alt="Dhanavarshini">
+            </div>
+            <h3 class="member-name">Dhanavarshini</h3>
+            <p class="member-title">PRODUCT MANAGER</p>
+            <div class="badge-container">
+                <span class="module-badge badge-product">Product</span>
+                <span class="module-badge badge-report">Reports</span>
+            </div>
+            <button class="btn-authenticate">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
+                </svg>
+                Authenticate
+            </button>
+        </div>
+
+        <!-- SHIVANI -->
+        <div class="member-card"
+             onclick="openLoginModal('Shivani S', 'ORDER MANAGER', '/images/shivani.jpg', 'ORDER, CUSTOMER', '/orders')">
+            <div class="member-avatar-wrapper">
+                <div class="member-avatar-ring"></div>
+                <img class="member-avatar" src="/images/shivani.jpg" alt="Shivani">
+            </div>
+            <h3 class="member-name">Shivani S</h3>
+            <p class="member-title">ORDER MANAGER</p>
+            <div class="badge-container">
+                <span class="module-badge badge-order">Order</span>
+
+            </div>
+            <button class="btn-authenticate">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
+                </svg>
+                Authenticate
+            </button>
+        </div>
+
+    </section>
+</main>
+
+<!-- LOGIN OVERLAY MODAL -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal-panel">
+        <button class="modal-close" onclick="closeLoginModal()">
+            <svg viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+
+        <img class="modal-avatar" id="modalUserAvatar" src="" alt="Avatar">
+        <h3 class="modal-name" id="modalUserName">User Name</h3>
+        <p class="modal-title" id="modalUserTitle">Title</p>
+
+        <form class="modal-form" id="authForm" onsubmit="handleAuthSubmit(event)">
+            <input type="hidden" id="targetRedirectUrl" value="">
+
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <div class="input-wrapper">
+                    <input class="form-input" type="text" id="username" required autocomplete="username"
+                           placeholder="Username">
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <div class="input-wrapper">
+                    <input class="form-input" type="password" id="password" required autocomplete="current-password"
+                           placeholder="Password">
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">
+                        <svg id="eyeIcon" viewBox="0 0 24 24">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-submit" type="submit">
+                <div class="btn-submit-spinner" id="submitSpinner"></div>
+                <span id="submitText">Verify & Connect</span>
+                <svg id="submitIcon" viewBox="0 0 24 24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+            </button>
+        </form>
+
+        <div class="feedback-message" id="feedbackBox">
+            <svg viewBox="0 0 24 24" id="feedbackIcon">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span id="feedbackText">Error message here</span>
+        </div>
+
+        <div class="secure-note">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Vault Security Gateway Enabled
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <p class="footer-text">© 2026 <strong>Classic Model Inc.</strong> All rights reserved.
+                Premium Portal.</p>
+            <p class="footer-text" style="color: #435E75;">Internal Administrative Use Only • Node Connection Secure
+            </p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Live Clock & Status Update
+    function updateClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateStr = now.toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase();
+        document.getElementById('clock-display').innerText = `SECURE • ${dateStr} ${timeStr}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Invalidate previous sessions and clear credentials cache on portal load
+    window.addEventListener('DOMContentLoaded', () => {
+        sessionStorage.removeItem('portal_credentials');
+        fetch('/logout', { method: 'POST' }).catch(err => console.error('Logout error:', err));
+    });
+
+    // Modal Operations
+    const modal = document.getElementById('loginModal');
+
+function openLoginModal(fullName, title, avatarSrc, roles, redirectUrl) {
+
+document.getElementById('modalUserAvatar').src = avatarSrc;
+
+// FULL NAME FIX
+document.getElementById('modalUserName').innerText = fullName;
+
+document.getElementById('modalUserTitle').innerText = title;
+
+document.getElementById('targetRedirectUrl').value = redirectUrl;
+
+// username generation from full name
+let username = fullName.toLowerCase().split(" ")[0];
+
+// Prefill username
+document.getElementById('username').value = username;
+
+// Keep password empty for manual entry
+document.getElementById('password').value = '';
+
+// Reset state
+hideFeedback();
+
+document.getElementById('password').type = 'password';
+
+document.getElementById('eyeIcon').style.stroke = '#8CA2BA';
+
+modal.classList.add('active');
+
+setTimeout(() => document.getElementById('password').focus(), 150);
+}
+
+function closeLoginModal() {
+modal.classList.remove('active');
+}
+
+// Modal click out to close
+modal.addEventListener('click', function (e) {
+if (e.target === modal) {
+    closeLoginModal();
+}
+});
+
+// Toggle Password Eye Icon
+function togglePasswordVisibility() {
+
+const pwdInput = document.getElementById('password');
+
+const eyeIcon = document.getElementById('eyeIcon');
+
+if (pwdInput.type === 'password') {
+
+    pwdInput.type = 'text';
+
+    eyeIcon.style.stroke = '#12ABDB';
+
+} else {
+
+    pwdInput.type = 'password';
+
+    eyeIcon.style.stroke = '#8CA2BA';
+}
+}
+
+// Feedback messages
+const feedbackBox = document.getElementById('feedbackBox');
+
+const feedbackText = document.getElementById('feedbackText');
+
+const feedbackIcon = document.getElementById('feedbackIcon');
+
+function showFeedback(text, isError) {
+
+feedbackText.innerText = text;
+
+feedbackBox.className =
+    'feedback-message ' + (isError ? 'error' : 'success');
+
+if (isError) {
+
+    feedbackIcon.innerHTML =
+        '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16">';
+
+    feedbackBox.style.animation = 'none';
+
+    void feedbackBox.offsetWidth;
+
+    feedbackBox.style.animation =
+        'shake-anim 0.4s ease-in-out';
+
+} else {
+
+    feedbackIcon.innerHTML =
+        '<circle cx="12" cy="12" r="10"/><polyline points="9 11 11 13 15 9"/>';
+}
+}
+
+function hideFeedback() {
+feedbackBox.style.display = 'none';
+}
+
+    // Submit Auth Form
+    function handleAuthSubmit(event) {
+        event.preventDefault();
+
+        const usernameInput = document.getElementById('username').value;
+        const passwordInput = document.getElementById('password').value;
+        const redirectUrl = document.getElementById('targetRedirectUrl').value;
+
+        const submitText = document.getElementById('submitText');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const submitIcon = document.getElementById('submitIcon');
+
+        // Set loading state
+        submitText.innerText = 'Verifying Identity...';
+        submitSpinner.style.display = 'inline-block';
+        submitIcon.style.display = 'none';
+        hideFeedback();
+
+        // Base64 Credentials for Basic Auth
+        const creds = btoa(usernameInput.trim() + ':' + passwordInput.trim());
+
+        fetch('/api/auth/status', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Basic ' + creds
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.authenticated) {
+                    sessionStorage.setItem('portal_credentials', creds);
+                    showFeedback('Identity Verified. Access Granted. Connecting...', false);
+                    submitText.innerText = 'Redirecting...';
+
+                    // Keep success styling and redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1200);
+                } else {
+                    throw new Error('Unauthenticated status returned');
+                }
+            })
+            .catch(err => {
+                console.error('Authentication Error:', err);
+                // Reset button
+                submitText.innerText = 'Verify & Connect';
+                submitSpinner.style.display = 'none';
+                submitIcon.style.display = 'inline-block';
+
+                showFeedback('Access Denied. Invalid credentials or unauthorized role profile.', true);
+            });
+    }
+
+    // Check for wrong_profile query parameter to display warning alert
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('error') && urlParams.get('error') === 'wrong_profile') {
+        document.getElementById('wrongProfileAlert').style.display = 'flex';
+        // Clean up URL parameters from browser address bar
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+    }
+</script>
+</body>
+
+</html>

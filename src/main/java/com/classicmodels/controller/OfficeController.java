@@ -26,6 +26,11 @@ public class OfficeController {
         return "office/list";
     }
 
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "office/dashboard";
+    }
+
     @GetMapping("/{officeCode}")
     public String getOfficeByCode(
             @PathVariable String officeCode,

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class SalesByEmployeeDto {
@@ -14,6 +15,12 @@ public class SalesByEmployeeDto {
     @NotNull(message = "Total sales cannot be null")
     @PositiveOrZero(message = "Total sales cannot be negative")
     private Double totalSales;
+
+    private LocalDate reportStartDate;
+
+    private LocalDate reportEndDate;
+
+    private String dateRange;
 
     public SalesByEmployeeDto() {
     }
@@ -42,6 +49,30 @@ public class SalesByEmployeeDto {
         this.totalSales = totalSales;
     }
 
+    public LocalDate getReportStartDate() {
+        return reportStartDate;
+    }
+
+    public void setReportStartDate(LocalDate reportStartDate) {
+        this.reportStartDate = reportStartDate;
+    }
+
+    public LocalDate getReportEndDate() {
+        return reportEndDate;
+    }
+
+    public void setReportEndDate(LocalDate reportEndDate) {
+        this.reportEndDate = reportEndDate;
+    }
+
+    public String getDateRange() {
+        return dateRange;
+    }
+
+    public void setDateRange(String dateRange) {
+        this.dateRange = dateRange;
+    }
+
     @Override
     public boolean equals(Object o) {
 
@@ -63,6 +94,18 @@ public class SalesByEmployeeDto {
                 Objects.equals(
                         totalSales,
                         that.totalSales
+                ) &&
+                Objects.equals(
+                        reportStartDate,
+                        that.reportStartDate
+                ) &&
+                Objects.equals(
+                        reportEndDate,
+                        that.reportEndDate
+                ) &&
+                Objects.equals(
+                        dateRange,
+                        that.dateRange
                 );
     }
 
@@ -71,7 +114,10 @@ public class SalesByEmployeeDto {
 
         return Objects.hash(
                 employeeName,
-                totalSales
+                totalSales,
+                reportStartDate,
+                reportEndDate,
+                dateRange
         );
     }
 }

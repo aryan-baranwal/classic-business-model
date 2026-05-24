@@ -66,7 +66,10 @@ public interface OrderRepository
     @Query("""
        SELECT
        o.orderNumber,
-       SUM(od.quantityOrdered * od.priceEach)
+       SUM(od.quantityOrdered * od.priceEach),
+       o.orderDate,
+       o.requiredDate,
+       o.shippedDate
 
        FROM Order o
 
@@ -74,7 +77,10 @@ public interface OrderRepository
 
        WHERE o.orderNumber = :orderNumber
 
-       GROUP BY o.orderNumber
+       GROUP BY o.orderNumber,
+                o.orderDate,
+                o.requiredDate,
+                o.shippedDate
        """)
     List<Object[]> getOrderValue(
 

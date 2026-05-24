@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class MonthlyRevenueDto {
@@ -15,6 +16,12 @@ public class MonthlyRevenueDto {
     @NotNull(message = "Total revenue cannot be null")
     @PositiveOrZero(message = "Total revenue cannot be negative")
     private BigDecimal totalRevenue;
+
+    private LocalDate monthStartDate;
+
+    private LocalDate monthEndDate;
+
+    private String dateRange;
 
     // Default constructor
     public MonthlyRevenueDto() {
@@ -45,6 +52,30 @@ public class MonthlyRevenueDto {
         this.totalRevenue = totalRevenue;
     }
 
+    public LocalDate getMonthStartDate() {
+        return monthStartDate;
+    }
+
+    public void setMonthStartDate(LocalDate monthStartDate) {
+        this.monthStartDate = monthStartDate;
+    }
+
+    public LocalDate getMonthEndDate() {
+        return monthEndDate;
+    }
+
+    public void setMonthEndDate(LocalDate monthEndDate) {
+        this.monthEndDate = monthEndDate;
+    }
+
+    public String getDateRange() {
+        return dateRange;
+    }
+
+    public void setDateRange(String dateRange) {
+        this.dateRange = dateRange;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,11 +84,14 @@ public class MonthlyRevenueDto {
         MonthlyRevenueDto that = (MonthlyRevenueDto) o;
 
         return Objects.equals(month, that.month)
-                && Objects.equals(totalRevenue, that.totalRevenue);
+                && Objects.equals(totalRevenue, that.totalRevenue)
+                && Objects.equals(monthStartDate, that.monthStartDate)
+                && Objects.equals(monthEndDate, that.monthEndDate)
+                && Objects.equals(dateRange, that.dateRange);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(month, totalRevenue);
+        return Objects.hash(month, totalRevenue, monthStartDate, monthEndDate, dateRange);
     }
 }

@@ -40,7 +40,9 @@ public interface CustomerRepository
     @Query("""
            SELECT
            c.country,
-           SUM(od.quantityOrdered * od.priceEach)
+           SUM(od.quantityOrdered * od.priceEach),
+           MIN(o.orderDate),
+           MAX(o.orderDate)
            FROM Customer c
            JOIN c.orders o
            JOIN o.orderDetails od
@@ -54,7 +56,9 @@ public interface CustomerRepository
            SELECT
            c.customerName,
            c.creditLimit,
-           SUM(od.quantityOrdered * od.priceEach)
+           SUM(od.quantityOrdered * od.priceEach),
+           MIN(o.orderDate),
+           MAX(o.orderDate)
            FROM Customer c
            JOIN c.orders o
            JOIN o.orderDetails od
@@ -73,7 +77,9 @@ public interface CustomerRepository
            c.creditLimit,
            COALESCE(SUM(p.amount), 0),
            c.creditLimit -
-           COALESCE(SUM(p.amount), 0)
+           COALESCE(SUM(p.amount), 0),
+           MIN(p.paymentDate),
+           MAX(p.paymentDate)
        )
        FROM Customer c
        LEFT JOIN c.payments p

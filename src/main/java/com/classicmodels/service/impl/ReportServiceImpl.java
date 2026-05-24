@@ -10,6 +10,7 @@ import com.classicmodels.service.ReportService;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +65,21 @@ public class ReportServiceImpl implements ReportService {
                     ((Number) row[1]).doubleValue()
             );
 
+            dto.setReportStartDate(
+                    (LocalDate) row[2]
+            );
+
+            dto.setReportEndDate(
+                    (LocalDate) row[3]
+            );
+
+            dto.setDateRange(
+                    formatDateRange(
+                            dto.getReportStartDate(),
+                            dto.getReportEndDate()
+                    )
+            );
+
             response.add(dto);
         }
 
@@ -92,6 +108,21 @@ public class ReportServiceImpl implements ReportService {
 
             dto.setTotalSales(
                     ((Number) row[1]).doubleValue()
+            );
+
+            dto.setReportStartDate(
+                    (LocalDate) row[2]
+            );
+
+            dto.setReportEndDate(
+                    (LocalDate) row[3]
+            );
+
+            dto.setDateRange(
+                    formatDateRange(
+                            dto.getReportStartDate(),
+                            dto.getReportEndDate()
+                    )
             );
 
             response.add(dto);
@@ -138,6 +169,21 @@ public class ReportServiceImpl implements ReportService {
                     totalOrders - creditLimit
             );
 
+            dto.setReportStartDate(
+                    (LocalDate) row[3]
+            );
+
+            dto.setReportEndDate(
+                    (LocalDate) row[4]
+            );
+
+            dto.setDateRange(
+                    formatDateRange(
+                            dto.getReportStartDate(),
+                            dto.getReportEndDate()
+                    )
+            );
+
             response.add(dto);
         }
 
@@ -164,6 +210,25 @@ public class ReportServiceImpl implements ReportService {
 
         dto.setTotalOrderValue(
                 ((Number) result[1]).doubleValue()
+        );
+
+        dto.setOrderDate(
+                (LocalDate) result[2]
+        );
+
+        dto.setRequiredDate(
+                (LocalDate) result[3]
+        );
+
+        dto.setShippedDate(
+                (LocalDate) result[4]
+        );
+
+        dto.setDateRange(
+                formatDateRange(
+                        dto.getOrderDate(),
+                        dto.getRequiredDate()
+                )
         );
 
         return dto;
@@ -194,6 +259,21 @@ public class ReportServiceImpl implements ReportService {
                     (java.math.BigDecimal) row[1]
             );
 
+            dto.setMonthStartDate(
+                    (LocalDate) row[2]
+            );
+
+            dto.setMonthEndDate(
+                    (LocalDate) row[3]
+            );
+
+            dto.setDateRange(
+                    formatDateRange(
+                            dto.getMonthStartDate(),
+                            dto.getMonthEndDate()
+                    )
+            );
+
             response.add(dto);
         }
 
@@ -208,5 +288,18 @@ public class ReportServiceImpl implements ReportService {
 
         return customerRepository
                 .findHighRiskCustomers();
+    }
+
+    private String formatDateRange(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        if (startDate == null && endDate == null) {
+            return "No date recorded";
+        }
+        if (startDate != null && startDate.equals(endDate)) {
+            return startDate.toString();
+        }
+        return startDate + " to " + endDate;
     }
 }

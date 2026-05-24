@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class CustomerExposureDto {
@@ -21,6 +22,12 @@ public class CustomerExposureDto {
 
     @NotNull(message = "Exposure cannot be null")
     private Double exposure;
+
+    private LocalDate reportStartDate;
+
+    private LocalDate reportEndDate;
+
+    private String dateRange;
 
     public CustomerExposureDto() {
     }
@@ -69,6 +76,30 @@ public class CustomerExposureDto {
         this.exposure = exposure;
     }
 
+    public LocalDate getReportStartDate() {
+        return reportStartDate;
+    }
+
+    public void setReportStartDate(LocalDate reportStartDate) {
+        this.reportStartDate = reportStartDate;
+    }
+
+    public LocalDate getReportEndDate() {
+        return reportEndDate;
+    }
+
+    public void setReportEndDate(LocalDate reportEndDate) {
+        this.reportEndDate = reportEndDate;
+    }
+
+    public String getDateRange() {
+        return dateRange;
+    }
+
+    public void setDateRange(String dateRange) {
+        this.dateRange = dateRange;
+    }
+
     @Override
     public boolean equals(Object o) {
 
@@ -98,6 +129,18 @@ public class CustomerExposureDto {
                 Objects.equals(
                         exposure,
                         that.exposure
+                ) &&
+                Objects.equals(
+                        reportStartDate,
+                        that.reportStartDate
+                ) &&
+                Objects.equals(
+                        reportEndDate,
+                        that.reportEndDate
+                ) &&
+                Objects.equals(
+                        dateRange,
+                        that.dateRange
                 );
     }
 
@@ -108,7 +151,10 @@ public class CustomerExposureDto {
                 customerName,
                 creditLimit,
                 totalOrders,
-                exposure
+                exposure,
+                reportStartDate,
+                reportEndDate,
+                dateRange
         );
     }
 }
