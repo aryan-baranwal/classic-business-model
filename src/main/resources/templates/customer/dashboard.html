@@ -400,6 +400,7 @@
             method: 'PUT', url: '/api/customers/{customerNumber}/credit-limit',
             desc: 'Updates the credit limit with a decimal or floating point value passed as raw body.',
             params: [{ name: 'customerNumber', in: 'path', default: '103', label: 'customerNumber' }],
+            contentType: 'application/json',
             body: '125000.00'
         },
         'search-customers': {
@@ -517,7 +518,9 @@
         }
         if (ep.body !== undefined) {
             const bodyVal = document.getElementById('bodyInput')?.value || '';
-            if (bodyVal.trim().startsWith('{') || bodyVal.trim().startsWith('[')) {
+            if (ep.contentType) {
+                opts.headers['Content-Type'] = ep.contentType;
+            } else if (bodyVal.trim().startsWith('{') || bodyVal.trim().startsWith('[')) {
                 opts.headers['Content-Type'] = 'application/json';
             } else {
                 opts.headers['Content-Type'] = 'text/plain';
@@ -602,14 +605,30 @@
     }
 
     function buildResponseTable(columns, rows) {
-        const header = columns.map(col => `<th>${escapeHtml(col)}</th>`).join('');
+        const header = columns.map(col => `<th>${escapeHtml(formatHeaderLabel(col))}</th>`).join('');
         const body = rows.map(row => `<tr>${columns.map(col => `<td>${escapeHtml(row[col] ?? '')}</td>`).join('')}</tr>`).join('');
         return `<table class="response-table"><thead><tr>${header}</tr></thead><tbody>${body}</tbody></table>`;
     }
 
+    function formatHeaderLabel(value) {
+        return String(value)
+            .replace(/[_-]+/g, ' ')
+            .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replace(/\b\w/g, char => char.toUpperCase());
+    }
+
     function formatCellValue(value) {
         if (value === null || value === undefined) return '';
-        if (typeof value === 'object') return JSON.stringify(value);
+        if (Array.isArray(value)) {
+            return value.map(item => formatCellValue(item)).filter(Boolean).join('; ');
+        }
+        if (typeof value === 'object') {
+            return Object.entries(value)
+                .map(([key, item]) => `${formatHeaderLabel(key)}: ${formatCellValue(item)}`)
+                .join(', ');
+        }
         return String(value);
     }
 
