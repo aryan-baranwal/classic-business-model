@@ -52,6 +52,10 @@ public class EmployeeResponseDto {
     )
     private String officeCode;
 
+    private String extension;
+
+    private Integer managerId;
+
     // DEFAULT CONSTRUCTOR
 
     public EmployeeResponseDto() {
@@ -126,6 +130,22 @@ public class EmployeeResponseDto {
         this.officeCode = officeCode;
     }
 
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
+    public Integer getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(Integer managerId) {
+        this.managerId = managerId;
+    }
+
     // equals()
 
     @Override
@@ -167,6 +187,8 @@ public class EmployeeResponseDto {
                 ", email='" + email + '\'' +
                 ", jobTitle='" + jobTitle + '\'' +
                 ", officeCode='" + officeCode + '\'' +
+                ", extension='" + extension + '\'' +
+                ", managerId=" + managerId +
                 '}';
     }
 }

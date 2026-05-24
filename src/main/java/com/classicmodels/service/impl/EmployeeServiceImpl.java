@@ -312,6 +312,16 @@ public class EmployeeServiceImpl
             );
         }
 
+        dto.setExtension(
+                employee.getExtension()
+        );
+
+        if (employee.getManager() != null) {
+            dto.setManagerId(
+                    employee.getManager().getEmployeeNumber()
+            );
+        }
+
         return dto;
     }
 }

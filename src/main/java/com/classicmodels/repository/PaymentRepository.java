@@ -19,7 +19,9 @@ public interface PaymentRepository extends JpaRepository<Payment, PaymentId> {
                    p.paymentDate,
                    '%Y-%m'
                ),
-               SUM(p.amount)
+               SUM(p.amount),
+               MIN(p.paymentDate),
+               MAX(p.paymentDate)
            FROM Payment p
            GROUP BY FUNCTION(
                'DATE_FORMAT',

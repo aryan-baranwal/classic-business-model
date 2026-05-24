@@ -38,6 +38,12 @@ public class ProductViewController {
         return "product/details";
     }
 
+    // URL: http://localhost:8080/products/dashboard
+    @GetMapping("/products/dashboard")
+    public String productDashboard() {
+        return "product/dashboard";
+    }
+
     // URL: http://localhost:8080/product-lines
     @GetMapping("/product-lines")
     public String getAllProductLines(Model model) {

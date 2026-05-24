@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class HighRiskCustomerDto {
@@ -27,6 +28,12 @@ public class HighRiskCustomerDto {
     @NotNull(message = "Remaining credit cannot be null")
     private BigDecimal remainingCredit;
 
+    private LocalDate paymentStartDate;
+
+    private LocalDate paymentEndDate;
+
+    private String dateRange;
+
     public HighRiskCustomerDto() {
     }
 
@@ -42,6 +49,30 @@ public class HighRiskCustomerDto {
         this.creditLimit = creditLimit;
         this.totalPayments = totalPayments;
         this.remainingCredit = remainingCredit;
+    }
+
+    public HighRiskCustomerDto(
+            Integer customerNumber,
+            String customerName,
+            BigDecimal creditLimit,
+            BigDecimal totalPayments,
+            BigDecimal remainingCredit,
+            LocalDate paymentStartDate,
+            LocalDate paymentEndDate
+    ) {
+        this(
+                customerNumber,
+                customerName,
+                creditLimit,
+                totalPayments,
+                remainingCredit
+        );
+        this.paymentStartDate = paymentStartDate;
+        this.paymentEndDate = paymentEndDate;
+        this.dateRange = formatDateRange(
+                paymentStartDate,
+                paymentEndDate
+        );
     }
 
     public Integer getCustomerNumber() {
@@ -84,6 +115,38 @@ public class HighRiskCustomerDto {
         this.remainingCredit = remainingCredit;
     }
 
+    public LocalDate getPaymentStartDate() {
+        return paymentStartDate;
+    }
+
+    public void setPaymentStartDate(LocalDate paymentStartDate) {
+        this.paymentStartDate = paymentStartDate;
+        this.dateRange = formatDateRange(
+                this.paymentStartDate,
+                this.paymentEndDate
+        );
+    }
+
+    public LocalDate getPaymentEndDate() {
+        return paymentEndDate;
+    }
+
+    public void setPaymentEndDate(LocalDate paymentEndDate) {
+        this.paymentEndDate = paymentEndDate;
+        this.dateRange = formatDateRange(
+                this.paymentStartDate,
+                this.paymentEndDate
+        );
+    }
+
+    public String getDateRange() {
+        return dateRange;
+    }
+
+    public void setDateRange(String dateRange) {
+        this.dateRange = dateRange;
+    }
+
     @Override
     public boolean equals(Object o) {
 
@@ -117,6 +180,18 @@ public class HighRiskCustomerDto {
                 Objects.equals(
                         remainingCredit,
                         that.remainingCredit
+                ) &&
+                Objects.equals(
+                        paymentStartDate,
+                        that.paymentStartDate
+                ) &&
+                Objects.equals(
+                        paymentEndDate,
+                        that.paymentEndDate
+                ) &&
+                Objects.equals(
+                        dateRange,
+                        that.dateRange
                 );
     }
 
@@ -128,7 +203,23 @@ public class HighRiskCustomerDto {
                 customerName,
                 creditLimit,
                 totalPayments,
-                remainingCredit
+                remainingCredit,
+                paymentStartDate,
+                paymentEndDate,
+                dateRange
         );
+    }
+
+    private static String formatDateRange(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        if (startDate == null && endDate == null) {
+            return "No payments recorded";
+        }
+        if (Objects.equals(startDate, endDate)) {
+            return String.valueOf(startDate);
+        }
+        return startDate + " to " + endDate;
     }
 }
