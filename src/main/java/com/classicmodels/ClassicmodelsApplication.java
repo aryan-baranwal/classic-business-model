@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ClassicmodelsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ClassicmodelsApplication.class, args);
-	}
+		SpringApplication.run(ClassicmodelsApplication.class,args);
+    }
 
 }
