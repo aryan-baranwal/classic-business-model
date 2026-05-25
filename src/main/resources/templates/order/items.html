@@ -97,7 +97,7 @@
     </p>
 
     <div class="top-bar">
-        <span th:text="'Total items: ' + ${items.size()}"></span>
+        <span th:text="'Total items: ' + ${itemCount}"></span>
         <a class="btn-primary"
            th:href="@{/orders/{n}/items/new(n=${orderNumber})}">+ Add Item</a>
     </div>
@@ -115,8 +115,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:if="${items.isEmpty()}">
-            <td colspan="7" class="empty">No items found for this order.</td>
+        <tr th:if="${!hasItems}">
+            <td colspan="7" class="empty">No items are there in this order.</td>
         </tr>
         <tr th:each="item : ${items}">
             <td th:text="${item.orderLineNumber}"></td>
@@ -145,13 +145,10 @@
         </tr>
         </tbody>
         <tfoot>
-        <tr th:if="${!items.isEmpty()}">
+        <tr th:if="${hasItems}">
             <td colspan="5" style="text-align:right;">Order Total:</td>
             <td class="price"
-                th:text="${'$' + #numbers.formatDecimal(
-                                items.stream()
-                                     .mapToDouble(i -> i.getLineTotal().doubleValue())
-                                     .sum(), 1, 2)}">
+                th:text="${'$' + #numbers.formatDecimal(orderTotal, 1, 2)}">
             </td>
             <td></td>
         </tr>
