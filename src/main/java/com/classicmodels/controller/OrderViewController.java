@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -152,8 +153,16 @@ public class OrderViewController {
     @GetMapping("/{orderNumber}/items")
     public String getOrderItems(@PathVariable Integer orderNumber, Model model) {
         List<OrderDetailResponseDTO> items = orderService.getItems(orderNumber);
+        BigDecimal orderTotal = items.stream()
+                .map(OrderDetailResponseDTO::getLineTotal)
+                .filter(total -> total != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         model.addAttribute("items", items);
         model.addAttribute("orderNumber", orderNumber);
+        model.addAttribute("itemCount", items.size());
+        model.addAttribute("hasItems", !items.isEmpty());
+        model.addAttribute("orderTotal", orderTotal);
         return "order/items";
     }
 
