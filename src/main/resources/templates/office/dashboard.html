@@ -81,7 +81,7 @@
             color: #2c3e50; background: #F0F4F8;
             padding: 4px 8px; border-radius: 4px;
         }
-        .desc { color: #4A6A82; font-size: 13px; }
+        .desc { color: #4A6A82; font-size: 13px; font-weight: 700; }
 
         /* ── Test button ── */
         .test-btn {
@@ -134,7 +134,7 @@
 
         .modal-body { padding: 24px; }
 
-        .modal-desc { font-size: 13px; color: #5A7A92; margin-bottom: 20px; padding: 10px 14px; background: #F5FBFF; border-radius: 8px; border-left: 3px solid var(--cap-cyan); }
+        .modal-desc { font-size: 13px; font-weight: 700; color: #5A7A92; margin-bottom: 20px; padding: 10px 14px; background: #F5FBFF; border-radius: 8px; border-left: 3px solid var(--cap-cyan); }
 
         .param-section { margin-bottom: 20px; }
         .param-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #4A6A82; margin-bottom: 10px; }
@@ -179,6 +179,52 @@
         .response-box .json-number { color: #FFCA80; }
         .response-box .json-bool   { color: #FF9999; }
         .response-box .json-null   { color: #A0A0A0; }
+
+        .view-toggle {
+            margin-left: auto; display: inline-flex; overflow: hidden;
+            border: 1px solid var(--cap-border); border-radius: 8px;
+            background: #F5FBFF;
+        }
+        .view-toggle button {
+            border: none; background: transparent; color: #4A6A82;
+            padding: 5px 12px; font-size: 12px; font-weight: 700;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+        }
+        .view-toggle button.active { background: var(--cap-blue); color: #fff; }
+        .response-table-wrap {
+            display: none; max-height: 320px; overflow: auto;
+            border: 1px solid var(--cap-border); border-radius: 10px;
+            background: #fff;
+        }
+        .response-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+        .response-table th {
+            position: sticky; top: 0; background: #F0F6FA; color: #4A6A82;
+            padding: 10px 12px; text-align: left; font-size: 11px;
+            text-transform: uppercase; letter-spacing: .6px;
+            border-bottom: 1px solid var(--cap-border); z-index: 1;
+        }
+        .response-table td {
+            padding: 10px 12px; border-bottom: 1px solid #EDF2F7;
+            color: #1A2B3C; font-size: 12px; vertical-align: top;
+            word-break: break-word;
+        }
+        .response-table tr:last-child td { border-bottom: none; }
+        .response-empty { padding: 16px; color: #5A7A92; font-size: 13px; }
+        .report-context {
+            display: none; margin-bottom: 12px; padding: 12px 14px;
+            background: #F5FBFF; border: 1px solid var(--cap-border);
+            border-left: 3px solid var(--cap-cyan); border-radius: 10px;
+        }
+        .report-context-title {
+            font-size: 12px; font-weight: 800; color: var(--cap-navy);
+            text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px;
+        }
+        .report-context-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px 12px;
+        }
+        .report-context-item { font-size: 12px; color: #4A6A82; }
+        .report-context-item strong { color: var(--cap-navy); font-weight: 700; }
     </style>
 </head>
 <body>
@@ -187,6 +233,7 @@
 
 <div class="navbar">
     <span class="brand">⚡ Classic Models</span>
+    <a href="/">🏠 Portal Home</a>
     <a href="/api/offices">All Offices</a>
     <a class="back-link" href="/api/offices">← Back to Offices</a>
 </div>
@@ -294,199 +341,402 @@
                 <div class="response-meta">
                     <span class="status-badge" id="statusBadge"></span>
                     <span class="response-time" id="responseTime"></span>
+                    <div class="view-toggle" id="viewToggle">
+                        <button type="button" id="jsonViewBtn" class="active" onclick="setResponseView('json')">JSON</button>
+                        <button type="button" id="tableViewBtn" onclick="setResponseView('table')">Table</button>
+                    </div>
                 </div>
+                <div class="report-context" id="reportContext"></div>
                 <div class="response-box" id="responseBox"></div>
+                <div class="response-table-wrap" id="responseTableBox"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════
-//  ENDPOINT REGISTRY
-// ══════════════════════════════════════════════
-const ENDPOINTS = {
-    'get-all-offices': {
-        method: 'GET', url: '/api/v1/offices',
-        desc: 'Returns the full list of offices as a JSON array.',
-        params: []
-    },
-    'get-office': {
-        method: 'GET', url: '/api/v1/offices/{officeCode}',
-        desc: 'Returns a single corporate office by its unique code (e.g. 1, 2, ...).',
-        params: [{ name: 'officeCode', in: 'path', default: '1', label: 'officeCode' }]
-    },
-    'get-office-employees': {
-        method: 'GET', url: '/api/v1/offices/{officeCode}/employees',
-        desc: 'Lists all personnel assigned to the given office code.',
-        params: [{ name: 'officeCode', in: 'path', default: '1', label: 'officeCode' }]
-    },
-    'sales-by-employee': {
-        method: 'GET', url: '/api/reports/sales-by-employee',
-        desc: 'Aggregates sales performance data group by employee.',
-        params: []
-    },
-    'sales-by-country': {
-        method: 'GET', url: '/api/reports/sales-by-country',
-        desc: 'Generates analytical report of total orders and sales volume by country.',
-        params: []
-    },
-    'customer-exposure': {
-        method: 'GET', url: '/api/reports/customer-exposure',
-        desc: 'Computes total credit exposure and payment history analysis per customer.',
-        params: []
-    },
-    'order-value': {
-        method: 'GET', url: '/api/reports/order-value/{orderNumber}',
-        desc: 'Calculates the total financial worth of the items in a specific order.',
-        params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }]
-    }
-};
+    // ── Profile Role Guard ──────────────────────────────────────────
+    // Redirects to portal immediately if the current user does not
+    // have the OFFICE role — prevents cross-profile tab access.
+    (async function checkProfileAccess() {
+        const REQUIRED_ROLE = 'ROLE_OFFICE';
+        const creds = sessionStorage.getItem('portal_credentials');
+        if (!creds) { window.location.href = '/'; return; }
+        try {
+            const res = await fetch('/api/auth/status', {
+                headers: { 'Authorization': 'Basic ' + creds }
+            });
+            if (!res.ok) { window.location.href = '/'; return; }
+            const data = await res.json();
+            if (!data.authenticated || !data.roles || !data.roles.includes(REQUIRED_ROLE)) {
+                window.location.href = '/?error=wrong_profile';
+            }
+        } catch(e) { window.location.href = '/'; }
+    })();
 
-let currentEpKey = null;
-
-// ── Open modal ──
-function openModal(key) {
-    currentEpKey = key;
-    const ep = ENDPOINTS[key];
-
-    // Header
-    const badge = document.getElementById('modalMethodBadge');
-    badge.textContent = ep.method;
-    badge.className = 'modal-method-badge method ' + ep.method;
-    document.getElementById('modalEndpointText').textContent = ep.url;
-    document.getElementById('modalDesc').textContent = ep.desc;
-
-    // Params
-    const container = document.getElementById('modalParams');
-    container.innerHTML = '';
-
-    const pathParams = ep.params.filter(p => p.in === 'path');
-    const queryParams = ep.params.filter(p => p.in === 'query');
-
-    if (pathParams.length) {
-        container.innerHTML += `<div class="param-section"><div class="param-section-title">Path Parameters</div>${
-            pathParams.map(p => `
-                <div class="param-row">
-                    <label class="param-label">{${p.label}}</label>
-                    <input class="param-input" id="param-${p.name}" value="${p.default}" placeholder="${p.label}">
-                </div>`).join('')
-        }</div>`;
-    }
-    if (queryParams.length) {
-        container.innerHTML += `<div class="param-section"><div class="param-section-title">Query Parameters</div>${
-            queryParams.map(p => `
-                <div class="param-row">
-                    <label class="param-label">${p.label}</label>
-                    <input class="param-input" id="param-${p.name}" value="${p.default}" placeholder="${p.label} (optional)">
-                </div>`).join('')
-        }</div>`;
-    }
-    if (ep.body !== undefined) {
-        container.innerHTML += `
-            <div class="param-section">
-                <div class="param-section-title">Request Body (JSON)</div>
-                <textarea class="param-textarea" id="bodyInput">${ep.body}</textarea>
-            </div>`;
-    }
-
-    // Reset response
-    document.getElementById('responseArea').style.display = 'none';
-    document.getElementById('runBtn').disabled = false;
-    document.getElementById('runBtn').textContent = '▶  Run Request';
-
-    document.getElementById('apiModal').classList.add('active');
-}
-
-function closeModal() { document.getElementById('apiModal').classList.remove('active'); }
-function handleOverlayClick(e) { if (e.target.id === 'apiModal') closeModal(); }
-
-// ── Run the test ──
-async function runTest() {
-    const ep = ENDPOINTS[currentEpKey];
-    const btn = document.getElementById('runBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳  Sending...';
-
-    // Build URL — replace path params
-    let url = ep.url;
-    ep.params.filter(p => p.in === 'path').forEach(p => {
-        const val = document.getElementById('param-' + p.name)?.value || p.default;
-        url = url.replace('{' + p.name + '}', encodeURIComponent(val));
-    });
-
-    // Append query params
-    const qps = ep.params.filter(p => p.in === 'query');
-    if (qps.length) {
-        const parts = qps
-            .map(p => {
-                const val = document.getElementById('param-' + p.name)?.value;
-                return val ? `${p.name}=${encodeURIComponent(val)}` : null;
-            })
-            .filter(Boolean);
-        if (parts.length) url += '?' + parts.join('&');
-    }
-
-    // Build fetch options
-    const opts = {
-        method: ep.method,
-        credentials: 'include',
-        headers: { 'Accept': 'application/json' }
-    };
-    if (ep.body !== undefined) {
-        const bodyVal = document.getElementById('bodyInput')?.value || '{}';
-        opts.headers['Content-Type'] = 'application/json';
-        opts.body = bodyVal;
-    }
-
-    const t0 = Date.now();
-    try {
-        const res = await fetch(url, opts);
-        const elapsed = Date.now() - t0;
-        let text = await res.text();
-        let formatted = text;
-        try { formatted = syntaxHighlight(JSON.stringify(JSON.parse(text), null, 2)); } catch(_) {}
-
-        const badge = document.getElementById('statusBadge');
-        badge.textContent = res.status + ' ' + res.statusText;
-        badge.className = 'status-badge ' + (res.ok ? 'status-ok' : 'status-err');
-        document.getElementById('responseTime').textContent = elapsed + ' ms';
-        document.getElementById('responseBox').innerHTML = formatted;
-        document.getElementById('responseArea').style.display = 'block';
-    } catch (err) {
-        const elapsed = Date.now() - t0;
-        const badge = document.getElementById('statusBadge');
-        badge.textContent = 'Network Error';
-        badge.className = 'status-badge status-err';
-        document.getElementById('responseTime').textContent = elapsed + ' ms';
-        document.getElementById('responseBox').innerHTML = escapeHtml(String(err));
-        document.getElementById('responseArea').style.display = 'block';
-    }
-
-    btn.disabled = false;
-    btn.textContent = '▶  Run Again';
-}
-
-// ── JSON syntax highlight ──
-function syntaxHighlight(json) {
-    return escapeHtml(json).replace(
-        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-        function(match) {
-            let cls = 'json-number';
-            if (/^"/.test(match)) { cls = /:$/.test(match) ? 'json-key' : 'json-string'; }
-            else if (/true|false/.test(match)) { cls = 'json-bool'; }
-            else if (/null/.test(match)) { cls = 'json-null'; }
-            return `<span class="${cls}">${match}</span>`;
+    // ══════════════════════════════════════════════
+    //  ENDPOINT REGISTRY
+    // ══════════════════════════════════════════════
+    const ENDPOINTS = {
+        'get-all-offices': {
+            method: 'GET', url: '/api/v1/offices',
+            desc: 'Returns the full list of offices as a JSON array.',
+            params: []
+        },
+        'get-office': {
+            method: 'GET', url: '/api/v1/offices/{officeCode}',
+            desc: 'Returns a single corporate office by its unique code (e.g. 1, 2, ...).',
+            params: [{ name: 'officeCode', in: 'path', default: '1', label: 'officeCode' }]
+        },
+        'get-office-employees': {
+            method: 'GET', url: '/api/v1/offices/{officeCode}/employees',
+            desc: 'Lists all personnel assigned to the given office code.',
+            params: [{ name: 'officeCode', in: 'path', default: '1', label: 'officeCode' }]
+        },
+        'sales-by-employee': {
+            method: 'GET', url: '/api/reports/sales-by-employee',
+            desc: 'Aggregates sales performance data group by employee.',
+            reportContext: {
+                period: 'Derived from orderDate values returned by the report',
+                dateBasis: 'orders.orderDate',
+                grouping: 'Grouped by employee',
+                metric: 'Total sales value'
+            },
+            params: []
+        },
+        'sales-by-country': {
+            method: 'GET', url: '/api/reports/sales-by-country',
+            desc: 'Generates analytical report of total orders and sales volume by country.',
+            reportContext: {
+                period: 'Derived from orderDate values returned by the report',
+                dateBasis: 'orders.orderDate',
+                grouping: 'Grouped by customer country',
+                metric: 'Total sales value'
+            },
+            params: []
+        },
+        'customer-exposure': {
+            method: 'GET', url: '/api/reports/customer-exposure',
+            desc: 'Computes total credit exposure and payment history analysis per customer.',
+            reportContext: {
+                period: 'Derived from orderDate values returned by the report',
+                dateBasis: 'orders.orderDate',
+                grouping: 'Grouped by customer',
+                metric: 'Credit limit, order total, and exposure'
+            },
+            params: []
+        },
+        'order-value': {
+            method: 'GET', url: '/api/reports/order-value/{orderNumber}',
+            desc: 'Calculates the total financial worth of the items in a specific order.',
+            reportContext: {
+                period: 'Derived from selected order dates returned by the report',
+                dateBasis: 'orders.orderDate, orders.requiredDate, orders.shippedDate',
+                grouping: 'Filtered by order number',
+                metric: 'Total order value'
+            },
+            params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }]
         }
-    );
-}
+    };
 
-function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+    let currentEpKey = null;
+    let currentResponseData = null;
+    let currentResponseText = '';
+    let currentResponseView = 'json';
 
-// Keyboard ESC close
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    // ── Open modal ──
+    function openModal(key) {
+        currentEpKey = key;
+        const ep = ENDPOINTS[key];
+
+        // Header
+        const badge = document.getElementById('modalMethodBadge');
+        badge.textContent = ep.method;
+        badge.className = 'modal-method-badge method ' + ep.method;
+        document.getElementById('modalEndpointText').textContent = ep.url;
+        document.getElementById('modalDesc').textContent = ep.desc;
+
+        // Params
+        const container = document.getElementById('modalParams');
+        container.innerHTML = '';
+
+        const pathParams = ep.params.filter(p => p.in === 'path');
+        const queryParams = ep.params.filter(p => p.in === 'query');
+
+        if (pathParams.length) {
+            container.innerHTML += `<div class="param-section"><div class="param-section-title">Path Parameters</div>${
+                pathParams.map(p => `
+                    <div class="param-row">
+                        <label class="param-label">{${p.label}}</label>
+                        <input class="param-input" id="param-${p.name}" value="${p.default}" placeholder="${p.label}">
+                    </div>`).join('')
+            }</div>`;
+        }
+        if (queryParams.length) {
+            container.innerHTML += `<div class="param-section"><div class="param-section-title">Query Parameters</div>${
+                queryParams.map(p => `
+                    <div class="param-row">
+                        <label class="param-label">${p.label}</label>
+                        <input class="param-input" id="param-${p.name}" value="${p.default}" placeholder="${p.label} (optional)">
+                    </div>`).join('')
+            }</div>`;
+        }
+        if (ep.body !== undefined) {
+            container.innerHTML += `
+                <div class="param-section">
+                    <div class="param-section-title">Request Body (JSON)</div>
+                    <textarea class="param-textarea" id="bodyInput">${ep.body}</textarea>
+                </div>`;
+        }
+
+        // Reset response
+        currentResponseData = null;
+        currentResponseText = '';
+        currentResponseView = 'json';
+        document.getElementById('responseArea').style.display = 'none';
+        document.getElementById('responseBox').innerHTML = '';
+        document.getElementById('responseTableBox').innerHTML = '';
+        document.getElementById('reportContext').innerHTML = '';
+        document.getElementById('reportContext').style.display = 'none';
+        setResponseView('json');
+        document.getElementById('runBtn').disabled = false;
+        document.getElementById('runBtn').textContent = '▶  Run Request';
+
+        document.getElementById('apiModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('apiModal').classList.remove('active'); }
+    function handleOverlayClick(e) { if (e.target.id === 'apiModal') closeModal(); }
+
+    // ── Run the test ──
+    async function runTest() {
+        const ep = ENDPOINTS[currentEpKey];
+        const btn = document.getElementById('runBtn');
+        btn.disabled = true;
+        btn.textContent = '⏳  Sending...';
+
+        // Build URL — replace path params
+        let url = ep.url;
+        ep.params.filter(p => p.in === 'path').forEach(p => {
+            const val = document.getElementById('param-' + p.name)?.value || p.default;
+            url = url.replace('{' + p.name + '}', encodeURIComponent(val));
+        });
+
+        // Append query params
+        const qps = ep.params.filter(p => p.in === 'query');
+        if (qps.length) {
+            const parts = qps
+                .map(p => {
+                    const val = document.getElementById('param-' + p.name)?.value;
+                    return val ? `${p.name}=${encodeURIComponent(val)}` : null;
+                })
+                .filter(Boolean);
+            if (parts.length) url += '?' + parts.join('&');
+        }
+
+        // Build fetch options
+        const opts = {
+            method: ep.method,
+            credentials: 'include',
+            headers: { 'Accept': 'application/json' }
+        };
+        const creds = sessionStorage.getItem('portal_credentials');
+        if (creds) {
+            opts.headers['Authorization'] = 'Basic ' + creds;
+        }
+        if (ep.body !== undefined) {
+            const bodyVal = document.getElementById('bodyInput')?.value || '{}';
+            opts.headers['Content-Type'] = 'application/json';
+            opts.body = bodyVal;
+        }
+
+        const t0 = Date.now();
+        try {
+            const res = await fetch(url, opts);
+            const elapsed = Date.now() - t0;
+            let text = await res.text();
+            let formatted = escapeHtml(text);
+            currentResponseText = text;
+            currentResponseData = null;
+            try {
+                currentResponseData = JSON.parse(text);
+                formatted = syntaxHighlight(JSON.stringify(currentResponseData, null, 2));
+            } catch(_) {}
+
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = res.status + ' ' + res.statusText;
+            badge.className = 'status-badge ' + (res.ok ? 'status-ok' : 'status-err');
+            document.getElementById('responseTime').textContent = elapsed + ' ms';
+            renderReportContext(ep, currentResponseData);
+            document.getElementById('responseBox').innerHTML = formatted;
+            document.getElementById('responseTableBox').innerHTML = renderTableView(currentResponseData, currentResponseText);
+            setResponseView(currentResponseView);
+            document.getElementById('responseArea').style.display = 'block';
+        } catch (err) {
+            const elapsed = Date.now() - t0;
+            currentResponseData = null;
+            currentResponseText = String(err);
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = 'Network Error';
+            badge.className = 'status-badge status-err';
+            document.getElementById('responseTime').textContent = elapsed + ' ms';
+            renderReportContext(ep, currentResponseData);
+            document.getElementById('responseBox').innerHTML = escapeHtml(String(err));
+            document.getElementById('responseTableBox').innerHTML = renderTableView(null, currentResponseText);
+            setResponseView(currentResponseView);
+            document.getElementById('responseArea').style.display = 'block';
+        }
+
+        btn.disabled = false;
+        btn.textContent = '▶  Run Again';
+    }
+
+    function setResponseView(view) {
+        currentResponseView = view;
+        const jsonBox = document.getElementById('responseBox');
+        const tableBox = document.getElementById('responseTableBox');
+        const jsonBtn = document.getElementById('jsonViewBtn');
+        const tableBtn = document.getElementById('tableViewBtn');
+        if (!jsonBox || !tableBox) return;
+        jsonBox.style.display = view === 'json' ? 'block' : 'none';
+        tableBox.style.display = view === 'table' ? 'block' : 'none';
+        jsonBtn?.classList.toggle('active', view === 'json');
+        tableBtn?.classList.toggle('active', view === 'table');
+    }
+
+    function renderTableView(data, fallbackText) {
+        if (data === null || data === undefined) {
+            return `<div class="response-empty">${fallbackText ? escapeHtml(fallbackText) : 'No response body to display.'}</div>`;
+        }
+        if (Array.isArray(data)) {
+            if (!data.length) return '<div class="response-empty">Empty array returned.</div>';
+            const rows = data.map(item => normalizeTableRow(item));
+            const columns = Array.from(new Set(rows.flatMap(row => Object.keys(row))));
+            return buildResponseTable(columns, rows);
+        }
+        if (typeof data === 'object') {
+            const rows = Object.entries(data).map(([field, value]) => ({ field, value: formatCellValue(value) }));
+            return buildResponseTable(['field', 'value'], rows);
+        }
+        return buildResponseTable(['value'], [{ value: formatCellValue(data) }]);
+    }
+
+    function normalizeTableRow(item) {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            return Object.fromEntries(Object.entries(item).map(([key, value]) => [key, formatCellValue(value)]));
+        }
+        return { value: formatCellValue(item) };
+    }
+
+    function buildResponseTable(columns, rows) {
+        const header = columns.map(col => `<th>${escapeHtml(formatHeaderLabel(col))}</th>`).join('');
+        const body = rows.map(row => `<tr>${columns.map(col => `<td>${escapeHtml(row[col] ?? '')}</td>`).join('')}</tr>`).join('');
+        return `<table class="response-table"><thead><tr>${header}</tr></thead><tbody>${body}</tbody></table>`;
+    }
+
+    function formatHeaderLabel(value) {
+        return String(value)
+            .replace(/[_-]+/g, ' ')
+            .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replace(/\b\w/g, char => char.toUpperCase());
+    }
+
+    function formatCellValue(value) {
+        if (value === null || value === undefined) return '';
+        if (Array.isArray(value)) {
+            return value.map(item => formatCellValue(item)).filter(Boolean).join('; ');
+        }
+        if (typeof value === 'object') {
+            return Object.entries(value)
+                .map(([key, item]) => `${formatHeaderLabel(key)}: ${formatCellValue(item)}`)
+                .join(', ');
+        }
+        return String(value);
+    }
+
+    function renderReportContext(ep, data) {
+        const container = document.getElementById('reportContext');
+        if (!container) return;
+        if (!ep.reportContext) {
+            container.innerHTML = '';
+            container.style.display = 'none';
+            return;
+        }
+
+        const dbDateRange = getDbDateRange(data);
+        const rows = [
+            ['Period / Range', dbDateRange || ep.reportContext.period],
+            ['Date Basis', ep.reportContext.dateBasis],
+            ['Grouping / Filter', ep.reportContext.grouping],
+            ['Metric', ep.reportContext.metric]
+        ];
+        container.innerHTML = `
+            <div class="report-context-title">Report Context</div>
+            <div class="report-context-grid">
+                ${rows.map(([label, value]) => `<div class="report-context-item"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</div>`).join('')}
+            </div>`;
+        container.style.display = 'block';
+    }
+
+    function getDbDateRange(data) {
+        const rows = Array.isArray(data) ? data : (data ? [data] : []);
+        if (!rows.length) return '';
+
+        const explicitRanges = rows
+            .map(row => row?.dateRange)
+            .filter(Boolean);
+        if (explicitRanges.length === 1) return explicitRanges[0];
+
+        const dates = [];
+        rows.forEach(row => {
+            [
+                'reportStartDate',
+                'reportEndDate',
+                'monthStartDate',
+                'monthEndDate',
+                'paymentStartDate',
+                'paymentEndDate',
+                'orderDate',
+                'requiredDate',
+                'shippedDate'
+            ].forEach(key => {
+                if (row && row[key]) dates.push(row[key]);
+            });
+        });
+
+        if (!dates.length && explicitRanges.length) {
+            return explicitRanges.join('; ');
+        }
+        if (!dates.length) return '';
+
+        dates.sort();
+        const start = dates[0];
+        const end = dates[dates.length - 1];
+        return start === end ? start : `${start} to ${end}`;
+    }
+
+    // ── JSON syntax highlight ──
+    function syntaxHighlight(json) {
+        return escapeHtml(json).replace(
+            /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+            function(match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) { cls = /:$/.test(match) ? 'json-key' : 'json-string'; }
+                else if (/true|false/.test(match)) { cls = 'json-bool'; }
+                else if (/null/.test(match)) { cls = 'json-null'; }
+                return `<span class="${cls}">${match}</span>`;
+            }
+        );
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Keyboard ESC close
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 
 </body>

@@ -10,7 +10,7 @@ spring:
 
   cloud:
     vault:
-      uri: ${VAULT_URL}
+      uri: ${VAULT_URL:${VAULT_ADDR:http://127.0.0.1:8200}}
       token: ${VAULT_TOKEN}
       kv:
         enabled: true

@@ -82,7 +82,7 @@
             color: #2c3e50; background: #F0F4F8;
             padding: 4px 8px; border-radius: 4px;
         }
-        .desc { color: #4A6A82; font-size: 13px; }
+        .desc { color: #4A6A82; font-size: 13px; font-weight: 700; }
 
         /* ── Test button ── */
         .test-btn {
@@ -143,7 +143,7 @@
 
         .modal-body { padding: 24px; }
 
-        .modal-desc { font-size: 13px; color: #5A7A92; margin-bottom: 20px; padding: 10px 14px; background: #F5FBFF; border-radius: 8px; border-left: 3px solid var(--cap-cyan); }
+        .modal-desc { font-size: 13px; font-weight: 700; color: #5A7A92; margin-bottom: 20px; padding: 10px 14px; background: #F5FBFF; border-radius: 8px; border-left: 3px solid var(--cap-cyan); }
 
         .param-section { margin-bottom: 20px; }
         .param-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #4A6A82; margin-bottom: 10px; }
@@ -195,6 +195,37 @@
         .response-box .json-number { color: #FFCA80; }
         .response-box .json-bool   { color: #FF9999; }
         .response-box .json-null   { color: #A0A0A0; }
+
+        .view-toggle {
+            margin-left: auto; display: inline-flex; overflow: hidden;
+            border: 1px solid var(--cap-border); border-radius: 8px;
+            background: #F5FBFF;
+        }
+        .view-toggle button {
+            border: none; background: transparent; color: #4A6A82;
+            padding: 5px 12px; font-size: 12px; font-weight: 700;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+        }
+        .view-toggle button.active { background: var(--cap-blue); color: #fff; }
+        .response-table-wrap {
+            display: none; max-height: 320px; overflow: auto;
+            border: 1px solid var(--cap-border); border-radius: 10px;
+            background: #fff;
+        }
+        .response-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+        .response-table th {
+            position: sticky; top: 0; background: #F0F6FA; color: #4A6A82;
+            padding: 10px 12px; text-align: left; font-size: 11px;
+            text-transform: uppercase; letter-spacing: .6px;
+            border-bottom: 1px solid var(--cap-border); z-index: 1;
+        }
+        .response-table td {
+            padding: 10px 12px; border-bottom: 1px solid #EDF2F7;
+            color: #1A2B3C; font-size: 12px; vertical-align: top;
+            word-break: break-word;
+        }
+        .response-table tr:last-child td { border-bottom: none; }
+        .response-empty { padding: 16px; color: #5A7A92; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -203,6 +234,7 @@
 
 <div class="navbar">
     <span class="brand">⚡ Classic Models</span>
+    <a href="/">🏠 Portal Home</a>
     <a th:href="@{/orders}">All Orders</a>
     <a th:href="@{/orders/search}">Search</a>
     <a th:href="@{/orders/new}">+ New Order</a>
@@ -336,14 +368,38 @@
                 <div class="response-meta">
                     <span class="status-badge" id="statusBadge"></span>
                     <span class="response-time" id="responseTime"></span>
+                    <div class="view-toggle" id="viewToggle">
+                        <button type="button" id="jsonViewBtn" class="active" onclick="setResponseView('json')">JSON</button>
+                        <button type="button" id="tableViewBtn" onclick="setResponseView('table')">Table</button>
+                    </div>
                 </div>
                 <div class="response-box" id="responseBox"></div>
+                <div class="response-table-wrap" id="responseTableBox"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+// ── Profile Role Guard ──────────────────────────────────────────
+// Redirects to portal immediately if the current user does not
+// have the ORDER role — prevents cross-profile tab access.
+(async function checkProfileAccess() {
+    const REQUIRED_ROLE = 'ROLE_ORDER';
+    const creds = sessionStorage.getItem('portal_credentials');
+    if (!creds) { window.location.href = '/'; return; }
+    try {
+        const res = await fetch('/api/auth/status', {
+            headers: { 'Authorization': 'Basic ' + creds }
+        });
+        if (!res.ok) { window.location.href = '/'; return; }
+        const data = await res.json();
+        if (!data.authenticated || !data.roles || !data.roles.includes(REQUIRED_ROLE)) {
+            window.location.href = '/?error=wrong_profile';
+        }
+    } catch(e) { window.location.href = '/'; }
+})();
+
 // ══════════════════════════════════════════════
 //  ENDPOINT REGISTRY
 // ══════════════════════════════════════════════
@@ -421,6 +477,9 @@ const ENDPOINTS = {
 };
 
 let currentEpKey = null;
+let currentResponseData = null;
+let currentResponseText = '';
+let currentResponseView = 'json';
 
 // ── Open modal ──
 function openModal(key) {
@@ -468,7 +527,13 @@ function openModal(key) {
     }
 
     // Reset response
+    currentResponseData = null;
+    currentResponseText = '';
+    currentResponseView = 'json';
     document.getElementById('responseArea').style.display = 'none';
+    document.getElementById('responseBox').innerHTML = '';
+    document.getElementById('responseTableBox').innerHTML = '';
+    setResponseView('json');
     document.getElementById('runBtn').disabled = false;
     document.getElementById('runBtn').textContent = '▶  Run Request';
 
@@ -510,6 +575,10 @@ async function runTest() {
         credentials: 'include',
         headers: { 'Accept': 'application/json' }
     };
+    const creds = sessionStorage.getItem('portal_credentials');
+    if (creds) {
+        opts.headers['Authorization'] = 'Basic ' + creds;
+    }
     if (ep.body !== undefined) {
         const bodyVal = document.getElementById('bodyInput')?.value || '{}';
         opts.headers['Content-Type'] = 'application/json';
@@ -521,27 +590,103 @@ async function runTest() {
         const res = await fetch(url, opts);
         const elapsed = Date.now() - t0;
         let text = await res.text();
-        let formatted = text;
-        try { formatted = syntaxHighlight(JSON.stringify(JSON.parse(text), null, 2)); } catch(_) {}
+        let formatted = escapeHtml(text);
+        currentResponseText = text;
+        currentResponseData = null;
+        try {
+            currentResponseData = JSON.parse(text);
+            formatted = syntaxHighlight(JSON.stringify(currentResponseData, null, 2));
+        } catch(_) {}
 
         const badge = document.getElementById('statusBadge');
         badge.textContent = res.status + ' ' + res.statusText;
         badge.className = 'status-badge ' + (res.ok ? 'status-ok' : 'status-err');
         document.getElementById('responseTime').textContent = elapsed + ' ms';
         document.getElementById('responseBox').innerHTML = formatted;
+        document.getElementById('responseTableBox').innerHTML = renderTableView(currentResponseData, currentResponseText);
+        setResponseView(currentResponseView);
         document.getElementById('responseArea').style.display = 'block';
     } catch (err) {
         const elapsed = Date.now() - t0;
+        currentResponseData = null;
+        currentResponseText = String(err);
         const badge = document.getElementById('statusBadge');
         badge.textContent = 'Network Error';
         badge.className = 'status-badge status-err';
         document.getElementById('responseTime').textContent = elapsed + ' ms';
         document.getElementById('responseBox').innerHTML = escapeHtml(String(err));
+        document.getElementById('responseTableBox').innerHTML = renderTableView(null, currentResponseText);
+        setResponseView(currentResponseView);
         document.getElementById('responseArea').style.display = 'block';
     }
 
     btn.disabled = false;
     btn.textContent = '▶  Run Again';
+}
+
+function setResponseView(view) {
+    currentResponseView = view;
+    const jsonBox = document.getElementById('responseBox');
+    const tableBox = document.getElementById('responseTableBox');
+    const jsonBtn = document.getElementById('jsonViewBtn');
+    const tableBtn = document.getElementById('tableViewBtn');
+    if (!jsonBox || !tableBox) return;
+    jsonBox.style.display = view === 'json' ? 'block' : 'none';
+    tableBox.style.display = view === 'table' ? 'block' : 'none';
+    jsonBtn?.classList.toggle('active', view === 'json');
+    tableBtn?.classList.toggle('active', view === 'table');
+}
+
+function renderTableView(data, fallbackText) {
+    if (data === null || data === undefined) {
+        return `<div class="response-empty">${fallbackText ? escapeHtml(fallbackText) : 'No response body to display.'}</div>`;
+    }
+    if (Array.isArray(data)) {
+        if (!data.length) return '<div class="response-empty">Empty array returned.</div>';
+        const rows = data.map(item => normalizeTableRow(item));
+        const columns = Array.from(new Set(rows.flatMap(row => Object.keys(row))));
+        return buildResponseTable(columns, rows);
+    }
+    if (typeof data === 'object') {
+        const rows = Object.entries(data).map(([field, value]) => ({ field, value: formatCellValue(value) }));
+        return buildResponseTable(['field', 'value'], rows);
+    }
+    return buildResponseTable(['value'], [{ value: formatCellValue(data) }]);
+}
+
+function normalizeTableRow(item) {
+    if (item && typeof item === 'object' && !Array.isArray(item)) {
+        return Object.fromEntries(Object.entries(item).map(([key, value]) => [key, formatCellValue(value)]));
+    }
+    return { value: formatCellValue(item) };
+}
+
+function buildResponseTable(columns, rows) {
+    const header = columns.map(col => `<th>${escapeHtml(formatHeaderLabel(col))}</th>`).join('');
+    const body = rows.map(row => `<tr>${columns.map(col => `<td>${escapeHtml(row[col] ?? '')}</td>`).join('')}</tr>`).join('');
+    return `<table class="response-table"><thead><tr>${header}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+function formatHeaderLabel(value) {
+    return String(value)
+        .replace(/[_-]+/g, ' ')
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function formatCellValue(value) {
+    if (value === null || value === undefined) return '';
+    if (Array.isArray(value)) {
+        return value.map(item => formatCellValue(item)).filter(Boolean).join('; ');
+    }
+    if (typeof value === 'object') {
+        return Object.entries(value)
+            .map(([key, item]) => `${formatHeaderLabel(key)}: ${formatCellValue(item)}`)
+            .join(', ');
+    }
+    return String(value);
 }
 
 // ── JSON syntax highlight ──

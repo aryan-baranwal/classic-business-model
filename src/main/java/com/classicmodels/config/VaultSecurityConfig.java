@@ -1,16 +1,19 @@
 package com.classicmodels.config;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +35,9 @@ public class VaultSecurityConfig {
     @Value("${users.user5.username:}") private String u5;
     @Value("${users.user5.password:}") private String p5;
 
+    @Autowired
+    private ProfileAuthCheckFilter profileAuthCheckFilter;
+
     // DEBUG (REMOVE IN PRODUCTION)
     @PostConstruct
     public void debug() {
@@ -45,7 +51,7 @@ public class VaultSecurityConfig {
 
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 
-        // Aryan — OFFICE + REPORT (was: OFFICE only)
+        // Aryan — OFFICE + REPORT
         if (u1 != null && !u1.isBlank()) {
             manager.createUser(User.withUsername(u1.trim())
                     .password("{noop}" + p1.trim())
@@ -53,6 +59,7 @@ public class VaultSecurityConfig {
                     .build());
         }
 
+        // Aman — EMPLOYEE
         if (u2 != null && !u2.isBlank()) {
             manager.createUser(User.withUsername(u2.trim())
                     .password("{noop}" + p2.trim())
@@ -60,6 +67,7 @@ public class VaultSecurityConfig {
                     .build());
         }
 
+        // Kushal — CUSTOMER + PAYMENT
         if (u3 != null && !u3.isBlank()) {
             manager.createUser(User.withUsername(u3.trim())
                     .password("{noop}" + p3.trim())
@@ -67,7 +75,7 @@ public class VaultSecurityConfig {
                     .build());
         }
 
-        // Dhanavarshini — PRODUCT + REPORT (was: PRODUCT only)
+        // Dhanavarshini — PRODUCT + REPORT
         if (u4 != null && !u4.isBlank()) {
             manager.createUser(User.withUsername(u4.trim())
                     .password("{noop}" + p4.trim())
@@ -75,8 +83,7 @@ public class VaultSecurityConfig {
                     .build());
         }
 
-        // Shivani — ORDER + CUSTOMER (was: ORDER only)
-        // CUSTOMER role needed for /api/customers/{customerNumber}/orders
+        // Shivani — ORDER + CUSTOMER
         if (u5 != null && !u5.isBlank()) {
             manager.createUser(User.withUsername(u5.trim())
                     .password("{noop}" + p5.trim())
@@ -87,83 +94,149 @@ public class VaultSecurityConfig {
         return manager;
     }
 
-    // ================= SECURITY CONFIG =================
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // ─────────────────────────────────────────────────────────────
+    // SECURITY FILTER CHAINS (ordered, each with its own realm name)
+    // Different realm names make the browser store separate credential
+    // caches per profile — so credentials from one profile are NEVER
+    // auto-sent to another profile's protected area.
+    // ─────────────────────────────────────────────────────────────
 
+    /** Employee module — realm: ClassicModels-Employee */
+    @Bean @Order(1)
+    public SecurityFilterChain employeeChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+            .securityMatcher("/employees/**", "/api/employees/**")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .authorizeHttpRequests(auth -> auth.anyRequest().hasAnyRole("EMPLOYEE", "ADMIN"))
+            .addFilterAfter(profileAuthCheckFilter, UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(basic -> basic.realmName("ClassicModels-Employee"))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+                res.setStatus(401);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"Unauthorized\",\"realm\":\"Employee\"}");
+            }));
+        return http.build();
+    }
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
+    /** Customer module — realm: ClassicModels-Customer */
+    @Bean @Order(2)
+    public SecurityFilterChain customerChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/customers/**", "/api/customers/**", "/api/payments/**")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/customers/*/orders").hasAnyRole("ORDER", "CUSTOMER", "ADMIN")
+                .anyRequest().hasAnyRole("CUSTOMER", "ADMIN"))
+            .addFilterAfter(profileAuthCheckFilter, UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(basic -> basic.realmName("ClassicModels-Customer"))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+                res.setStatus(401);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"Unauthorized\",\"realm\":\"Customer\"}");
+            }));
+        return http.build();
+    }
 
-                .authorizeHttpRequests(auth -> auth
+    /** Office module — realm: ClassicModels-Office */
+    @Bean @Order(3)
+    public SecurityFilterChain officeChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/offices/**", "/api/v1/offices/**")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .authorizeHttpRequests(auth -> auth.anyRequest().hasAnyRole("OFFICE", "ADMIN"))
+            .addFilterAfter(profileAuthCheckFilter, UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(basic -> basic.realmName("ClassicModels-Office"))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+                res.setStatus(401);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"Unauthorized\",\"realm\":\"Office\"}");
+            }));
+        return http.build();
+    }
 
-                        // Public resources & Landing page
-                        .requestMatchers(
-                                "/",
-                                "/home",
-                                "/images/**",
-                                "/css/**",
-                                "/js/**",
-                                "/favicon.ico"
-                        ).permitAll()
+    /** Product module — realm: ClassicModels-Product */
+    @Bean @Order(4)
+    public SecurityFilterChain productChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/products/**", "/api/products/**", "/api/productlines/**")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .authorizeHttpRequests(auth -> auth.anyRequest().hasAnyRole("PRODUCT", "ADMIN"))
+            .addFilterAfter(profileAuthCheckFilter, UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(basic -> basic.realmName("ClassicModels-Product"))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+                res.setStatus(401);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"Unauthorized\",\"realm\":\"Product\"}");
+            }));
+        return http.build();
+    }
 
-                        // Swagger public access
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
+    /** Order module — realm: ClassicModels-Order */
+    @Bean @Order(5)
+    public SecurityFilterChain orderChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/orders/**", "/api/orders/**", "/api/orderdetails/**")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .authorizeHttpRequests(auth -> auth.anyRequest().hasAnyRole("ORDER", "ADMIN"))
+            .addFilterAfter(profileAuthCheckFilter, UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(basic -> basic.realmName("ClassicModels-Order"))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+                res.setStatus(401);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"Unauthorized\",\"realm\":\"Order\"}");
+            }));
+        return http.build();
+    }
 
-                        // ── NEW: Aryan's report endpoints ──────────────────
-                        .requestMatchers(
-                                "/api/reports/customer-exposure",
-                                "/api/reports/order-value/**",
-                                "/api/reports/sales-by-country",
-                                "/api/reports/sales-by-employee"
-                        ).hasAnyRole("REPORT", "ADMIN")
+    /** Reports + catch-all (public pages, Swagger, auth status) — realm: ClassicModels-Portal */
+    @Bean @Order(6)
+    public SecurityFilterChain defaultChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .authorizeHttpRequests(auth -> auth
 
-                        // ── NEW: Dhana's report endpoints ──────────────────
-                        .requestMatchers(
-                                "/api/reports/monthly-revenue",
-                                "/api/reports/high-risk-customers"
-                        ).hasAnyRole("REPORT", "ADMIN")
+                // Public resources & landing page
+                .requestMatchers(
+                    "/", "/home",
+                    "/images/**", "/css/**", "/js/**",
+                    "/favicon.ico", "/logout"
+                ).permitAll()
 
-                        // ── NEW: Shivani's customer-orders endpoint ─────────
-                        // Must be BEFORE /api/customers/** rule
-                        .requestMatchers("/api/customers/*/orders")
-                        .hasAnyRole("ORDER", "CUSTOMER", "ADMIN")
+                // Swagger public access
+                .requestMatchers(
+                    "/swagger-ui/**", "/swagger-ui.html",
+                    "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**"
+                ).permitAll()
 
-                        // Modules
-                        .requestMatchers("/api/customers/**").hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers("/api/products/**").hasAnyRole("PRODUCT", "ADMIN")
-                        .requestMatchers("/api/productlines/**").hasAnyRole("PRODUCT", "ADMIN")
-                        .requestMatchers("/api/orders/**").hasAnyRole("ORDER", "ADMIN")
-                        .requestMatchers("/api/orderdetails/**").hasAnyRole("ORDER", "ADMIN")
-                        .requestMatchers("/api/v1/offices/**").hasAnyRole("OFFICE", "ADMIN")
-                        .requestMatchers("/api/employees/**").hasAnyRole("EMPLOYEE", "ADMIN")
-                        .requestMatchers("/employees/**").hasAnyRole("EMPLOYEE", "ADMIN")
-                        .requestMatchers("/api/payments/**").hasAnyRole("CUSTOMER", "ADMIN")
+                // Reports
+                .requestMatchers(
+                    "/api/reports/customer-exposure",
+                    "/api/reports/order-value/**",
+                    "/api/reports/sales-by-country",
+                    "/api/reports/sales-by-employee"
+                ).hasAnyRole("REPORT", "ADMIN")
+                .requestMatchers(
+                    "/api/reports/monthly-revenue",
+                    "/api/reports/high-risk-customers"
+                ).hasAnyRole("REPORT", "ADMIN")
 
-                        .anyRequest().authenticated()
-                )
+                // Auth status endpoint — any authenticated user
+                .requestMatchers("/api/auth/status").authenticated()
 
-                // REQUIRED for Swagger Basic Auth to work
-                .httpBasic(Customizer.withDefaults())
-
-                // NO LOGIN POPUP (custom 401 response)
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(401);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"error\":\"Unauthorized\"}");
-                        })
-                );
-
+                .anyRequest().authenticated()
+            )
+            .httpBasic(basic -> basic.realmName("ClassicModels-Portal"))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+                res.setStatus(401);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"Unauthorized\"}");
+            }));
         return http.build();
     }
 }
