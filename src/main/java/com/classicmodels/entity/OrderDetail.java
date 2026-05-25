@@ -21,7 +21,7 @@ public class OrderDetail {
     @Column(name = "orderLineNumber", nullable = false)
     private Short orderLineNumber;
 
-    // ✅ FIXED: MapsId works properly now
+   
     @ManyToOne
     @MapsId("orderNumber")
     @JoinColumn(name = "orderNumber")
