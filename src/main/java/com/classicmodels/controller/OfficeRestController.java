@@ -4,12 +4,18 @@ import com.classicmodels.dto.OfficeResponseDto;
 import com.classicmodels.entity.Employee;
 import com.classicmodels.service.OfficeService;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/offices")
+@Validated
 public class OfficeRestController {
 
     private final OfficeService officeService;
@@ -26,14 +32,28 @@ public class OfficeRestController {
 
     @GetMapping("/{officeCode}")
     public OfficeResponseDto getOfficeByCode(
-            @PathVariable String officeCode) {
+            @PathVariable
+            @NotBlank(message = "Office code cannot be empty")
+            @Size(max = 10, message = "Office code cannot exceed 10 characters")
+            @Pattern(
+                    regexp = "[1-9][0-9]*",
+                    message = "Office code must be a positive whole number without spaces"
+            )
+            String officeCode) {
 
         return officeService.getOfficeByCode(officeCode);
     }
 
     @GetMapping("/{officeCode}/employees")
     public List<Employee> getEmployeesByOffice(
-            @PathVariable String officeCode) {
+            @PathVariable
+            @NotBlank(message = "Office code cannot be empty")
+            @Size(max = 10, message = "Office code cannot exceed 10 characters")
+            @Pattern(
+                    regexp = "[1-9][0-9]*",
+                    message = "Office code must be a positive whole number without spaces"
+            )
+            String officeCode) {
 
         return officeService.getEmployeesByOffice(officeCode);
     }

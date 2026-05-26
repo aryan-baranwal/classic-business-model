@@ -7,6 +7,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -22,6 +23,10 @@ public class Office {
     @Column(name = "officeCode")
     @NotBlank(message = "Office code cannot be empty")
     @Size(max = 10, message = "Office code cannot exceed 10 characters")
+    @Pattern(
+            regexp = "[1-9][0-9]*",
+            message = "Office code must be a positive whole number without spaces"
+    )
     private String officeCode;
 
     @Column(name = "city")

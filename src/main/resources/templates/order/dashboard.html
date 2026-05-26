@@ -418,13 +418,13 @@ const ENDPOINTS = {
         method: 'POST', url: '/api/orders',
         desc: 'Creates a new order. Provide the JSON body below.',
         params: [],
-        body: '{\n  "orderDate": "2025-01-15",\n  "requiredDate": "2025-01-25",\n  "status": "In Process",\n  "comments": "New order via dashboard",\n  "customerNumber": 363\n}'
+        body: '{\n  "orderNumber": 10426,\n  "orderDate": "2025-01-15",\n  "requiredDate": "2025-01-25",\n  "status": "In Process",\n  "comments": "New order via dashboard",\n  "customerNumber": 363\n}'
     },
     'update-order': {
         method: 'PUT', url: '/api/orders/{orderNumber}',
         desc: 'Updates the dates or comments for an existing order.',
         params: [{ name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' }],
-        body: '{\n  "requiredDate": "2025-02-01",\n  "shippedDate": "2025-01-20",\n  "comments": "Updated via dashboard"\n}'
+        body: '{\n  "orderNumber": 10100,\n  "orderDate": "2003-01-06",\n  "requiredDate": "2025-02-01",\n  "shippedDate": "2025-01-20",\n  "status": "Shipped",\n  "comments": "Updated via dashboard",\n  "customerNumber": 363\n}'
     },
     'patch-status': {
         method: 'PATCH', url: '/api/orders/{orderNumber}/status',
@@ -464,7 +464,7 @@ const ENDPOINTS = {
             { name: 'orderNumber', in: 'path', default: '10100', label: 'orderNumber' },
             { name: 'productCode', in: 'path', default: 'S18_1749', label: 'productCode' }
         ],
-        body: '{\n  "quantityOrdered": 10,\n  "priceEach": 95.50\n}'
+        body: '{\n  "productCode": "S18_1749",\n  "quantityOrdered": 10,\n  "priceEach": 95.50,\n  "orderLineNumber": 3\n}'
     },
     'delete-item': {
         method: 'DELETE', url: '/api/orders/{orderNumber}/items/{productCode}',
@@ -552,10 +552,23 @@ async function runTest() {
 
     // Build URL — replace path params
     let url = ep.url;
+    const pathErrors = [];
     ep.params.filter(p => p.in === 'path').forEach(p => {
-        const val = document.getElementById('param-' + p.name)?.value || p.default;
-        url = url.replace('{' + p.name + '}', encodeURIComponent(val));
+        const rawVal = document.getElementById('param-' + p.name)?.value ?? '';
+        const validationError = validatePathParam(p.name, rawVal);
+        if (validationError) {
+            pathErrors.push({ field: p.name, message: validationError });
+            return;
+        }
+        url = url.replace('{' + p.name + '}', encodeURIComponent(rawVal.trim()));
     });
+
+    if (pathErrors.length) {
+        showClientValidationErrors(pathErrors);
+        btn.disabled = false;
+        btn.textContent = '▶  Run Again';
+        return;
+    }
 
     // Append query params
     const qps = ep.params.filter(p => p.in === 'query');
@@ -622,6 +635,45 @@ async function runTest() {
 
     btn.disabled = false;
     btn.textContent = '▶  Run Again';
+}
+
+function validatePathParam(name, value) {
+    const textValue = value.trim();
+
+    if (['customerNumber', 'orderNumber', 'employeeNumber'].includes(name)) {
+        const label = formatHeaderLabel(name);
+        if (!textValue) return `${label} is required`;
+        if (/\s/.test(value)) return `${label} must be a positive whole number without spaces`;
+        if (!/^[1-9][0-9]*$/.test(textValue)) return `${label} must be a positive whole number without spaces`;
+    }
+
+    if (name === 'productCode') {
+        if (!textValue) return 'Product code is required';
+        if (textValue.length > 15) return 'Product code must not exceed 15 characters';
+    }
+
+    return null;
+}
+
+function showClientValidationErrors(errors) {
+    const data = {
+        status: 400,
+        error: 'Validation Failed',
+        message: errors.map(error => error.message).join(', '),
+        errors: Object.fromEntries(errors.map(error => [error.field, error.message]))
+    };
+
+    currentResponseData = data;
+    currentResponseText = JSON.stringify(data, null, 2);
+
+    const badge = document.getElementById('statusBadge');
+    badge.textContent = '400 Bad Request';
+    badge.className = 'status-badge status-err';
+    document.getElementById('responseTime').textContent = '0 ms';
+    document.getElementById('responseBox').innerHTML = syntaxHighlight(currentResponseText);
+    document.getElementById('responseTableBox').innerHTML = renderTableView(currentResponseData, currentResponseText);
+    setResponseView(currentResponseView);
+    document.getElementById('responseArea').style.display = 'block';
 }
 
 function setResponseView(view) {

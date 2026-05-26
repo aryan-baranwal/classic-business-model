@@ -2,6 +2,7 @@ package com.classicmodels.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -17,6 +18,7 @@ public class OrderRequestDTO {
 
     // Matches: orderNumber int(11) NOT NULL
     @NotNull(message = "Order number is required")
+    @Positive(message = "Order number must be positive")
     private Integer orderNumber;
 
     // Matches: orderDate date NOT NULL
@@ -40,6 +42,7 @@ public class OrderRequestDTO {
 
     // Matches: customerNumber int(11) NOT NULL
     @NotNull(message = "Customer number is required")
+    @Positive(message = "Customer number must be positive")
     private Integer customerNumber;
 
     // Default constructor

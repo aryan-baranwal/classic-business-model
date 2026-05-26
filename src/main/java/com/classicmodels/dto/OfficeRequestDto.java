@@ -1,12 +1,19 @@
 package com.classicmodels.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.*;
 
 public class OfficeRequestDto {
 
     @NotBlank(message = "Office code is required")
+    @Size(max = 10, message = "Office code cannot exceed 10 characters")
+    @Pattern(
+            regexp = "[1-9][0-9]*",
+            message = "Office code must be a positive whole number without spaces"
+    )
     private String officeCode;
 
     @NotBlank(message = "City is required")

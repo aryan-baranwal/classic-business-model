@@ -205,7 +205,8 @@ public class VaultSecurityConfig {
                 .requestMatchers(
                     "/", "/home",
                     "/images/**", "/css/**", "/js/**",
-                    "/favicon.ico", "/logout"
+                    "/favicon.ico", "/logout",
+                    "/api/auth/validate"
                 ).permitAll()
 
                 // Swagger public access

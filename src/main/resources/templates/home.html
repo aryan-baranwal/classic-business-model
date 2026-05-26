@@ -1256,6 +1256,7 @@
 
         <form class="modal-form" id="authForm" onsubmit="handleAuthSubmit(event)">
             <input type="hidden" id="targetRedirectUrl" value="">
+            <input type="hidden" id="targetProfileRoles" value="">
 
             <div class="form-group">
                 <label class="form-label" for="username">Username</label>
@@ -1356,6 +1357,7 @@ document.getElementById('modalUserName').innerText = fullName;
 document.getElementById('modalUserTitle').innerText = title;
 
 document.getElementById('targetRedirectUrl').value = redirectUrl;
+document.getElementById('targetProfileRoles').value = roles;
 
 // username generation from full name
 let username = fullName.toLowerCase().split(" ")[0];
@@ -1454,10 +1456,17 @@ feedbackBox.style.display = 'none';
         const usernameInput = document.getElementById('username').value;
         const passwordInput = document.getElementById('password').value;
         const redirectUrl = document.getElementById('targetRedirectUrl').value;
+        const targetRoles = document.getElementById('targetProfileRoles').value;
 
         const submitText = document.getElementById('submitText');
         const submitSpinner = document.getElementById('submitSpinner');
         const submitIcon = document.getElementById('submitIcon');
+
+        const validationMessage = validateLoginInput(usernameInput, passwordInput);
+        if (validationMessage) {
+            showFeedback(validationMessage, true);
+            return;
+        }
 
         // Set loading state
         submitText.innerText = 'Verifying Identity...';
@@ -1468,20 +1477,30 @@ feedbackBox.style.display = 'none';
         // Base64 Credentials for Basic Auth
         const creds = btoa(usernameInput.trim() + ':' + passwordInput.trim());
 
-        fetch('/api/auth/status', {
-            method: 'GET',
+        fetch('/api/auth/validate', {
+            method: 'POST',
             headers: {
-                'Authorization': 'Basic ' + creds
-            }
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: usernameInput.trim(),
+                password: passwordInput.trim(),
+                roles: targetRoles
+            })
         })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Unauthorized');
-                }
-                return response.json();
+                return response.json()
+                    .catch(() => ({}))
+                    .then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Authentication failed');
+                        }
+                        return data;
+                    });
             })
             .then(data => {
-                if (data.authenticated) {
+                if (data.authenticated && data.authorized) {
                     sessionStorage.setItem('portal_credentials', creds);
                     showFeedback('Identity Verified. Access Granted. Connecting...', false);
                     submitText.innerText = 'Redirecting...';
@@ -1501,8 +1520,21 @@ feedbackBox.style.display = 'none';
                 submitSpinner.style.display = 'none';
                 submitIcon.style.display = 'inline-block';
 
-                showFeedback('Access Denied. Invalid credentials or unauthorized role profile.', true);
+                showFeedback(err.message || 'Access Denied. Invalid credentials or unauthorized role profile.', true);
             });
+    }
+
+    function validateLoginInput(username, password) {
+        const trimmedUsername = username.trim();
+        const trimmedPassword = password.trim();
+
+        if (!trimmedUsername) return 'Username is required.';
+        if (/\s/.test(trimmedUsername)) return 'Username must not contain spaces.';
+        if (trimmedUsername.length > 50) return 'Username cannot exceed 50 characters.';
+        if (!trimmedPassword) return 'Password is required.';
+        if (trimmedPassword.length > 100) return 'Password cannot exceed 100 characters.';
+
+        return null;
     }
 
     // Check for wrong_profile query parameter to display warning alert

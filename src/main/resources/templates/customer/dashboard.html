@@ -489,10 +489,23 @@
 
         // Build URL — replace path params
         let url = ep.url;
+        const pathErrors = [];
         ep.params.filter(p => p.in === 'path').forEach(p => {
-            const val = document.getElementById('param-' + p.name)?.value || p.default;
-            url = url.replace('{' + p.name + '}', encodeURIComponent(val));
+            const rawVal = document.getElementById('param-' + p.name)?.value ?? '';
+            const validationError = validatePathParam(p.name, rawVal);
+            if (validationError) {
+                pathErrors.push({ field: p.name, message: validationError });
+                return;
+            }
+            url = url.replace('{' + p.name + '}', encodeURIComponent(rawVal.trim()));
         });
+
+        if (pathErrors.length) {
+            showClientValidationErrors(pathErrors);
+            btn.disabled = false;
+            btn.textContent = '▶  Run Again';
+            return;
+        }
 
         // Append query params
         const qps = ep.params.filter(p => p.in === 'query');
@@ -565,6 +578,38 @@
 
         btn.disabled = false;
         btn.textContent = '▶  Run Again';
+    }
+
+    function validatePathParam(name, value) {
+        if (['customerNumber', 'orderNumber', 'employeeNumber'].includes(name)) {
+            const label = formatHeaderLabel(name);
+            if (!value.trim()) return `${label} is required`;
+            if (/\s/.test(value)) return `${label} must be a positive whole number without spaces`;
+            if (!/^[1-9][0-9]*$/.test(value)) return `${label} must be a positive whole number without spaces`;
+        }
+
+        return null;
+    }
+
+    function showClientValidationErrors(errors) {
+        const data = {
+            status: 400,
+            error: 'Validation Failed',
+            message: errors.map(error => error.message).join(', '),
+            errors: Object.fromEntries(errors.map(error => [error.field, error.message]))
+        };
+
+        currentResponseData = data;
+        currentResponseText = JSON.stringify(data, null, 2);
+
+        const badge = document.getElementById('statusBadge');
+        badge.textContent = '400 Bad Request';
+        badge.className = 'status-badge status-err';
+        document.getElementById('responseTime').textContent = '0 ms';
+        document.getElementById('responseBox').innerHTML = syntaxHighlight(currentResponseText);
+        document.getElementById('responseTableBox').innerHTML = renderTableView(currentResponseData, currentResponseText);
+        setResponseView(currentResponseView);
+        document.getElementById('responseArea').style.display = 'block';
     }
 
     function setResponseView(view) {

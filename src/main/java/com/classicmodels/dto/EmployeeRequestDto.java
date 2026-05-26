@@ -53,8 +53,13 @@ public class EmployeeRequestDto {
     private String jobTitle;
 
     @NotBlank(message = "Office code is required")
+    @Size(
+            max = 10,
+            message = "Office code cannot exceed 10 characters"
+    )
     private String officeCode;
 
+    @Positive(message = "Manager id must be positive")
     private Integer managerId;
 
     // DEFAULT CONSTRUCTOR
