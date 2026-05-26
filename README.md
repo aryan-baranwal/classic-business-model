@@ -427,14 +427,8 @@ The project follows several important software engineering principles:
 
 # 📌 Contributors
 
-- Aryan Baranwal
+- Aryan Baranwal (Admin)
 - Aman Raj
 - Gaddam Kushal Kumar Reddy
 - Dhanavarshini 
 - Shivani S.
-
----
-
-# 📄 License
-
-This project was developed for academic and enterprise learning purposes.
