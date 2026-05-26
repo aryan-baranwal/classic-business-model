@@ -9,9 +9,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.List;
         name = "Employee Controller",
         description = "REST APIs for Employee Module"
 )
+@Validated
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -50,12 +54,18 @@ public class EmployeeController {
     @GetMapping("/{employeeNumber}")
     public ResponseEntity<EmployeeResponseDto>
     getEmployeeById(
-            @PathVariable Integer employeeNumber
+            @PathVariable
+            @NotBlank(message = "Employee number is required")
+            @Pattern(
+                    regexp = "[1-9][0-9]*",
+                    message = "Employee number must be a positive whole number without spaces"
+            )
+            String employeeNumber
     ) {
 
         return ResponseEntity.ok(
                 employeeService.getEmployeeById(
-                        employeeNumber
+                        Integer.valueOf(employeeNumber)
                 )
         );
     }
@@ -81,13 +91,19 @@ public class EmployeeController {
     @PutMapping("/{employeeNumber}")
     public ResponseEntity<EmployeeResponseDto>
     updateEmployee(
-            @PathVariable Integer employeeNumber,
+            @PathVariable
+            @NotBlank(message = "Employee number is required")
+            @Pattern(
+                    regexp = "[1-9][0-9]*",
+                    message = "Employee number must be a positive whole number without spaces"
+            )
+            String employeeNumber,
             @Valid @RequestBody EmployeeRequestDto dto
     ) {
 
         return ResponseEntity.ok(
                 employeeService.updateEmployee(
-                        employeeNumber,
+                        Integer.valueOf(employeeNumber),
                         dto
                 )
         );
@@ -99,12 +115,18 @@ public class EmployeeController {
     @DeleteMapping("/{employeeNumber}")
     public ResponseEntity<DeleteEmployeeResponseDto>
     deleteEmployee(
-            @PathVariable Integer employeeNumber
+            @PathVariable
+            @NotBlank(message = "Employee number is required")
+            @Pattern(
+                    regexp = "[1-9][0-9]*",
+                    message = "Employee number must be a positive whole number without spaces"
+            )
+            String employeeNumber
     ) {
 
         return ResponseEntity.ok(
                 employeeService.deleteEmployee(
-                        employeeNumber
+                        Integer.valueOf(employeeNumber)
                 )
         );
     }
@@ -115,12 +137,18 @@ public class EmployeeController {
     @GetMapping("/{employeeNumber}/manager")
     public ResponseEntity<EmployeeResponseDto>
     getManager(
-            @PathVariable Integer employeeNumber
+            @PathVariable
+            @NotBlank(message = "Employee number is required")
+            @Pattern(
+                    regexp = "[1-9][0-9]*",
+                    message = "Employee number must be a positive whole number without spaces"
+            )
+            String employeeNumber
     ) {
 
         return ResponseEntity.ok(
                 employeeService.getManager(
-                        employeeNumber
+                        Integer.valueOf(employeeNumber)
                 )
         );
     }
@@ -131,12 +159,18 @@ public class EmployeeController {
     @GetMapping("/{employeeNumber}/subordinates")
     public ResponseEntity<List<EmployeeResponseDto>>
     getSubordinates(
-            @PathVariable Integer employeeNumber
+            @PathVariable
+            @NotBlank(message = "Employee number is required")
+            @Pattern(
+                    regexp = "[1-9][0-9]*",
+                    message = "Employee number must be a positive whole number without spaces"
+            )
+            String employeeNumber
     ) {
 
         return ResponseEntity.ok(
                 employeeService.getSubordinates(
-                        employeeNumber
+                        Integer.valueOf(employeeNumber)
                 )
         );
     }

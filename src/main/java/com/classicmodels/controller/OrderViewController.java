@@ -7,10 +7,15 @@ import com.classicmodels.dto.OrderResponseDTO;
 import com.classicmodels.dto.OrderStatusUpdateDTO;
 import com.classicmodels.service.OrderService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -19,6 +24,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/orders")
+@Validated
 public class OrderViewController {
 
     private final OrderService orderService;
@@ -42,7 +48,11 @@ public class OrderViewController {
     // GET /orders/{orderNumber} — Show single order details
     // =========================================================================
     @GetMapping("/{orderNumber}")
-    public String getOrderById(@PathVariable Integer orderNumber, Model model) {
+    public String getOrderById(
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
+            Model model) {
         OrderResponseDTO order = orderService.getOrderById(orderNumber);
         model.addAttribute("order", order);
         return "order/details";
@@ -70,7 +80,11 @@ public class OrderViewController {
     // GET /orders/{orderNumber}/edit — Show edit order form
     // =========================================================================
     @GetMapping("/{orderNumber}/edit")
-    public String showEditOrderForm(@PathVariable Integer orderNumber, Model model) {
+    public String showEditOrderForm(
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
+            Model model) {
         OrderResponseDTO order = orderService.getOrderById(orderNumber);
         // Populate the request DTO from existing data
         OrderRequestDTO dto = new OrderRequestDTO();
@@ -89,7 +103,10 @@ public class OrderViewController {
     // POST /orders/{orderNumber}/edit — Submit edit order form (simulates PUT)
     // =========================================================================
     @PostMapping("/{orderNumber}/edit")
-    public String updateOrder(@PathVariable Integer orderNumber,
+    public String updateOrder(
+                              @PathVariable
+                              @Positive(message = "Order number must be positive")
+                              Integer orderNumber,
                               @Valid @ModelAttribute("orderDTO") OrderRequestDTO dto) {
         orderService.updateOrder(orderNumber, dto);
         return "redirect:/orders/" + orderNumber;
@@ -99,7 +116,11 @@ public class OrderViewController {
     // GET /orders/{orderNumber}/status — Show update status form
     // =========================================================================
     @GetMapping("/{orderNumber}/status")
-    public String showStatusForm(@PathVariable Integer orderNumber, Model model) {
+    public String showStatusForm(
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
+            Model model) {
         OrderResponseDTO order = orderService.getOrderById(orderNumber);
         model.addAttribute("order", order);
         model.addAttribute("statusDTO", new OrderStatusUpdateDTO());
@@ -110,7 +131,10 @@ public class OrderViewController {
     // POST /orders/{orderNumber}/status — Submit status update (simulates PATCH)
     // =========================================================================
     @PostMapping("/{orderNumber}/status")
-    public String updateOrderStatus(@PathVariable Integer orderNumber,
+    public String updateOrderStatus(
+                                    @PathVariable
+                                    @Positive(message = "Order number must be positive")
+                                    Integer orderNumber,
                                     @Valid @ModelAttribute("statusDTO") OrderStatusUpdateDTO dto) {
         orderService.updateOrderStatus(orderNumber, dto);
         return "redirect:/orders/" + orderNumber;
@@ -121,7 +145,13 @@ public class OrderViewController {
     // =========================================================================
     @GetMapping("/search")
     public String searchOrders(
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false)
+            @Size(max = 15, message = "Status must not exceed 15 characters")
+            @Pattern(
+                    regexp = "\\S(.*\\S)?",
+                    message = "Status must not be blank or start/end with spaces"
+            )
+            String status,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -138,7 +168,11 @@ public class OrderViewController {
     // GET /orders/customers/{customerNumber}/orders — Orders by customer
     // =========================================================================
     @GetMapping("/customers/{customerNumber}/orders")
-    public String getOrdersByCustomer(@PathVariable Integer customerNumber, Model model) {
+    public String getOrdersByCustomer(
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber,
+            Model model) {
         List<OrderResponseDTO> orders = orderService.getOrdersByCustomer(customerNumber);
         model.addAttribute("orders", orders);
         model.addAttribute("showSearchForm", false);
@@ -150,7 +184,11 @@ public class OrderViewController {
     // GET /orders/{orderNumber}/items — Show all items for an order
     // =========================================================================
     @GetMapping("/{orderNumber}/items")
-    public String getOrderItems(@PathVariable Integer orderNumber, Model model) {
+    public String getOrderItems(
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
+            Model model) {
         List<OrderDetailResponseDTO> items = orderService.getItems(orderNumber);
         model.addAttribute("items", items);
         model.addAttribute("orderNumber", orderNumber);
@@ -161,7 +199,11 @@ public class OrderViewController {
     // GET /orders/{orderNumber}/items/new — Show add item form
     // =========================================================================
     @GetMapping("/{orderNumber}/items/new")
-    public String showAddItemForm(@PathVariable Integer orderNumber, Model model) {
+    public String showAddItemForm(
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
+            Model model) {
         model.addAttribute("orderNumber", orderNumber);
         model.addAttribute("itemDTO", new OrderDetailRequestDTO());
         return "order/item-add";
@@ -171,7 +213,10 @@ public class OrderViewController {
     // POST /orders/{orderNumber}/items/new — Submit add item form (simulates POST)
     // =========================================================================
     @PostMapping("/{orderNumber}/items/new")
-    public String addItemToOrder(@PathVariable Integer orderNumber,
+    public String addItemToOrder(
+                                 @PathVariable
+                                 @Positive(message = "Order number must be positive")
+                                 Integer orderNumber,
                                  @Valid @ModelAttribute("itemDTO") OrderDetailRequestDTO dto) {
         orderService.addItem(orderNumber, dto);
         return "redirect:/orders/" + orderNumber + "/items";
@@ -181,8 +226,14 @@ public class OrderViewController {
     // GET /orders/{orderNumber}/items/{productCode}/edit — Show edit item form
     // =========================================================================
     @GetMapping("/{orderNumber}/items/{productCode}/edit")
-    public String showEditItemForm(@PathVariable Integer orderNumber,
-                                   @PathVariable String productCode,
+    public String showEditItemForm(
+                                   @PathVariable
+                                   @Positive(message = "Order number must be positive")
+                                   Integer orderNumber,
+                                   @PathVariable
+                                   @NotBlank(message = "Product code is required")
+                                   @Size(max = 15, message = "Product code must not exceed 15 characters")
+                                   String productCode,
                                    Model model) {
         // Get all items and find the one matching productCode
         List<OrderDetailResponseDTO> items = orderService.getItems(orderNumber);
@@ -207,8 +258,14 @@ public class OrderViewController {
     // POST /orders/{orderNumber}/items/{productCode}/edit — Submit edit item
     // =========================================================================
     @PostMapping("/{orderNumber}/items/{productCode}/edit")
-    public String updateOrderItem(@PathVariable Integer orderNumber,
-                                  @PathVariable String productCode,
+    public String updateOrderItem(
+                                  @PathVariable
+                                  @Positive(message = "Order number must be positive")
+                                  Integer orderNumber,
+                                  @PathVariable
+                                  @NotBlank(message = "Product code is required")
+                                  @Size(max = 15, message = "Product code must not exceed 15 characters")
+                                  String productCode,
                                   @Valid @ModelAttribute("itemDTO") OrderDetailRequestDTO dto) {
         orderService.updateItem(orderNumber, productCode, dto);
         return "redirect:/orders/" + orderNumber + "/items";
@@ -219,8 +276,14 @@ public class OrderViewController {
     // (browsers can't send DELETE, so we use POST with _method workaround)
     // =========================================================================
     @PostMapping("/{orderNumber}/items/{productCode}/delete")
-    public String deleteOrderItem(@PathVariable Integer orderNumber,
-                                  @PathVariable String productCode) {
+    public String deleteOrderItem(
+                                  @PathVariable
+                                  @Positive(message = "Order number must be positive")
+                                  Integer orderNumber,
+                                  @PathVariable
+                                  @NotBlank(message = "Product code is required")
+                                  @Size(max = 15, message = "Product code must not exceed 15 characters")
+                                  String productCode) {
         orderService.removeItem(orderNumber, productCode);
         return "redirect:/orders/" + orderNumber + "/items";
     }

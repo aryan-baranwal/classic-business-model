@@ -2,14 +2,21 @@ package com.classicmodels.controller;
 
 import com.classicmodels.dto.CustomerRequestDTO;
 import com.classicmodels.service.CustomerService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.groups.Default;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/customers")
+@Validated
 public class CustomerViewController {
 
     private final CustomerService customerService;
@@ -29,7 +36,9 @@ public class CustomerViewController {
     // Shows single customer details
     @GetMapping("/{customerNumber}")
     public String getCustomerById(
-            @PathVariable Integer customerNumber,
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber,
             Model model) {
         model.addAttribute("customer",
                 customerService.getCustomerById(customerNumber));
@@ -39,8 +48,12 @@ public class CustomerViewController {
     // Shows search results
     @GetMapping("/search")
     public String searchCustomers(
-            @RequestParam String country,
-            @RequestParam String city,
+            @RequestParam
+            @NotBlank(message = "Country must not be blank")
+            String country,
+            @RequestParam
+            @NotBlank(message = "City must not be blank")
+            String city,
             Model model) {
         model.addAttribute("customers",
                 customerService.searchByCountryAndCity(country, city));
@@ -55,7 +68,12 @@ public class CustomerViewController {
 
     // Handles create customer form submission
     @PostMapping("/create")
-    public String createCustomer(@ModelAttribute CustomerRequestDTO request) {
+    public String createCustomer(
+            @Validated({
+                    Default.class,
+                    CustomerRequestDTO.Create.class
+            })
+            @ModelAttribute CustomerRequestDTO request) {
         customerService.createCustomer(request);
         return "redirect:/customers";
     }
@@ -63,7 +81,9 @@ public class CustomerViewController {
     // Shows edit customer form
     @GetMapping("/{customerNumber}/edit")
     public String showEditForm(
-            @PathVariable Integer customerNumber,
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber,
             Model model) {
         model.addAttribute("customer",
                 customerService.getCustomerById(customerNumber));
@@ -73,15 +93,20 @@ public class CustomerViewController {
     // Handles edit customer form submission
     @PostMapping("/{customerNumber}/edit")
     public String updateCustomer(
-            @PathVariable Integer customerNumber,
-            @ModelAttribute CustomerRequestDTO request) {
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber,
+            @Valid @ModelAttribute CustomerRequestDTO request) {
         customerService.updateCustomer(customerNumber, request);
         return "redirect:/customers";
     }
 
     // Handles delete
     @PostMapping("/{customerNumber}/delete")
-    public String deleteCustomer(@PathVariable Integer customerNumber) {
+    public String deleteCustomer(
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber) {
         customerService.deleteCustomer(customerNumber);
         return "redirect:/customers";
     }
@@ -95,7 +120,9 @@ public class CustomerViewController {
     // Shows credit limit page
     @GetMapping("/{customerNumber}/credit-limit")
     public String showCreditLimit(
-            @PathVariable Integer customerNumber,
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber,
             Model model) {
         model.addAttribute("customer",
                 customerService.getCustomerById(customerNumber));
@@ -105,8 +132,12 @@ public class CustomerViewController {
     // Handles credit limit update
     @PostMapping("/{customerNumber}/credit-limit")
     public String updateCreditLimit(
-            @PathVariable Integer customerNumber,
-            @RequestParam BigDecimal creditLimit) {
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber,
+            @RequestParam
+            @PositiveOrZero(message = "Credit limit cannot be negative")
+            BigDecimal creditLimit) {
         customerService.updateCreditLimit(customerNumber, creditLimit);
         return "redirect:/customers/" + customerNumber;
     }

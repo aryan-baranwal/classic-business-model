@@ -5,10 +5,14 @@ import com.classicmodels.dto.OrderResponseDTO;
 import com.classicmodels.dto.OrderStatusUpdateDTO;
 import com.classicmodels.service.OrderService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,6 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Validated
 public class OrderController {
 
     private final OrderService orderService;
@@ -49,7 +54,9 @@ public class OrderController {
     // =========================================================================
     @GetMapping("/orders/{orderNumber}")
     public ResponseEntity<OrderResponseDTO> getOrderById(
-            @PathVariable Integer orderNumber) {
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber) {
         return ResponseEntity.ok(orderService.getOrderById(orderNumber));
     }
 
@@ -60,7 +67,9 @@ public class OrderController {
     // =========================================================================
     @PutMapping("/orders/{orderNumber}")
     public ResponseEntity<OrderResponseDTO> updateOrder(
-            @PathVariable Integer orderNumber,
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
             @Valid @RequestBody OrderRequestDTO dto) {
         return ResponseEntity.ok(orderService.updateOrder(orderNumber, dto));
     }
@@ -72,7 +81,9 @@ public class OrderController {
     // =========================================================================
     @PatchMapping("/orders/{orderNumber}/status")
     public ResponseEntity<OrderResponseDTO> updateOrderStatus(
-            @PathVariable Integer orderNumber,
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
             @Valid @RequestBody OrderStatusUpdateDTO dto) {
         return ResponseEntity.ok(orderService.updateOrderStatus(orderNumber, dto));
     }
@@ -83,7 +94,9 @@ public class OrderController {
     // =========================================================================
     @GetMapping("/customers/{customerNumber}/orders")
     public ResponseEntity<List<OrderResponseDTO>> getOrdersByCustomer(
-            @PathVariable Integer customerNumber) {
+            @PathVariable
+            @Positive(message = "Customer number must be positive")
+            Integer customerNumber) {
         return ResponseEntity.ok(orderService.getOrdersByCustomer(customerNumber));
     }
 
@@ -94,7 +107,13 @@ public class OrderController {
     // =========================================================================
     @GetMapping("/orders/search")
     public ResponseEntity<List<OrderResponseDTO>> searchOrders(
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false)
+            @Size(max = 15, message = "Status must not exceed 15 characters")
+            @Pattern(
+                    regexp = "\\S(.*\\S)?",
+                    message = "Status must not be blank or start/end with spaces"
+            )
+            String status,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)

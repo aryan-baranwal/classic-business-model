@@ -7,12 +7,23 @@
 package com.classicmodels.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 
 public class CustomerRequestDTO {
 
+    public interface Create {
+    }
+
     // Customer primary key
+    @NotNull(
+            message = "Customer number is required",
+            groups = Create.class
+    )
+    @Positive(message = "Customer number must be positive")
     private Integer customerNumber;
 
     @NotBlank(message = "Customer name must not be blank")
@@ -42,6 +53,7 @@ public class CustomerRequestDTO {
     @NotBlank(message = "Country must not be blank")
     private String country;
 
+    @PositiveOrZero(message = "Credit limit cannot be negative")
     private BigDecimal creditLimit;
 
     // Default Constructor

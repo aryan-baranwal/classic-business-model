@@ -4,9 +4,13 @@ import com.classicmodels.dto.OrderDetailRequestDTO;
 import com.classicmodels.dto.OrderDetailResponseDTO;
 import com.classicmodels.service.OrderService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -16,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
+@Validated
 public class OrderDetailController {
 
     private final OrderService orderService;
@@ -31,7 +36,9 @@ public class OrderDetailController {
     // =========================================================================
     @PostMapping("/{orderNumber}/items")
     public ResponseEntity<OrderDetailResponseDTO> addItemToOrder(
-            @PathVariable Integer orderNumber,
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
             @Valid @RequestBody OrderDetailRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.addItem(orderNumber, dto));
@@ -43,22 +50,30 @@ public class OrderDetailController {
     // =========================================================================
     @GetMapping("/{orderNumber}/items")
     public ResponseEntity<List<OrderDetailResponseDTO>> getOrderItems(
-            @PathVariable Integer orderNumber) {
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber) {
         return ResponseEntity.ok(orderService.getItems(orderNumber));
     }
 
     // =========================================================================
     //  PUT /api/orders/{orderNumber}/items/{productCode} — Update a line item
-    //  Request body: OrderDetailRequestDTO (send only fields you want to change)
-    //                { "quantityOrdered": 45,
+    //  Request body: OrderDetailRequestDTO
+    //                { "productCode": "S18_1749",
+    //                  "quantityOrdered": 45,
     //                  "priceEach": 140.00,
     //                  "orderLineNumber": 3 }
     //  Response: OrderDetailResponseDTO
     // =========================================================================
     @PutMapping("/{orderNumber}/items/{productCode}")
     public ResponseEntity<OrderDetailResponseDTO> updateOrderItem(
-            @PathVariable Integer orderNumber,
-            @PathVariable String productCode,
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
+            @PathVariable
+            @NotBlank(message = "Product code is required")
+            @Size(max = 15, message = "Product code must not exceed 15 characters")
+            String productCode,
             @Valid @RequestBody OrderDetailRequestDTO dto) {
         return ResponseEntity.ok(orderService.updateItem(orderNumber, productCode, dto));
     }
@@ -70,8 +85,13 @@ public class OrderDetailController {
     // =========================================================================
     @DeleteMapping("/{orderNumber}/items/{productCode}")
     public ResponseEntity<Map<String, Object>> removeOrderItem(
-            @PathVariable Integer orderNumber,
-            @PathVariable String productCode) {
+            @PathVariable
+            @Positive(message = "Order number must be positive")
+            Integer orderNumber,
+            @PathVariable
+            @NotBlank(message = "Product code is required")
+            @Size(max = 15, message = "Product code must not exceed 15 characters")
+            String productCode) {
 
         OrderDetailResponseDTO deletedRow = orderService.removeItem(orderNumber, productCode);
 

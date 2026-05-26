@@ -1357,6 +1357,7 @@
         
         const mode = document.getElementById("formMode").value;
         const empNumber = document.getElementById("employeeNumber").value;
+        const managerId = document.getElementById("managerId").value;
         
         const bodyObj = {
             firstName: document.getElementById("firstName").value.trim(),
@@ -1364,17 +1365,23 @@
             email: document.getElementById("email").value.trim(),
             extension: document.getElementById("extension").value.trim(),
             jobTitle: document.getElementById("jobTitle").value.trim(),
-            officeCode: document.getElementById("officeCode").value,
-            managerId: document.getElementById("managerId").value ? parseInt(document.getElementById("managerId").value) : null
+            officeCode: document.getElementById("officeCode").value.trim(),
+            managerId: managerId ? Number(managerId) : null
         };
+
+        const validationError = validateEmployeeForm(mode, empNumber, managerId, bodyObj);
+        if (validationError) {
+            showToast(validationError, "error");
+            return;
+        }
         
         let url = "/api/employees";
         let method = "POST";
         
         if (mode === "CREATE") {
-            bodyObj.employeeNumber = parseInt(empNumber);
+            bodyObj.employeeNumber = Number(empNumber.trim());
         } else {
-            url = `/api/employees/${empNumber}`;
+            url = `/api/employees/${encodeURIComponent(empNumber.trim())}`;
             method = "PUT";
         }
 
@@ -1386,7 +1393,7 @@
             const data = await res.json();
             if (!res.ok) {
                 // If standard Spring validation errors exist
-                const errorMsg = data.message || data.error || "Save operation failed. Please check form parameters.";
+                const errorMsg = getValidationMessage(data);
                 throw new Error(errorMsg);
             }
             return data;
@@ -1400,6 +1407,66 @@
             console.error("Save error:", err);
             showToast(err.message, "error");
         });
+    }
+
+    function validateEmployeeForm(mode, empNumber, managerId, bodyObj) {
+        if (mode === "CREATE") {
+            const employeeNumberError = validatePositiveWholeNumber(
+                    empNumber,
+                    "Employee number"
+            );
+            if (employeeNumberError) return employeeNumberError;
+        }
+
+        if (mode === "EDIT") {
+            const employeeNumberError = validatePositiveWholeNumber(
+                    empNumber,
+                    "Employee number"
+            );
+            if (employeeNumberError) return employeeNumberError;
+        }
+
+        if (!bodyObj.firstName) return "First name is required";
+        if (bodyObj.firstName.length < 2 || bodyObj.firstName.length > 50) {
+            return "First name must be between 2 and 50 characters";
+        }
+        if (!bodyObj.lastName) return "Last name is required";
+        if (bodyObj.lastName.length < 2 || bodyObj.lastName.length > 50) {
+            return "Last name must be between 2 and 50 characters";
+        }
+        if (!bodyObj.extension) return "Extension is required";
+        if (bodyObj.extension.length > 10) return "Extension cannot exceed 10 characters";
+        if (!bodyObj.email) return "Email is required";
+        if (bodyObj.email.length > 100) return "Email cannot exceed 100 characters";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bodyObj.email)) return "Invalid email format";
+        if (!bodyObj.jobTitle) return "Job title is required";
+        if (bodyObj.jobTitle.length > 50) return "Job title cannot exceed 50 characters";
+        if (!bodyObj.officeCode) return "Office code is required";
+        if (bodyObj.officeCode.length > 10) return "Office code cannot exceed 10 characters";
+
+        if (managerId) {
+            const managerIdError = validatePositiveWholeNumber(
+                    managerId,
+                    "Manager id"
+            );
+            if (managerIdError) return managerIdError;
+        }
+
+        return null;
+    }
+
+    function validatePositiveWholeNumber(value, label) {
+        if (!value.trim()) return `${label} is required`;
+        if (/\s/.test(value)) return `${label} must be a positive whole number without spaces`;
+        if (!/^[1-9][0-9]*$/.test(value)) return `${label} must be a positive whole number without spaces`;
+        return null;
+    }
+
+    function getValidationMessage(data) {
+        if (data.errors && typeof data.errors === "object") {
+            return Object.values(data.errors).join(", ");
+        }
+        return data.message || data.error || "Save operation failed. Please check form parameters.";
     }
 
     // 3. DELETE ACTIONS
