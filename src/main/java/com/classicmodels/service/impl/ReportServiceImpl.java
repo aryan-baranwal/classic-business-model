@@ -2,6 +2,8 @@ package com.classicmodels.service.impl;
 
 import com.classicmodels.dto.*;
 
+import com.classicmodels.entity.Order;
+import com.classicmodels.exception.OrderNotFoundException;
 import com.classicmodels.repository.CustomerRepository;
 import com.classicmodels.repository.EmployeeRepository;
 import com.classicmodels.repository.OrderRepository;
@@ -195,9 +197,49 @@ public class ReportServiceImpl implements ReportService {
             Integer orderNumber
     ) {
 
+        Order order = orderRepository
+                .findById(orderNumber)
+                .orElseThrow(() ->
+                        new OrderNotFoundException(orderNumber)
+                );
+
         List<Object[]> results =
                 orderRepository
                         .getOrderValue(orderNumber);
+
+        if (results.isEmpty()) {
+            OrderValueDto dto =
+                    new OrderValueDto();
+
+            dto.setOrderNumber(
+                    order.getOrderNumber()
+            );
+
+            dto.setTotalOrderValue(
+                    0.0
+            );
+
+            dto.setOrderDate(
+                    order.getOrderDate()
+            );
+
+            dto.setRequiredDate(
+                    order.getRequiredDate()
+            );
+
+            dto.setShippedDate(
+                    order.getShippedDate()
+            );
+
+            dto.setDateRange(
+                    formatDateRange(
+                            dto.getOrderDate(),
+                            dto.getRequiredDate()
+                    )
+            );
+
+            return dto;
+        }
 
         Object[] result = results.get(0);
 
