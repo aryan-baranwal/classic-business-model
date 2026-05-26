@@ -123,7 +123,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(body(
                         HttpStatus.NOT_FOUND,
-                        "Order Not Found",
+                        "Not Found",
                         exception.getMessage(),
                         request.getRequestURI()
                 ));
